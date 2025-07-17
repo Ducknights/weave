@@ -33,4 +33,7 @@ public class AuthResponse <T>{
     public static <T> AuthResponse<T> logoutSuccess(String msg) {
         return new AuthResponse<>(200, msg, null, null, System.currentTimeMillis());
     }
+    public static <T> AuthResponse<T> logoutFail(Integer code, String msg) {
+        return new AuthResponse<>(code, msg, null, null, System.currentTimeMillis());
+    }
 }

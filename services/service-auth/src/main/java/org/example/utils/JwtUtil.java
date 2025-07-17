@@ -3,7 +3,6 @@ package org.example.utils;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import org.springframework.security.core.Authentication;
 
 import java.util.Date;
 import java.util.UUID;

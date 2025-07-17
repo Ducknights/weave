@@ -69,4 +69,14 @@ public class AuthService {
             return signFail(409,"失败");
         }
     }
+
+//    public AuthResponse<?> logout(AuthRequest authRequest) {
+//        try {
+//            String subject = "UserId:" + authRequest.getId();
+//            redisTemplate.delete(subject);
+//            return logoutSuccess("成功");
+//        }catch (Exception e){
+//            return logoutFail(401,"失败");
+//        }
+//    }
 }

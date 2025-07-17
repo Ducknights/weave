@@ -25,4 +25,10 @@ public class AuthController {
         // 调用服务层进行注册
         return authService.signup(authRequest);
     }
+
+//    @PostMapping("/logout")
+//    public AuthResponse<?> logout(@RequestBody AuthRequest authRequest) {
+//        // 调用服务层进行登出
+//        return authService.logout(authRequest);
+//    }
 }
