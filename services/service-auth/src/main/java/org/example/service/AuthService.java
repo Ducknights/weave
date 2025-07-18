@@ -70,13 +70,14 @@ public class AuthService {
         }
     }
 
-//    public AuthResponse<?> logout(AuthRequest authRequest) {
-//        try {
-//            String subject = "UserId:" + authRequest.getId();
-//            redisTemplate.delete(subject);
-//            return logoutSuccess("成功");
-//        }catch (Exception e){
-//            return logoutFail(401,"失败");
-//        }
-//    }
+    public AuthResponse<?> logout(){
+        // 1. 清除redis中的用户信息
+        String subject = "UserId:" + ((MyUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUserAuth().getId();
+        redisTemplate.delete(subject);
+        // 2. 清除认证上下文
+        SecurityContextHolder.clearContext();
+
+        // 3. 返回注销成功信息
+        return AuthResponse.logoutSuccess("注销成功");
+    }
 }

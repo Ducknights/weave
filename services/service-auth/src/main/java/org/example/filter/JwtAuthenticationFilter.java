@@ -33,7 +33,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String requestUri = request.getRequestURI();
 
         // 1. 放行认证相关路径（使用前缀匹配）
-        if (requestUri.startsWith("/api/auth/")) {
+        if (requestUri.startsWith("/api/auth/login") || requestUri.startsWith("/api/auth/register")) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -56,14 +56,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         try {
-            // 5. 解析Token
+            // 5. 解析Token得到用户标识信息
             Claims claims = JwtUtil.parseJwtToken(token);
             String subject = claims.getSubject();
-            System.out.println(subject);
 
             // 6. 从Redis获取用户信息
             MyUserDetails userDetails = (MyUserDetails) redisTemplate.opsForValue().get(subject);
-            System.out.println(userDetails);
             if (userDetails == null) {
                 sendUnauthorized(response, "Session expired");
                 return;
@@ -71,14 +69,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             // 7. 创建认证对象
             Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, null);
-
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
         } catch (Exception e) {
             sendUnauthorized(response, "Invalid token: " + e.getMessage());
             return;
         }
-        System.out.println("1");
         // 8. 继续过滤器链
         filterChain.doFilter(request, response);
     }

@@ -26,9 +26,9 @@ public class AuthController {
         return authService.signup(authRequest);
     }
 
-//    @PostMapping("/logout")
-//    public AuthResponse<?> logout(@RequestBody AuthRequest authRequest) {
-//        // 调用服务层进行登出
-//        return authService.logout(authRequest);
-//    }
+    @PostMapping("/logout")
+    public AuthResponse<?> logout() {
+        // 调用服务层进行登出
+        return authService.logout();
+    }
 }

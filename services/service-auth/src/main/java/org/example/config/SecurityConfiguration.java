@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -40,17 +41,25 @@ public class SecurityConfiguration {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         //自定义配置
-        http.
-                authorizeHttpRequests((requests) -> requests
+        http
+                .authorizeHttpRequests((auth) -> auth
                         //排除认证链接
-                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/auth/login").permitAll()
+                        .requestMatchers("/api/auth/signup").permitAll()
                         .anyRequest().authenticated())
+                //关闭CSRF
+                .csrf(AbstractHttpConfigurer::disable)
+                //添加JWT过滤器
+                .addFilterBefore(jwtAuthenticationFilter, AuthorizationFilter.class)
+                //允许跨域
+                .cors(Customizer.withDefaults())
+                //关闭session管理
+                .sessionManagement(AbstractHttpConfigurer::disable)
                 //关闭默认的表单登录
                 .formLogin(AbstractHttpConfigurer::disable)
-                //添加自定义的过滤器
-                .addFilterBefore(jwtAuthenticationFilter, AuthorizationFilter.class)
-                //关闭CSRF
-                .csrf(AbstractHttpConfigurer::disable);
+                //关闭默认的注销
+                .logout(AbstractHttpConfigurer::disable);
+
         //返回新的过滤器链
         return http.build();
     }
