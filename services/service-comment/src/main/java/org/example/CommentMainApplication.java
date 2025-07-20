@@ -1,14 +1,13 @@
 package org.example;
 
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 
 @EnableDiscoveryClient
 @SpringBootApplication
-public class AuthMainApplication {
+public class CommentMainApplication {
     public static void main(String[] args) {
-        SpringApplication.run(AuthMainApplication.class, args);
+        SpringApplication.run(CommentMainApplication.class, args);
     }
 }

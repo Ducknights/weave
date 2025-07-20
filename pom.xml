@@ -18,6 +18,7 @@
     <description>Graduation-Design</description>
     <modules>
         <module>services</module>
+        <module>services/service-auth</module>
     </modules>
 
     <properties>
