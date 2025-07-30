@@ -37,7 +37,7 @@ public class JwtUtil {
     }
 
     public static void main(String[] args) {
-        Claims claims = parseJwtToken("");
+        Claims claims = parseJwtToken("eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJqdGkiOiI3ODgzNzY2OC0xMTI2LTRiNTgtYTgzZS0zNzQ3OTk2MDUwZWIiLCJzdWIiOiJVc2VySWQ6MTAiLCJpc3MiOiJUaWFuWW9uZ0NoZW5nIiwiaWF0IjoxNzUzMzIxNTAzLCJleHAiOjE3NTMzMjE4MDN9.SyE74H87B2GhbhBnjXypImqAE6E_qm94gzSVvkuiJpQ");
         System.out.println(claims);
     }
 }

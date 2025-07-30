@@ -14,8 +14,8 @@ public class AuthResponse <T>{
     private T data;
     private long timestamp;
 
-    public static <T> AuthResponse<T> authSuccess(String token, String msg) {
-        return new AuthResponse<>(200, msg, token, null, System.currentTimeMillis());
+    public static <T> AuthResponse<T> authSuccess(String token, String msg,T data) {
+        return new AuthResponse<T>(200, msg, token, data, System.currentTimeMillis());
     }
 
     public static <T> AuthResponse<T> authFail(Integer code, String msg) {

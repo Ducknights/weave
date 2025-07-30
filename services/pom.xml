@@ -93,5 +93,12 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+<!--        model层依赖-->
+        <dependency>
+                <groupId>org.example</groupId>
+                <artifactId>model</artifactId>
+                <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+
     </dependencies>
 </project>

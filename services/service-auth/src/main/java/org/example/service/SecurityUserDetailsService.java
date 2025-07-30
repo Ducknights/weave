@@ -4,16 +4,21 @@ import jakarta.annotation.Resource;
 import org.example.entity.MyUserDetails;
 import org.example.entity.UserAuth;
 import org.example.mapper.AuthMapper;
+import org.example.mapper.AuthorityMapper;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class SecurityUserDetailsService implements UserDetailsManager {
 
     @Resource
     private AuthMapper authMapper;
+    @Resource
+    private AuthorityMapper authorityMapper;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -21,7 +26,8 @@ public class SecurityUserDetailsService implements UserDetailsManager {
         if (userAuth == null) {
             throw new UsernameNotFoundException("User not found");
         }
-        return new MyUserDetails(userAuth);
+        List<String> authorities = authorityMapper.selectUserPermissionById(userAuth.getId());
+        return new MyUserDetails(userAuth, authorities);
     }
 
     @Override

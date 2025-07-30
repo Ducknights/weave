@@ -1,6 +1,7 @@
 package org.example.service;
 
 
+import io.lettuce.core.ScriptOutputType;
 import jakarta.annotation.Resource;
 import org.example.dto.AuthResponse;
 import org.example.dto.AuthRequest;
@@ -40,18 +41,21 @@ public class AuthService {
                             authRequest.getPassword()
                     )
             );
-            String token = null;
+
+            String access_token = "";
+            String refresh_token = "";
             if (authentication.isAuthenticated()) {
                 // 2. 设置认证上下文
                 SecurityContextHolder.getContext().setAuthentication(authentication);
+                System.out.println(authentication);
                 // 3. 生成JWT令牌
                 String subject = "UserId:" + ((MyUserDetails) authentication.getPrincipal()).getUserAuth().getId();
-                token = JwtUtil.generateJwtToken(subject, 1000 * 60);
+                access_token = JwtUtil.generateJwtToken(subject, 1000 * 60 * 5);    // 5分钟
+                refresh_token = JwtUtil.generateJwtToken(subject, 1000 * 60 * 60 * 24);    // 24小时
                 // 4. 写入用户标识信息到redis
-                redisTemplate.opsForValue().set(subject, authentication.getPrincipal(), 1000 * 60, TimeUnit.MILLISECONDS);
-                // 5. 返回认证成功信息
+                redisTemplate.opsForValue().set(subject, authentication.getPrincipal(), 1000 * 60 * 5, TimeUnit.MILLISECONDS);
             }
-            return authSuccess(token, "成功");
+            return authSuccess(access_token, "成功",refresh_token);
         } catch (Exception e) {
             return authFail(401, "失败");
         }
@@ -76,8 +80,7 @@ public class AuthService {
         redisTemplate.delete(subject);
         // 2. 清除认证上下文
         SecurityContextHolder.clearContext();
-
         // 3. 返回注销成功信息
-        return AuthResponse.logoutSuccess("注销成功");
+        return logoutSuccess("注销成功");
     }
 }
