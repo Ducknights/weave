@@ -99,6 +99,11 @@
                 <artifactId>model</artifactId>
                 <version>0.0.1-SNAPSHOT</version>
         </dependency>
-
+<!--        util依赖-->
+        <dependency>
+            <groupId>org.example</groupId>
+            <artifactId>utils</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 </project>

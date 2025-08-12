@@ -21,6 +21,7 @@
         <module>services/service-auth</module>
         <module>model</module>
         <module>gateway</module>
+        <module>utils</module>
     </modules>
 
     <properties>

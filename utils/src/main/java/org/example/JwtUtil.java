@@ -1,11 +1,11 @@
-package org.example.utils;
-
+package org.example;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 
 import java.util.Date;
 import java.util.UUID;
+
 
 public class JwtUtil {
 
@@ -37,7 +37,7 @@ public class JwtUtil {
     }
 
     public static void main(String[] args) {
-        Claims claims = parseJwtToken("eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJqdGkiOiI3ODgzNzY2OC0xMTI2LTRiNTgtYTgzZS0zNzQ3OTk2MDUwZWIiLCJzdWIiOiJVc2VySWQ6MTAiLCJpc3MiOiJUaWFuWW9uZ0NoZW5nIiwiaWF0IjoxNzUzMzIxNTAzLCJleHAiOjE3NTMzMjE4MDN9.SyE74H87B2GhbhBnjXypImqAE6E_qm94gzSVvkuiJpQ");
+        Claims claims = parseJwtToken("eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJqdGkiOiIxZDhlNTRkNS1mNjE2LTQxMTAtYWE3NC1mYjNiZGZhYWNhNGEiLCJzdWIiOiJVc2VySWQ6MTAiLCJpc3MiOiJUaWFuWW9uZ0NoZW5nIiwiaWF0IjoxNzU0MzI3MDgzLCJleHAiOjE3NTQzMjczODN9.SBHm3tUna-SqHc_fC-QjRPkW3Fn_wgtZiNfMs_yY60I");
         System.out.println(claims);
     }
 }

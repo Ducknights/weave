@@ -7,8 +7,8 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.example.JwtUtil;
 import org.example.entity.MyUserDetails;
-import org.example.utils.JwtUtil;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -33,7 +33,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String requestUri = request.getRequestURI();
 
         // 1. 放行认证相关路径（使用前缀匹配）
-        if (requestUri.startsWith("/api/auth/login") || requestUri.startsWith("/api/auth/register")) {
+        if (requestUri.startsWith("/api/auth/login") || requestUri.startsWith("/api/auth/signup")) {
             filterChain.doFilter(request, response);
             return;
         }

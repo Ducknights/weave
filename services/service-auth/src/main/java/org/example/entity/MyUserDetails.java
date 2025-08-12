@@ -32,6 +32,7 @@ public class MyUserDetails implements UserDetails {
     }
 
     @Override
+    @JsonIgnore
     public String getPassword() {
         return userAuth.getPassword();
     }
@@ -59,5 +60,11 @@ public class MyUserDetails implements UserDetails {
     @Override
     public boolean isEnabled() {
         return UserDetails.super.isEnabled();
+    }
+
+    @JsonIgnore
+    @SuppressWarnings("unused")
+    public String getPasswordField() {
+        throw new UnsupportedOperationException("This method should not be called");
     }
 }

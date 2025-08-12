@@ -9,11 +9,11 @@ import java.util.List;
 
 @Mapper
 public interface AuthorityMapper {
-    @Select("SELECT p.permission_name\n" +
-            "FROM user u\n" +
-            "         JOIN `user-role` ur ON u.id = ur.user_id\n" +
-            "         JOIN `role-permission` rp ON ur.role_id = rp.role_id\n" +
-            "         JOIN permission p ON rp.permission_id = p.permission_id\n" +
+    @Select("SELECT p.code " +
+            "FROM users u " +
+            "JOIN user_roles ur ON u.id = ur.user_id " +
+            "JOIN role_permissions rp ON ur.role_id = rp.role_id " +
+            "JOIN permissions p ON rp.permission_id = p.id " +
             "WHERE u.id = #{id}")
     List<String> selectUserPermissionById(@Param("id") Integer id);
 }

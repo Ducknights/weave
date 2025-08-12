@@ -24,7 +24,7 @@ public class SecurityUserDetailsService implements UserDetailsManager {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         UserAuth userAuth = authMapper.selectUserByEmail(username);
         if (userAuth == null) {
-            throw new UsernameNotFoundException("User not found");
+            throw new UsernameNotFoundException("用户不存在");
         }
         List<String> authorities = authorityMapper.selectUserPermissionById(userAuth.getId());
         return new MyUserDetails(userAuth, authorities);
@@ -32,11 +32,14 @@ public class SecurityUserDetailsService implements UserDetailsManager {
 
     @Override
     public void createUser(UserDetails user) {
-        UserAuth userAuth = new UserAuth();
-        userAuth.setEmail(user.getUsername());
-        userAuth.setPassword(user.getPassword());
-        System.out.println(userAuth);
-        authMapper.insertUser(userAuth);
+        try {
+            UserAuth userAuth = new UserAuth();
+            userAuth.setEmail(user.getUsername());
+            userAuth.setPassword(user.getPassword());
+            authMapper.insertUser(userAuth);
+        }catch (Exception e){
+            throw new RuntimeException("该邮箱已被注册");
+        }
     }
 
     @Override
@@ -58,4 +61,5 @@ public class SecurityUserDetailsService implements UserDetailsManager {
     public boolean userExists(String username) {
         return false;
     }
+
 }
