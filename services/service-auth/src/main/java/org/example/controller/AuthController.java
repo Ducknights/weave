@@ -1,9 +1,11 @@
 package org.example.controller;
 
 import jakarta.annotation.Resource;
-import org.example.dto.AuthResponse;
-import org.example.dto.AuthRequest;
+import org.example.model.ApiResponse;
+import org.example.model.ApiRequest;
+import org.example.model.AuthApiResponse;
 import org.example.service.AuthService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @CrossOrigin
@@ -15,19 +17,19 @@ public class AuthController {
     private AuthService authService;
 
     @PostMapping("/login")
-    public AuthResponse<?> login(@RequestBody AuthRequest authRequest) {
-        // 调用服务层进行认证
-        return authService.login(authRequest);
+    public ResponseEntity<AuthApiResponse<?>> login(@RequestBody ApiRequest apiRequest) {
+        final AuthApiResponse<?> response = authService.login(apiRequest);
+        return ResponseEntity.status(response.getCode()).body(response);
     }
 
     @PostMapping("/signup")
-    public AuthResponse<?> signup(@RequestBody AuthRequest authRequest) {
-        // 调用服务层进行注册
-        return authService.signup(authRequest);
+    public ResponseEntity<AuthApiResponse<?>> signup(@RequestBody ApiRequest apiRequest) {
+        final AuthApiResponse<?> response = authService.signup(apiRequest);
+        return ResponseEntity.status(response.getCode()).body(response);
     }
 
     @PostMapping("/logout")
-    public AuthResponse<?> logout() {
+    public AuthApiResponse<?> logout() {
         // 调用服务层进行登出
         return authService.logout();
     }

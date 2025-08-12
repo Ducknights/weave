@@ -11,6 +11,8 @@
 
     <artifactId>service-auth</artifactId>
 
+    <packaging>jar</packaging>
+
     <properties>
         <maven.compiler.source>22</maven.compiler.source>
         <maven.compiler.target>22</maven.compiler.target>

@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 
 @CrossOrigin
 @RestController
-@RequestMapping("/api/image-texts")
+@RequestMapping("/api/resources/image-texts")
 public class ImageTextController {
 
     @Autowired

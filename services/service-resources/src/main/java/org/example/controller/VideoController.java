@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 
 @CrossOrigin
 @RestController
-@RequestMapping("/api/videos")
+@RequestMapping("/api/resources/videos")
 public class VideoController {
 
     @Autowired

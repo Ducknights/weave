@@ -42,6 +42,10 @@ public class SecurityConfiguration {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         //自定义配置
         http
+                .anonymous(anonymous -> anonymous
+                        .principal("anonymous-guest") // 自定义用户名
+                        .authorities("VIEW_PUBLIC", "ROLE_ANONYMOUS") // 自定义权限
+                )
                 .authorizeHttpRequests((auth) -> auth
                         //排除认证链接
                         .requestMatchers("/api/auth/login").permitAll()
@@ -59,7 +63,6 @@ public class SecurityConfiguration {
                 .formLogin(AbstractHttpConfigurer::disable)
                 //关闭默认的注销
                 .logout(AbstractHttpConfigurer::disable);
-
         //返回新的过滤器链
         return http.build();
     }

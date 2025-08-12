@@ -22,4 +22,4 @@ spring:
         - id: service-post
           uri: lb://service-post
           predicates:
-            - Path=/api/post/**
+            - Path=/api/resources/**

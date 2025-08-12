@@ -10,9 +10,10 @@
     </parent>
 
     <packaging>pom</packaging>
+
     <modules>
         <module>service-auth</module>
-        <module>service-post</module>
+        <module>service-resources</module>
         <module>service-comment</module>
     </modules>
 
@@ -69,13 +70,13 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <scope>annotationProcessor</scope>
+            <scope>provided</scope>
         </dependency>
         <!--jwt依赖-->
         <dependency>
-                <groupId>io.jsonwebtoken</groupId>
-                <artifactId>jjwt</artifactId>
-                <version>0.9.1</version>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt</artifactId>
+            <version>0.9.1</version>
         </dependency>
         <dependency>
             <groupId>javax.xml.bind</groupId>
@@ -99,6 +100,11 @@
                 <artifactId>model</artifactId>
                 <version>0.0.1-SNAPSHOT</version>
         </dependency>
-
+<!--        util依赖-->
+        <dependency>
+            <groupId>org.example</groupId>
+            <artifactId>utils</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 </project>

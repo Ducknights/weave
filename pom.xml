@@ -17,15 +17,15 @@
     <name>Graduation-Design</name>
     <description>Graduation-Design</description>
     <modules>
-        <module>services</module>
-        <module>services/service-auth</module>
-        <module>model</module>
         <module>gateway</module>
+        <module>model</module>
+        <module>services</module>
+        <module>utils</module>
     </modules>
 
     <properties>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
+        <maven.compiler.source>22</maven.compiler.source>
+        <maven.compiler.target>22</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <spring-cloud.version>2023.0.3</spring-cloud.version>
         <spring-cloud-alibaba.version>2023.0.3.2</spring-cloud-alibaba.version>

@@ -7,11 +7,12 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
+        <module name="service-resources" />
         <module name="model" />
-        <module name="service-post" />
         <module name="service-comment" />
         <module name="service-auth" />
         <module name="gateway" />
+        <module name="utils" />
       </profile>
     </annotationProcessing>
   </component>
@@ -22,7 +23,8 @@
       <module name="model" options="-parameters" />
       <module name="service-auth" options="-parameters" />
       <module name="service-comment" options="-parameters" />
-      <module name="service-post" options="-parameters" />
+      <module name="service-resources" options="-parameters" />
+      <module name="utils" options="-parameters" />
     </option>
   </component>
 </project>
