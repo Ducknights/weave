@@ -1,14 +1,12 @@
 package org.example.controller;
 
 import jakarta.annotation.Resource;
-import org.example.model.ApiResponse;
 import org.example.model.ApiRequest;
 import org.example.model.AuthApiResponse;
 import org.example.service.AuthService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@CrossOrigin
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
@@ -32,5 +30,10 @@ public class AuthController {
     public AuthApiResponse<?> logout() {
         // 调用服务层进行登出
         return authService.logout();
+    }
+
+    @GetMapping("/test")
+    public ResponseEntity<String> test() {
+        return ResponseEntity.notFound().build();
     }
 }

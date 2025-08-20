@@ -55,8 +55,6 @@ public class SecurityConfiguration {
                 .csrf(AbstractHttpConfigurer::disable)
                 //添加JWT过滤器
                 .addFilterBefore(jwtAuthenticationFilter, AuthorizationFilter.class)
-                //允许跨域
-                .cors(Customizer.withDefaults())
                 //关闭session管理
                 .sessionManagement(AbstractHttpConfigurer::disable)
                 //关闭默认的表单登录

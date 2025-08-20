@@ -1,14 +1,10 @@
 package org.example.model;
 
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
 
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 public class AuthApiResponse<T> extends ApiResponse<T>{
 

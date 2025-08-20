@@ -45,7 +45,6 @@ public class AuthService {
                             apiRequest.getPassword()
                     )
             );
-
             if (authentication.isAuthenticated()) {
                 // 2. 设置认证上下文
                 SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -62,6 +61,7 @@ public class AuthService {
                 apiResponseDto = new ApiResponseDto(tokenDto, userDto);
             }
         } catch (Exception e) {
+            System.out.println("登录失败：" + e.getMessage());
             return AuthApiResponse.loginFail(e.getMessage());
         }
         return AuthApiResponse.loginSuccess(apiResponseDto);

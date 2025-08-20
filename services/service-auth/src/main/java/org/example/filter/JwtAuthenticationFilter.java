@@ -33,7 +33,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String requestUri = request.getRequestURI();
 
         // 1. 放行认证相关路径（使用前缀匹配）
-        if (requestUri.startsWith("/api/auth/login") || requestUri.startsWith("/api/auth/signup")) {
+        if (requestUri.startsWith("/api/auth/login") ||
+                requestUri.startsWith("/api/auth/signup")||
+        requestUri.startsWith("/api/auth/test")) {
             filterChain.doFilter(request, response);
             return;
         }
