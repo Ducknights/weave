@@ -16,6 +16,7 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<AuthApiResponse<?>> login(@RequestBody ApiRequest apiRequest) {
+        System.out.println("apiRequest:" + apiRequest);
         final AuthApiResponse<?> response = authService.login(apiRequest);
         return ResponseEntity.status(response.getCode()).body(response);
     }
@@ -28,12 +29,14 @@ public class AuthController {
 
     @PostMapping("/logout")
     public AuthApiResponse<?> logout() {
+        System.out.println("logout");
         // 调用服务层进行登出
         return authService.logout();
     }
 
     @GetMapping("/test")
-    public ResponseEntity<String> test() {
-        return ResponseEntity.notFound().build();
+    public ResponseEntity<AuthApiResponse<?>> getNewToken() {
+        System.out.println("userId:");
+        return ResponseEntity.ok(new AuthApiResponse<>(100, "成功", null));
     }
 }

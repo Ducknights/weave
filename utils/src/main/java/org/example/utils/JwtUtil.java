@@ -2,9 +2,6 @@ package org.example.utils;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
@@ -12,12 +9,10 @@ import java.util.UUID;
 
 @Component
 public class JwtUtil {
-    @Autowired
-    private static RedisTemplate<String, Object> redisTemplate;
 
     private static final String SECRET = "ChenXin";
 
-    //生成jwt
+    //生成token
     public static String generateJwtToken(String subject,int expiration) {
         return Jwts.builder()
                 //头部
@@ -34,33 +29,27 @@ public class JwtUtil {
                 .compact();
     }
 
-    public static String getJwtToken(HttpServletRequest request) {
-        String authHeader = request.getHeader("Authorization");
-            //验证Header格式
-            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-                throw new RuntimeException("请求头中的授权信息格式不正确或缺失");
-            }
-
-            // 提取Token
-            String token = authHeader.substring(7);
-
-            if (token.isEmpty()) {
-                throw new RuntimeException("token为空");
-            }
-            // 解析Token得到用户标识信息
-            Claims claims = JwtUtil.parseJwtToken(token);
-        return claims.getSubject();
-    }
-
-    //解析jwt
-    public static Claims parseJwtToken(String token) {
+    //验证token
+    public static String getJwtSubject(String token) {
+        // 解析Token得到用户标识信息
         try {
-            return Jwts.parser()
+            Claims claims = Jwts.parser()
                     .setSigningKey(SECRET)
                     .parseClaimsJws(token)
                     .getBody();
+
+            return claims.getSubject();
         } catch (Exception e) {
             throw new RuntimeException("Token解析错误");
         }
+    }
+
+    public static void main(String[] args) {
+        Claims claims = Jwts.parser()
+                .setSigningKey(SECRET)
+                .parseClaimsJws("eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJqdGkiOiI2YTA3NzMzNi0yZjg0LTRhZjUtYWZkMC1jNWNjNTg0MjViNTEiLCJzdWIiOiJVc2VySWQ6MSIsImlzcyI6IlRpYW5Zb25nQ2hlbmciLCJpYXQiOjE3NTU2NzkxNjAsImV4cCI6MTc1NTc2NTU2MH0.tApIb4zAc5o3H3GHwtBVE7HGFC463ExwNIEw9K2e21s")
+                .getBody();
+        String subject = claims.getSubject();
+        System.out.println(subject.substring(7));
     }
 }

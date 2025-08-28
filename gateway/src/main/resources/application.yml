@@ -1,6 +1,8 @@
 spring:
   profiles:
-    include: route
+    include:
+    - route
+    - whitelist
   application:
     name: gateway
   cloud:

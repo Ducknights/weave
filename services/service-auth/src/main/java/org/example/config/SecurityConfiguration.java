@@ -1,7 +1,6 @@
 package org.example.config;
 
 import jakarta.annotation.Resource;
-import org.example.filter.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -22,8 +21,6 @@ public class SecurityConfiguration {
 
     @Resource
     private UserDetailsService service;
-    @Resource
-    private JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @Bean
     public AuthenticationManager authenticationManager() {
@@ -42,19 +39,8 @@ public class SecurityConfiguration {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         //自定义配置
         http
-                .anonymous(anonymous -> anonymous
-                        .principal("anonymous-guest") // 自定义用户名
-                        .authorities("VIEW_PUBLIC", "ROLE_ANONYMOUS") // 自定义权限
-                )
-                .authorizeHttpRequests((auth) -> auth
-                        //排除认证链接
-                        .requestMatchers("/api/auth/login").permitAll()
-                        .requestMatchers("/api/auth/signup").permitAll()
-                        .anyRequest().authenticated())
                 //关闭CSRF
                 .csrf(AbstractHttpConfigurer::disable)
-                //添加JWT过滤器
-                .addFilterBefore(jwtAuthenticationFilter, AuthorizationFilter.class)
                 //关闭session管理
                 .sessionManagement(AbstractHttpConfigurer::disable)
                 //关闭默认的表单登录

@@ -21,7 +21,9 @@ public class ImageTextController {
 
     //创建图文资源
     @PostMapping
-    public ResponseEntity<ImageText> create(@RequestBody ImageText imageText) {
+    public ResponseEntity<ImageText> create(@RequestBody ImageText imageText,
+                                            @RequestHeader("X-userId") String userId) {
+        System.out.println(userId);
         imageText.setCreatedAt(LocalDateTime.now());
         imageTextService.save(imageText);
         return ResponseEntity.status(201).body(imageText);
@@ -51,7 +53,7 @@ public class ImageTextController {
         return ResponseEntity.ok(imageText);
     }
 
-    //更新图文资源
+    //根据ID更新图文资源
     @PutMapping("/{id}")
     public ResponseEntity<ImageText> update(
             @PathVariable Integer id,
@@ -71,7 +73,7 @@ public class ImageTextController {
         return ResponseEntity.ok(existing);
     }
 
-    //删除图文资源
+    //根据ID删除图文资源
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Integer id) {
         if (!imageTextService.removeById(id)) {

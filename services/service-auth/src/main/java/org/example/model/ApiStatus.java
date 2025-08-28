@@ -10,9 +10,7 @@ public enum ApiStatus {
     REGISTER_SUCCESS(200,"注册成功"),
     REGISTER_FAILED(409,"注册失败"),
     PASSWORD_RESET_SUCCESS(200,"密码重置成功"),
-    PASSWORD_RESET_FAILED(400,"密码重置失败"),
-    TOKEN_INVALID(401,"Token无效"),
-    TOKEN_EXPIRED(401,"Token过期");
+    PASSWORD_RESET_FAILED(400,"密码重置失败");
 
     private final int code;
     private final String msg;
