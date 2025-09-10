@@ -29,14 +29,18 @@ public class AuthController {
 
     @PostMapping("/logout")
     public AuthApiResponse<?> logout() {
-        System.out.println("logout");
-        // 调用服务层进行登出
         return authService.logout();
     }
 
-    @GetMapping("/test")
-    public ResponseEntity<AuthApiResponse<?>> getNewToken() {
-        System.out.println("userId:");
-        return ResponseEntity.ok(new AuthApiResponse<>(100, "成功", null));
+    @PostMapping("/success")
+    public ResponseEntity<AuthApiResponse<?>> getNewToken(@RequestHeader("X-UserId") String userId) {
+        final AuthApiResponse<?> response = authService.getNewSuccessToken(userId);
+        return ResponseEntity.status(response.getCode()).body(response);
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<AuthApiResponse<?>> getNewRefreshToken(@RequestHeader("X-UserId") String userId) {
+        final AuthApiResponse<?> response = authService.getNewRefreshToken(userId);
+        return ResponseEntity.status(response.getCode()).body(response);
     }
 }

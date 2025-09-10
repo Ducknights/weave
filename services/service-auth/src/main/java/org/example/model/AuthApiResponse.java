@@ -31,4 +31,10 @@ public class AuthApiResponse<T> extends ApiResponse<T>{
     public static <T> AuthApiResponse<T> logOutSuccess() {
         return of(ApiStatus.LOGIN_SUCCESS,null);
     }
+    public static <T> AuthApiResponse<T> getNewTokenSuccess(T data) {
+        return of(ApiStatus.TOKEN_SUCCESS, data);
+    }
+    public static <T> AuthApiResponse<T> getNewTokenFail(T msg) {
+        return of(ApiStatus.TOKEN_FAILED, msg);
+    }
 }

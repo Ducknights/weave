@@ -8,7 +8,6 @@ import org.example.dto.*;
 import org.example.entity.MyUserDetails;
 import org.example.mapper.AuthMapper;
 import org.example.model.ApiRequest;
-import org.example.model.ApiResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -88,5 +87,31 @@ public class AuthService {
         SecurityContextHolder.clearContext();
         // 3. 返回注销成功信息
         return AuthApiResponse.logOutSuccess();
+    }
+
+    public AuthApiResponse<?> getNewSuccessToken(String userId) {
+        try {
+            // 1. 生成JWT令牌
+            String subject = "UserId:" + userId;
+            String access_token = JwtUtil.generateJwtToken(subject, 1000 * 60 * 5);    // 5分钟
+            // 2. 构造返回DTO
+            TokenDto tokenDto = new TokenDto(access_token, null, 60 * 5, 0);
+            return AuthApiResponse.getNewTokenSuccess(tokenDto);
+        } catch (Exception e) {
+            return AuthApiResponse.getNewTokenFail(e.getMessage());
+        }
+    }
+
+    public AuthApiResponse<?> getNewRefreshToken(String userId){
+        try {
+            // 1. 生成JWT令牌
+            String subject = "UserId:" + userId;
+            String refresh_token = JwtUtil.generateJwtToken(subject, 1000 * 60 * 60 * 24);    // 24小时
+            // 2. 构造返回DTO
+            TokenDto tokenDto = new TokenDto(null, refresh_token,0, 60 * 60 * 24);
+            return AuthApiResponse.getNewTokenSuccess(tokenDto);
+        } catch (Exception e) {
+            return AuthApiResponse.getNewTokenFail(e.getMessage());
+        }
     }
 }
