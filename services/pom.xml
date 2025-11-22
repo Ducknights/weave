@@ -14,7 +14,6 @@
     <modules>
         <module>service-auth</module>
         <module>service-resources</module>
-        <module>service-comment</module>
     </modules>
 
     <artifactId>services</artifactId>
@@ -54,7 +53,7 @@
             <artifactId>mysql-connector-j</artifactId>
             <scope>runtime</scope>
         </dependency>
-        <!--mybatis依赖-->
+        <!--mybatisPlus依赖-->
         <dependency>
             <groupId>com.baomidou</groupId>
             <artifactId>mybatis-plus-spring-boot3-starter</artifactId>

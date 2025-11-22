@@ -1,6 +1,7 @@
 package org.example.service;
 
 
+import com.alibaba.nacos.common.utils.UuidUtils;
 import jakarta.annotation.Resource;
 import org.example.model.AuthApiResponse;
 import org.example.utils.JwtUtil;
@@ -61,7 +62,7 @@ public class AuthService {
             }
         } catch (Exception e) {
             System.out.println("登录失败：" + e.getMessage());
-            return AuthApiResponse.loginFail(e.getMessage());
+            return AuthApiResponse.loginFail("错误码："+UuidUtils.generateUuid());
         }
         return AuthApiResponse.loginSuccess(apiResponseDto);
     }

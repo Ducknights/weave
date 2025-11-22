@@ -15,5 +15,5 @@ public interface AuthorityMapper {
             "JOIN role_permissions rp ON ur.role_id = rp.role_id " +
             "JOIN permissions p ON rp.permission_id = p.id " +
             "WHERE u.id = #{id}")
-    List<String> selectUserPermissionById(@Param("id") Integer id);
+    List<String> selectUserPermissionById(Integer id);
 }

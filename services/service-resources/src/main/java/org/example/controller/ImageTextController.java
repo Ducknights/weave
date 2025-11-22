@@ -29,7 +29,7 @@ public class ImageTextController {
         return ResponseEntity.status(201).body(imageText);
     }
 
-    //获取所有图文资源
+    //获取图文资源
     @GetMapping
     public ResponseEntity<IPage<ImageText>> getAll(
             @RequestParam(defaultValue = "1") int page,

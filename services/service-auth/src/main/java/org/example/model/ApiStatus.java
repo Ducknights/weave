@@ -13,7 +13,6 @@ public enum ApiStatus {
     TOKEN_SUCCESS(200,"获取成功"),
     TOKEN_FAILED(401,"获取失败");
 
-
     private final int code;
     private final String msg;
 

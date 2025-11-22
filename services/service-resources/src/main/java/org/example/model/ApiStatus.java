@@ -11,7 +11,8 @@ public enum ApiStatus {
     PUT_SUCCESS(200, "更新成功"),
     PUT_FAIL(400, "更新失败"),
     DELETE_SUCCESS(200, "删除成功"),
-    DELETE_FAIL(400, "删除失败");
+    DELETE_FAIL(400, "删除失败"),
+    ERROR(500, "运行错误");
 
     private final int code;
     private final String msg;

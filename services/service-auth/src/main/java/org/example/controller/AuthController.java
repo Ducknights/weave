@@ -16,7 +16,6 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<AuthApiResponse<?>> login(@RequestBody ApiRequest apiRequest) {
-        System.out.println("apiRequest:" + apiRequest);
         final AuthApiResponse<?> response = authService.login(apiRequest);
         return ResponseEntity.status(response.getCode()).body(response);
     }

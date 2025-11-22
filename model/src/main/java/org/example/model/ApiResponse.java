@@ -8,9 +8,18 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ApiResponse<T> {
-
+    /**
+     * 响应码
+     */
     private int code;
-    private String msg;
-    private T data;
 
+    /**
+     * 响应信息
+     */
+    private String msg;
+
+    /**
+     * 响应数据
+     */
+    private T data;
 }

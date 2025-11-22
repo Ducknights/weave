@@ -43,13 +43,4 @@ public class JwtUtil {
             throw new RuntimeException("Token解析错误");
         }
     }
-
-    public static void main(String[] args) {
-        Claims claims = Jwts.parser()
-                .setSigningKey(SECRET)
-                .parseClaimsJws("eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJqdGkiOiI2YTA3NzMzNi0yZjg0LTRhZjUtYWZkMC1jNWNjNTg0MjViNTEiLCJzdWIiOiJVc2VySWQ6MSIsImlzcyI6IlRpYW5Zb25nQ2hlbmciLCJpYXQiOjE3NTU2NzkxNjAsImV4cCI6MTc1NTc2NTU2MH0.tApIb4zAc5o3H3GHwtBVE7HGFC463ExwNIEw9K2e21s")
-                .getBody();
-        String subject = claims.getSubject();
-        System.out.println(subject.substring(7));
-    }
 }
