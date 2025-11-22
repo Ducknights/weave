@@ -19,9 +19,9 @@ public class RequestIdFilter implements GlobalFilter {
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         final Long snowflake = IdUtil.snowflakeId(1, 1);
-        log.info("X-SnowFlake: {}", snowflake);
+        log.info("X-Request-Id: {}", snowflake);
         ServerHttpRequest mutatedRequest = exchange.getRequest().mutate()
-                .header("X-SnowFlake", String.valueOf(snowflake))
+                .header("X-Request-Id", String.valueOf(snowflake))
                 .build();
         ServerWebExchange mutatedExchange = exchange.mutate().request(mutatedRequest).build();
 

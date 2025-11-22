@@ -1,5 +1,6 @@
 package org.example.controller;
 
+import jakarta.annotation.Resource;
 import lombok.extern.log4j.Log4j2;
 import org.example.model.ApiStatus;
 import org.example.model.ResourcesApiResponse;
@@ -15,13 +16,14 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 @Log4j2
 @RestController
 @RequestMapping("/api/resources")
 public class FileController {
 
-    @Autowired
+    @Resource
     private FileService fileService;
 
     /**
@@ -90,7 +92,7 @@ public class FileController {
             // 从filePath中提取文件名
             String fileName = filePath.substring(filePath.lastIndexOf("/") + 1);
             // 编码文件名，防止中文乱码
-            String encodedFileName = URLEncoder.encode(fileName, "UTF-8");
+            String encodedFileName = URLEncoder.encode(fileName, StandardCharsets.UTF_8);
             headers.setContentDispositionFormData("attachment", encodedFileName);
             headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
             headers.setContentLength(bytes.length);
