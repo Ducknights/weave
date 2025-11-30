@@ -8,13 +8,13 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 @Data
-@TableName("video")
-public class Video {
+@TableName("resource")
+public class Resource {
     @TableId(type = IdType.AUTO)
-    private Integer videoResourcesId;
+    private Integer ResourcesId;
 
     private Integer ownerId;
-    private String videoPath;
+    private String imagePath;
     private String title;
     private String content;
     private LocalDateTime createdAt;

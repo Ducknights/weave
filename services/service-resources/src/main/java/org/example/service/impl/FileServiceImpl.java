@@ -1,11 +1,13 @@
 package org.example.service.impl;
 
+import org.example.exception.MinioException;
 import org.example.service.FileService;
 import org.example.utils.MinioUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.UUID;
 
@@ -37,13 +39,17 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public String uploadFile(MultipartFile file, String directory) {
+    public String uploadFile(MultipartFile file, String directory){
         if (file == null || file.isEmpty()) {
-            return null;
+            throw new IllegalArgumentException("上传文件不能为空");
         }
         String fileName = generateFileName(file);
         String objectName = directory + "/" + fileName;
-        return minioUtil.uploadFile(objectName, file);
+        String filePath = minioUtil.uploadFile(objectName, file);
+        if (filePath == null){
+            throw new MinioException("文件上传失败");
+        };
+        return filePath;
     }
 
     @Override

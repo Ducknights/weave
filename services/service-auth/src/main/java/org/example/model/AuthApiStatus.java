@@ -4,7 +4,7 @@ package org.example.model;
 import lombok.Getter;
 
 @Getter
-public enum ApiStatus {
+public enum AuthApiStatus {
     LOGIN_SUCCESS(200,"登录成功"),
     LOGIN_FAILED(401,"登录失败"),
     REGISTER_SUCCESS(200,"注册成功"),
@@ -16,7 +16,7 @@ public enum ApiStatus {
     private final int code;
     private final String msg;
 
-    ApiStatus(int code, String msg) {
+    AuthApiStatus(int code, String msg) {
         this.code = code;
         this.msg = msg;
     }

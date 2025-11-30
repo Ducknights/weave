@@ -3,7 +3,7 @@ package org.example.model;
 import lombok.Getter;
 
 @Getter
-public enum ApiStatus {
+public enum ClubApiStatus {
     GET_SUCCESS(200, "请求成功"),
     GET_FAIL(400, "请求失败"),
     POST_SUCCESS(201, "创建成功"),
@@ -16,8 +16,7 @@ public enum ApiStatus {
 
     private final int code;
     private final String msg;
-
-    ApiStatus(int code, String msg) {
+    ClubApiStatus(int code, String msg) {
         this.code = code;
         this.msg = msg;
     }

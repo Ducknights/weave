@@ -12,29 +12,29 @@ public class AuthApiResponse<T> extends ApiResponse<T>{
         super(code, msg, data);
     }
 
-    public static <T> AuthApiResponse<T> of(ApiStatus status, T data) {
+    public static <T> AuthApiResponse<T> of(AuthApiStatus status, T data) {
         return new AuthApiResponse<>(status.getCode(), status.getMsg(), data);
     }
 
     public static <T> AuthApiResponse<T> loginSuccess(T data) {
-        return of(ApiStatus.LOGIN_SUCCESS, data);
+        return of(AuthApiStatus.LOGIN_SUCCESS, data);
     }
     public static <T> AuthApiResponse<T> loginFail(T msg) {
-        return of(ApiStatus.LOGIN_FAILED, msg);
+        return of(AuthApiStatus.LOGIN_FAILED, msg);
     }
     public static <T> AuthApiResponse<T> registerSuccess() {
-        return of(ApiStatus.REGISTER_SUCCESS,null);
+        return of(AuthApiStatus.REGISTER_SUCCESS,null);
     }
     public static <T> AuthApiResponse<T> registerFail(T msg) {
-        return of(ApiStatus.REGISTER_FAILED, msg);
+        return of(AuthApiStatus.REGISTER_FAILED, msg);
     }
     public static <T> AuthApiResponse<T> logOutSuccess() {
-        return of(ApiStatus.LOGIN_SUCCESS,null);
+        return of(AuthApiStatus.LOGIN_SUCCESS,null);
     }
     public static <T> AuthApiResponse<T> getNewTokenSuccess(T data) {
-        return of(ApiStatus.TOKEN_SUCCESS, data);
+        return of(AuthApiStatus.TOKEN_SUCCESS, data);
     }
     public static <T> AuthApiResponse<T> getNewTokenFail(T msg) {
-        return of(ApiStatus.TOKEN_FAILED, msg);
+        return of(AuthApiStatus.TOKEN_FAILED, msg);
     }
 }

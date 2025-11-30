@@ -2,11 +2,11 @@ package org.example.controller;
 
 import jakarta.annotation.Resource;
 import lombok.extern.log4j.Log4j2;
-import org.example.model.ApiStatus;
+import org.example.model.AuthApiStatus;
+import org.example.model.ResourceApiStatus;
 import org.example.model.ResourcesApiResponse;
 import org.example.model.Result;
 import org.example.service.FileService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -14,13 +14,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
 @Log4j2
 @RestController
-@RequestMapping("/api/resources")
+@RequestMapping("/api/resources/")
 public class FileController {
 
     @Resource
@@ -29,24 +30,14 @@ public class FileController {
     /**
      * 上传文件
      */
-    @PostMapping("/upload")
-    public ResponseEntity<ResourcesApiResponse<?>> uploadFile(@RequestParam("file") MultipartFile file) {
-        try {
-            if (file == null || file.isEmpty()) {
-                return ResponseEntity.status(ApiStatus.POST_FAIL.getCode())
-                        .body(ResourcesApiResponse.postFail("文件不能为空"));
-            }
-            final String filePath = fileService.uploadFile(file);
-            log.info("文件上传成功，文件路径：{}", filePath);
-            if (filePath == null) {
-                return ResponseEntity.status(ApiStatus.POST_FAIL.getCode())
-                        .body(ResourcesApiResponse.postFail("文件上传失败"));
-            }
-            return ResponseEntity.status(ApiStatus.POST_SUCCESS.getCode())
-                    .body(ResourcesApiResponse.postSuccess(filePath));
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+    @PostMapping("/upload/video")
+    public ResponseEntity<ResourcesApiResponse<?>> uploadFile(
+            @RequestParam("file") MultipartFile file,
+            @RequestParam("test") String test) {
+        final String filePath = fileService.uploadFile(file, "video");
+        System.out.println(filePath);
+        return ResponseEntity.status(ResourceApiStatus.POST_SUCCESS.getCode())
+                .body(ResourcesApiResponse.postSuccess(filePath));
     }
 
     /**

@@ -9,6 +9,7 @@
         <outputRelativeToContentRoot value="true" />
         <module name="service-resources" />
         <module name="model" />
+        <module name="service-club" />
         <module name="service-auth" />
         <module name="gateway" />
         <module name="utils" />
@@ -24,6 +25,7 @@
       <module name="gateway" options="-parameters" />
       <module name="model" options="-parameters" />
       <module name="service-auth" options="-parameters" />
+      <module name="service-club" options="-parameters" />
       <module name="service-comment" options="-parameters" />
       <module name="service-resources" options="-parameters" />
       <module name="utils" options="-parameters" />
