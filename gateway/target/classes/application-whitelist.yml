@@ -5,3 +5,4 @@ spring:
       - /api/auth/register
       - /api/auth/logout
       - /api/resources/get/**
+      - /api/club/**

@@ -7,27 +7,33 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="service-resources" />
-        <module name="model" />
-        <module name="service-club" />
-        <module name="service-auth" />
+        <module name="server-club" />
+        <module name="server-captcha" />
+        <module name="common" />
+        <module name="server-resources" />
+        <module name="server-auth" />
         <module name="gateway" />
-        <module name="utils" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="server-captcha-ddd" target="17" />
+      <module name="server-rabbitmq" target="17" />
       <module name="service-comment" target="17" />
+      <module name="utils" target="17" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
-      <module name="Graduation-Design" options="" />
+      <module name="Graduation-Design-java" options="" />
+      <module name="common" options="-parameters" />
       <module name="gateway" options="-parameters" />
-      <module name="model" options="-parameters" />
-      <module name="service-auth" options="-parameters" />
-      <module name="service-club" options="-parameters" />
+      <module name="server-auth" options="-parameters" />
+      <module name="server-captcha" options="-parameters" />
+      <module name="server-captcha-ddd" options="-parameters" />
+      <module name="server-club" options="-parameters" />
+      <module name="server-rabbitmq" options="-parameters" />
+      <module name="server-resources" options="-parameters" />
       <module name="service-comment" options="-parameters" />
-      <module name="service-resources" options="-parameters" />
       <module name="utils" options="-parameters" />
     </option>
   </component>

@@ -2,7 +2,7 @@ package org.example.filter;
 
 
 import lombok.extern.slf4j.Slf4j;
-import org.example.utils.IdUtil;
+import org.example.util.IdUtil;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.annotation.Order;

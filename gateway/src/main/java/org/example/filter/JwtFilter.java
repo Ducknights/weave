@@ -2,11 +2,12 @@ package org.example.filter;
 
 import lombok.extern.slf4j.Slf4j;
 import org.example.config.GatewayWhitelistProperties;
+import org.example.exception.NoTokenException;
+import org.example.exception.TokenVerifyException;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.annotation.Order;
-import org.springframework.http.HttpStatus;
-import org.example.utils.JwtUtil;
+import org.example.util.JwtUtil;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
@@ -39,8 +40,7 @@ public class JwtFilter implements GlobalFilter {
 
         // 1. 检查 Token 是否存在
         if (token == null || !token.startsWith("Bearer ")) {
-            exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
-            return exchange.getResponse().setComplete();
+            throw new NoTokenException("用户未登录，请登录后重试");
         }
 
         // 2. 去掉 "Bearer " 前缀
@@ -54,8 +54,7 @@ public class JwtFilter implements GlobalFilter {
             subject = JwtUtil.getJwtSubject(jwt); // 解析jwt
             userId = subject.substring(7);
         } catch (Exception e) {
-            exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
-            return exchange.getResponse().setComplete();
+            throw new TokenVerifyException("登录信息过期，请重新登录");
         }
 
         // 4. 将用户信息添加到下游请求头中
@@ -67,8 +66,6 @@ public class JwtFilter implements GlobalFilter {
 
         ServerWebExchange mutatedExchange = exchange.mutate().request(mutatedRequest).build();
 
-        log.info("X-Subject: {}", subject);
-        log.info("X-UserId: {}", userId);
         // 5. 将修改后的请求转发给下游服务
         return chain.filter(mutatedExchange);
     }

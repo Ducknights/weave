@@ -19,7 +19,12 @@ spring:
           predicates:
             - Path=/api/comment/**
 
-        - id: service-post
+        - id: service-resources
           uri: lb://service-post
           predicates:
             - Path=/api/resources/**
+
+        - id: service-club
+          uri: lb://service-club
+          predicates:
+            - Path=/api/club/**

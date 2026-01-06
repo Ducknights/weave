@@ -9,7 +9,12 @@ spring:
     nacos:
       server-addr: 127.0.0.1:8848
 
-
+logging:
+  level:
+    org.springframework.cloud.gateway: TRACE
+    reactor.netty.http.client: DEBUG
+    org.springframework.web.reactive: DEBUG
+    org.springframework.cloud.loadbalancer: DEBUG
 
 server:
   port: 80

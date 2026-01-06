@@ -1,16 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="Encoding">
+    <file url="file://$PROJECT_DIR$/common/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/gateway/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/hs_err_pid7376.log" charset="GBK" />
-    <file url="file://$PROJECT_DIR$/model/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/services/service-auth/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/services/service-club/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/services/service-comment/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/services/service-resources/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/services/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/services/src/main/resources" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/services/untitled/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/servers/server-auth/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/servers/server-captcha-ddd/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/servers/server-captcha/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/servers/server-club/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/servers/server-email/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/servers/server-rabbitmq/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/servers/server-resources/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/servers/service-comment/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/servers/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/servers/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/servers/untitled/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/utils/src/main/java" charset="UTF-8" />

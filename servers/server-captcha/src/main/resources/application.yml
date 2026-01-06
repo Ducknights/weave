@@ -1,0 +1,54 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: server-email
+  
+  # 邮件配置
+  mail:
+    # 配置SMTP服务器地址，例如：smtp.qq.com, smtp.163.com, smtp.gmail.com
+    host: smtp.qq.com
+    
+    # 配置端口，QQ邮箱：587，163邮箱：25，Gmail：587
+    port: 587
+    
+    # 配置发送邮件的邮箱地址
+    username: 2897662424@qq.com
+    
+    # 配置邮箱授权码（不是登录密码，是邮箱提供的授权码）
+    password: jcsdpyshmpxsdffd
+    
+    # 配置邮件协议
+    protocol: smtp
+    
+    # 默认编码
+    default-encoding: UTF-8
+    
+    # SMTP服务器配置
+    properties:
+      mail:
+        smtp:
+          # 启用认证
+          auth: true
+          # 启用TLS加密
+          starttls:
+            enable: true
+            required: true
+          # 启用SSL
+          ssl:
+            enable: false
+          # 连接超时时间（毫秒）
+          connectiontimeout: 5000
+          # 读取超时时间（毫秒）
+          timeout: 5000
+          # 写入超时时间（毫秒）
+          writetimeout: 5000
+
+# 应用配置
+app:
+  # 邮件发送者名称
+  email:
+    from-name: 测试
+    # 配置默认回复邮箱
+    reply-to: 2897662424@qq.com

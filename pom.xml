@@ -9,7 +9,7 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>org.example</groupId>
-    <artifactId>Graduation-Design</artifactId>
+    <artifactId>Graduation-Design-java</artifactId>
     <version>0.0.1-SNAPSHOT</version>
 
     <packaging>pom</packaging>
@@ -18,9 +18,8 @@
     <description>Graduation-Design</description>
     <modules>
         <module>gateway</module>
-        <module>model</module>
-        <module>services</module>
-        <module>utils</module>
+        <module>common</module>
+        <module>servers</module>
     </modules>
 
     <properties>
@@ -58,5 +57,7 @@
             </plugin>
         </plugins>
     </build>
+
+
 
 </project>
