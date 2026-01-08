@@ -9,7 +9,7 @@
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>server-resources</artifactId>
+    <artifactId>server-minio</artifactId>
 
     <properties>
         <maven.compiler.source>22</maven.compiler.source>

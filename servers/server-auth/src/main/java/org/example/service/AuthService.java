@@ -3,13 +3,14 @@ package org.example.service;
 
 import com.alibaba.nacos.common.utils.UuidUtils;
 import jakarta.annotation.Resource;
+import org.example.exception.EmailExistedException;
 import org.example.model.AuthApiResponse;
 import org.example.dto.*;
 import org.example.entity.MyUserDetails;
 import org.example.mapper.AuthMapper;
 import org.example.model.ApiRequest;
 import org.example.util.JwtUtil;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -19,8 +20,13 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
+
+import static org.example.config.RabbitMQConfig.CAPTCHA_EXCHANGE;
+import static org.example.config.RabbitMQConfig.CAPTCHA_QUEUE;
 
 @Service
 public class AuthService {
@@ -32,7 +38,9 @@ public class AuthService {
     private PasswordEncoder passwordEncoder;
     @Resource
     private RedisTemplate<String,Object> redisTemplate;
-    @Autowired
+    @Resource
+    private RabbitTemplate rabbitTemplate;
+    @Resource
     private AuthMapper authMapper;
 
     public AuthApiResponse<?> login(ApiRequest apiRequest) {
@@ -66,7 +74,12 @@ public class AuthService {
         return AuthApiResponse.loginSuccess(apiResponseDto);
     }
 
+    @Transactional
     public AuthApiResponse<?> signup(ApiRequest apiRequest) {
+        if (authMapper.selectUserByEmail(apiRequest.getEmail()) != null){
+            throw new EmailExistedException("邮箱已被注册");
+        }
+        rabbitTemplate.convertAndSend(CAPTCHA_EXCHANGE, CAPTCHA_QUEUE, apiRequest.getEmail());
         try {
             UserDetails user = User.builder()
                     .username(apiRequest.getEmail())

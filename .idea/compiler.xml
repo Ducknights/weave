@@ -9,8 +9,8 @@
         <outputRelativeToContentRoot value="true" />
         <module name="server-club" />
         <module name="server-captcha" />
+        <module name="server-minio" />
         <module name="common" />
-        <module name="server-resources" />
         <module name="server-auth" />
         <module name="gateway" />
       </profile>
@@ -31,8 +31,8 @@
       <module name="server-captcha" options="-parameters" />
       <module name="server-captcha-ddd" options="-parameters" />
       <module name="server-club" options="-parameters" />
+      <module name="server-minio" options="-parameters" />
       <module name="server-rabbitmq" options="-parameters" />
-      <module name="server-resources" options="-parameters" />
       <module name="service-comment" options="-parameters" />
       <module name="utils" options="-parameters" />
     </option>

@@ -37,4 +37,8 @@ public class AuthApiResponse<T> extends ApiResponse<T>{
     public static <T> AuthApiResponse<T> getNewTokenFail(T msg) {
         return of(AuthApiStatus.TOKEN_FAILED, msg);
     }
+
+    public static AuthApiResponse<?> error(String msg) {
+         return of (AuthApiStatus.REGISTER_FAILED, msg);
+    }
 }

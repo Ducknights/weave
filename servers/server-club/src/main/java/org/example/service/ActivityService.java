@@ -10,4 +10,5 @@ public interface ActivityService {
     void deleteActivity(Integer ActivityId);
     Activity updateActivity(Activity activity);
     List<Activity> queryActivity(LocalDateTime startDate, LocalDateTime endDate);
+    Activity queryActivityById(Integer activityId);
 }

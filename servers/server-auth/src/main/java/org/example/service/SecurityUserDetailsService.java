@@ -32,14 +32,10 @@ public class SecurityUserDetailsService implements UserDetailsManager {
 
     @Override
     public void createUser(UserDetails user) {
-        try {
-            UserAuth userAuth = new UserAuth();
-            userAuth.setEmail(user.getUsername());
-            userAuth.setPassword(user.getPassword());
-            authMapper.insertUser(userAuth);
-        }catch (Exception e){
-            throw new RuntimeException("该邮箱已被注册");
-        }
+        UserAuth userAuth = new UserAuth();
+        userAuth.setEmail(user.getUsername());
+        userAuth.setPassword(user.getPassword());
+        authMapper.insertUser(userAuth);
     }
 
     @Override

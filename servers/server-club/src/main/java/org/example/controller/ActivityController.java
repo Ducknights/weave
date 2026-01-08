@@ -77,4 +77,15 @@ public class ActivityController {
         return ResponseEntity.status(ClubApiStatus.GET_SUCCESS.getCode())
                 .body(ClubApiResponse.getSuccess(activities));
     }
+    /**
+     * 根据ID获取活动信息
+     * @param ActivityId 活动ID
+     * @return 响应结果，包含指定ID的活动信息
+     */
+    @GetMapping("{ActivityId}")
+    public ResponseEntity<ClubApiResponse<?>> getActivityById(@PathVariable Integer ActivityId) {
+        final Activity activity = activityService.queryActivityById(ActivityId);
+        return ResponseEntity.status(ClubApiStatus.GET_SUCCESS.getCode())
+                .body(ClubApiResponse.getSuccess(activity));
+    }
 }

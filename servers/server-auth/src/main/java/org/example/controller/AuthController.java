@@ -1,6 +1,8 @@
 package org.example.controller;
 
 import jakarta.annotation.Resource;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import org.example.model.ApiRequest;
 import org.example.model.AuthApiResponse;
 import org.example.service.AuthService;
@@ -15,13 +17,13 @@ public class AuthController {
     private AuthService authService;
 
     @PostMapping("/login")
-    public ResponseEntity<AuthApiResponse<?>> login(@RequestBody ApiRequest apiRequest) {
+    public ResponseEntity<AuthApiResponse<?>> login(@Valid @NotNull @RequestBody ApiRequest apiRequest) {
         final AuthApiResponse<?> response = authService.login(apiRequest);
         return ResponseEntity.status(response.getCode()).body(response);
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<AuthApiResponse<?>> signup(@RequestBody ApiRequest apiRequest) {
+    public ResponseEntity<AuthApiResponse<?>> signup(@Valid @NotNull @RequestBody ApiRequest apiRequest) {
         final AuthApiResponse<?> response = authService.signup(apiRequest);
         return ResponseEntity.status(response.getCode()).body(response);
     }

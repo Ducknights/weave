@@ -37,4 +37,9 @@ public class ActivityServiceImp implements ActivityService {
     public List<Activity> queryActivity(LocalDateTime startDate, LocalDateTime endDate) {
         return activityMapper.queryActivity(startDate, endDate);
     }
+
+    @Override
+    public Activity queryActivityById(Integer activityId) {
+        return activityMapper.selectById(activityId);
+    }
 }

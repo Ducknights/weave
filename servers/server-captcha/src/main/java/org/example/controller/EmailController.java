@@ -40,18 +40,6 @@ public class EmailController {
             String to = (String) request.get("to");
             // 生成6位验证码
             int verificationCode = ThreadLocalRandom.current().nextInt(100000, 1000000);
-            // 验证邮箱
-            if (to == null) {
-                return ResponseEntity.badRequest().body(Map.of(
-                        "success", false));
-            }
-
-            // 验证邮箱格式
-            if (!ValidationUtil.isValidEmail(to)) {
-                return ResponseEntity.badRequest().body(Map.of(
-                        "success", false,
-                        "message", "邮箱格式不正确"));
-            }
 
             // 准备模板变量，只传递验证码
             Map<String, Object> contextVariables = new HashMap<>();
