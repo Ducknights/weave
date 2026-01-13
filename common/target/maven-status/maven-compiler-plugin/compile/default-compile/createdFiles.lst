@@ -1,6 +1,6 @@
+org\example\util\IdUtil.class
+org\example\config\RedisConfig.class
 org\example\model\ApiResponse.class
 org\example\config\RabbitMQConfig.class
-org\example\util\IdUtil.class
 org\example\util\ValidationUtil.class
-org\example\config\RedisConfig.class
 org\example\util\JwtUtil.class

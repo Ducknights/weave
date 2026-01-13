@@ -2,6 +2,26 @@ spring:
   rabbitmq:
     host: localhost
     port: 5672
-    username: admin
-    password: admin
+    username: aliez
+    password: aliez
     virtual-host: /
+
+    connection-timeout: 15000
+    requested-heartbeat: 30
+    publisher-confirm-type: correlated
+    publisher-returns: true
+    listener:
+      simple:
+        acknowledge-mode: manual
+        retry:
+          enabled: true
+          initial-interval: 1000
+          max-attempts: 3
+          max-interval: 10000
+          multiplier: 1.0
+
+logging:
+  level:
+    org.springframework.amqp: DEBUG
+    com.rabbitmq.client: DEBUG
+    org.springframework.boot.autoconfigure.amqp: DEBUG

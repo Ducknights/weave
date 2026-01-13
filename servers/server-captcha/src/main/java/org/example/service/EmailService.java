@@ -53,11 +53,8 @@ public class EmailService {
             helper.setReplyTo(replyTo);
             helper.setSubject(subject);
             helper.setText(htmlContent, true); // true表示HTML格式
-
             javaMailSender.send(message);
-            System.out.println("HTML邮件发送成功: " + to);
         } catch (MessagingException | UnsupportedEncodingException e) {
-            System.err.println("HTML邮件发送失败: " + e.getMessage());
             throw new RuntimeException("邮件发送失败", e);
         }
     }
@@ -80,8 +77,6 @@ public class EmailService {
             
             // 发送HTML邮件
             sendHtmlEmail(to, subject, htmlContent);
-            
-            System.out.println("模板邮件发送成功: " + to);
         } catch (Exception e) {
             System.err.println("模板邮件发送失败: " + e.getMessage());
             throw new RuntimeException("邮件发送失败", e);

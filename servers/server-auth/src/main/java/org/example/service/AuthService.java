@@ -3,12 +3,14 @@ package org.example.service;
 
 import com.alibaba.nacos.common.utils.UuidUtils;
 import jakarta.annotation.Resource;
+import lombok.extern.log4j.Log4j2;
 import org.example.exception.EmailExistedException;
 import org.example.model.AuthApiResponse;
 import org.example.dto.*;
 import org.example.entity.MyUserDetails;
 import org.example.mapper.AuthMapper;
 import org.example.model.ApiRequest;
+import org.example.model.RegisterPart2Dto;
 import org.example.util.JwtUtil;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -25,9 +27,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import static org.example.config.RabbitMQConfig.CAPTCHA_EXCHANGE;
-import static org.example.config.RabbitMQConfig.CAPTCHA_QUEUE;
+import static org.example.config.RabbitMQConfig.*;
 
+@Log4j2
 @Service
 public class AuthService {
     @Resource
@@ -79,11 +81,21 @@ public class AuthService {
         if (authMapper.selectUserByEmail(apiRequest.getEmail()) != null){
             throw new EmailExistedException("邮箱已被注册");
         }
-        rabbitTemplate.convertAndSend(CAPTCHA_EXCHANGE, CAPTCHA_QUEUE, apiRequest.getEmail());
+        rabbitTemplate.convertAndSend(CAPTCHA_EXCHANGE, CAPTCHA_ROUTING_KEY, apiRequest.getEmail());
+        //todo 这里应该返回 “验证码发送成功”
+        return AuthApiResponse.registerSuccess();
+    }
+    public AuthApiResponse<?> register(RegisterPart2Dto dto) {
+        // 1. 验证验证码
+        String code = (String) redisTemplate.opsForValue().get(dto.getEmail());
+        if (!dto.getCode().equals(code)){
+            //todo 抛出“验证码错误异常”
+            return AuthApiResponse.registerFail("验证码错误");
+        }
         try {
             UserDetails user = User.builder()
-                    .username(apiRequest.getEmail())
-                    .password(passwordEncoder.encode( apiRequest.getPassword()))
+                    .username(dto.getEmail())
+                    .password(passwordEncoder.encode(dto.getPassword()))
                     .build();
             service.createUser(user);
             return AuthApiResponse.registerSuccess();

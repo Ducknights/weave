@@ -86,7 +86,7 @@ public class MemberController {
      * @param clubId 社团ID
      * @return 响应结果，包含指定社团的所有成员列表
      */
-    @GetMapping("/{clubId}")
+    @GetMapping
     public ResponseEntity<ClubApiResponse<?>> getMembersByClubId(@PathVariable Integer clubId) {
         final List<Member> members = memberService.getMembersByClubId(clubId);
         return ResponseEntity.status(ClubApiStatus.GET_SUCCESS.getCode())

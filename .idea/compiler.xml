@@ -11,7 +11,9 @@
         <module name="server-captcha" />
         <module name="server-minio" />
         <module name="common" />
+        <module name="server-ai" />
         <module name="server-auth" />
+        <module name="server-user" />
         <module name="gateway" />
       </profile>
     </annotationProcessing>
@@ -27,12 +29,14 @@
       <module name="Graduation-Design-java" options="" />
       <module name="common" options="-parameters" />
       <module name="gateway" options="-parameters" />
+      <module name="server-ai" options="-parameters" />
       <module name="server-auth" options="-parameters" />
       <module name="server-captcha" options="-parameters" />
       <module name="server-captcha-ddd" options="-parameters" />
       <module name="server-club" options="-parameters" />
       <module name="server-minio" options="-parameters" />
       <module name="server-rabbitmq" options="-parameters" />
+      <module name="server-user" options="-parameters" />
       <module name="service-comment" options="-parameters" />
       <module name="utils" options="-parameters" />
     </option>

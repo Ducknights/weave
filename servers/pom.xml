@@ -16,6 +16,8 @@
         <module>server-minio</module>
         <module>server-club</module>
         <module>server-captcha</module>
+        <module>server-user</module>
+        <module>server-ai</module>
     </modules>
 
     <artifactId>servers</artifactId>
