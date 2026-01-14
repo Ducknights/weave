@@ -36,10 +36,14 @@ public class RabbitMQConfig {
         return factory;
     }
 
-    // 验证码队列
+    // 交换机
+    public static final String TOPIC_EXCHANGE = "topic_exchange";
+    // 队列与路由键
     public static final String CAPTCHA_QUEUE = "captcha_queue";
-    public static final String CAPTCHA_EXCHANGE = "captcha_exchange";
     public static final String CAPTCHA_ROUTING_KEY = "captcha";
+
+    public static final String USER_QUEUE = "user_queue";
+    public static final String USER_ROUTING_KEY = "user";
 
     @Bean
     public Queue captchaQueue() {
@@ -49,14 +53,28 @@ public class RabbitMQConfig {
     }
 
     @Bean
-    public TopicExchange captchaExchange() {
-        return new TopicExchange(CAPTCHA_EXCHANGE);
+    public Queue userQueue() {
+        return QueueBuilder.durable(USER_QUEUE)
+                .withArgument("x-message-ttl", 300000)
+                .build();
     }
 
     @Bean
-    public Binding captchaBinding(Queue captchaQueue, TopicExchange captchaExchange) {
+    public TopicExchange Exchange() {
+        return new TopicExchange(TOPIC_EXCHANGE);
+    }
+
+    @Bean
+    public Binding captchaBinding(Queue captchaQueue, TopicExchange topicExchange) {
         return BindingBuilder.bind(captchaQueue)
-                .to(captchaExchange)
+                .to(topicExchange)
                 .with(CAPTCHA_ROUTING_KEY);
+    }
+
+    @Bean
+    public Binding userBinding(Queue userQueue, TopicExchange topicExchange) {
+        return BindingBuilder.bind(userQueue)
+                .to(topicExchange)
+                .with(USER_ROUTING_KEY);
     }
 }
