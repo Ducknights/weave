@@ -81,9 +81,9 @@ public class AuthService {
         if (authMapper.selectUserByEmail(apiRequest.getEmail()) != null){
             throw new EmailExistedException("邮箱已被注册");
         }
+        // 发送验证码
         rabbitTemplate.convertAndSend(TOPIC_EXCHANGE, CAPTCHA_ROUTING_KEY, apiRequest.getEmail());
-        //todo 这里应该返回 “验证码发送成功”
-        return AuthApiResponse.registerSuccess();
+        return AuthApiResponse.codeSendSuccess();
     }
 
     public AuthApiResponse<?> register(RegisterPart2Dto dto) {

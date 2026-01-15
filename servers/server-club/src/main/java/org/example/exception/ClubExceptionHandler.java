@@ -24,7 +24,7 @@ public class ClubExceptionHandler {
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ClubApiResponse<?>> handleIllegalArgumentException(
             IllegalArgumentException e) {
-        return buildErrorResponse(ClubApiStatus.POST_FAIL,e);
+        return buildErrorResponse(ClubApiStatus.POST_FAIL,e.getMessage());
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
@@ -45,19 +45,7 @@ public class ClubExceptionHandler {
 
     @ExceptionHandler(NoResultException.class)
     public ResponseEntity<ClubApiResponse<?>> handleNoResultException() {
-        return buildErrorResponse(ClubApiStatus.NOT_FOUND);
-    }
-
-
-    private ResponseEntity<ClubApiResponse<?>> buildErrorResponse(ClubApiStatus status, Exception e) {
-        ErrorDto errorDto = ErrorDto.builder()
-                .message(e.getMessage())
-                .requestId(requestContext.getRequestId())
-                .timestamp(String.valueOf(System.currentTimeMillis()))
-                .build();
-        log.error("Error: {},Time：{},RequestId：{}", e.getMessage(), errorDto.getTimestamp(), errorDto.getRequestId());
-        return ResponseEntity.status(status.getCode())
-                .body(ClubApiResponse.error(status,errorDto));
+        return buildErrorResponse(ClubApiStatus.NOT_FOUND,"结果为空");
     }
 
     private ResponseEntity<ClubApiResponse<?>> buildErrorResponse(ClubApiStatus status, String msg) {
@@ -66,18 +54,7 @@ public class ClubExceptionHandler {
                 .requestId(requestContext.getRequestId())
                 .timestamp(String.valueOf(System.currentTimeMillis()))
                 .build();
-        log.error("Error: {},Time：{},RequestId：{}",msg, errorDto.getTimestamp(), errorDto.getRequestId());
         return ResponseEntity.status(status.getCode())
-                .body(ClubApiResponse.error(status,errorDto));
-    }
-    private ResponseEntity<ClubApiResponse<?>> buildErrorResponse(ClubApiStatus status) {
-        ErrorDto errorDto = ErrorDto.builder()
-                .message("结果为空")
-                .requestId(requestContext.getRequestId())
-                .timestamp(String.valueOf(System.currentTimeMillis()))
-                .build();
-        log.error("Error: {},Time：{},RequestId：{}", "请求失败", errorDto.getTimestamp(), errorDto.getRequestId());
-        return ResponseEntity.status(200)
                 .body(ClubApiResponse.error(status,errorDto));
     }
 }

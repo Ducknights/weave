@@ -11,7 +11,8 @@ public enum AuthApiStatus {
     REGISTER_FAILED(409,"注册失败"),
     LOGOUT_SUCCESS(200,"登出成功"),
     TOKEN_SUCCESS(200,"获取成功"),
-    TOKEN_FAILED(401,"获取失败");
+    TOKEN_FAILED(401,"获取失败"),
+    CODE_SEND_SUCCESS(200,"验证码发送成功" );
 
     private final int code;
     private final String msg;
