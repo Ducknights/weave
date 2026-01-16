@@ -31,7 +31,7 @@ public class MemberController {
     public ResponseEntity<ClubApiResponse<?>> createMember(@Nonnull @RequestBody Member member) {
         final Member memberVo = memberService.createMember(member);
         return ResponseEntity.status(ClubApiStatus.POST_SUCCESS.getCode())
-                .body(ClubApiResponse.postSuccess(memberVo));
+                .body(ClubApiResponse.success(ClubApiStatus.POST_SUCCESS, memberVo));
     }
 
     /**
@@ -43,7 +43,7 @@ public class MemberController {
     public ResponseEntity<ClubApiResponse<?>> deleteMember(@Nonnull @RequestBody Integer memberId) {
         memberService.deleteMember(memberId);
         return ResponseEntity.status(ClubApiStatus.DELETE_SUCCESS.getCode())
-                .body(ClubApiResponse.deleteSuccess());
+                .body(ClubApiResponse.success(ClubApiStatus.DELETE_SUCCESS, null));
     }
 
     /**
@@ -55,31 +55,20 @@ public class MemberController {
     public ResponseEntity<ClubApiResponse<?>> updateMember(@Nonnull @RequestBody Member member) {
         final Member newMember = memberService.updateMember(member);
         return ResponseEntity.status(ClubApiStatus.PUT_SUCCESS.getCode())
-                .body(ClubApiResponse.putSuccess(newMember));
+                .body(ClubApiResponse.success(ClubApiStatus.PUT_SUCCESS, newMember));
     }
 
-    /**
-     * 查询所有成员
-     * @return 响应结果，包含所有成员列表
+    /*
+     * 注意：此方法已禁用，因为在此控制器中不合适
+     * 获取所有成员的操作不应该依赖于特定社团ID
+     * 如果需要获取所有成员，请使用专门的控制器
      */
-    @GetMapping()
-    public ResponseEntity<ClubApiResponse<?>> getMembers() {
-        final List<Member> members = memberService.queryMembers();
-        return ResponseEntity.status(ClubApiStatus.GET_SUCCESS.getCode())
-                .body(ClubApiResponse.getSuccess(members));
-    }
-
-    /**
-     * 根据ID获取成员信息
-     * @param memberId 成员ID
-     * @return 响应结果，包含指定ID的成员信息
-     */
-    @GetMapping("{memberId}")
-    public ResponseEntity<ClubApiResponse<?>> getMemberById(@PathVariable Integer memberId) {
-        final Member member = memberService.getMemberById(memberId);
-        return ResponseEntity.status(ClubApiStatus.GET_SUCCESS.getCode())
-                .body(ClubApiResponse.getSuccess(member));
-    }
+    // @GetMapping()
+    // public ResponseEntity<ClubApiResponse<?>> getMembers() {
+    //     final List<Member> members = memberService.queryMembers();
+    //     return ResponseEntity.status(ClubApiStatus.GET_SUCCESS.getCode())
+    //             .body(ClubApiResponse.success(ClubApiStatus.GET_SUCCESS, members));
+    // }
 
     /**
      * 根据社团ID获取成员列表
@@ -90,7 +79,19 @@ public class MemberController {
     public ResponseEntity<ClubApiResponse<?>> getMembersByClubId(@PathVariable Integer clubId) {
         final List<Member> members = memberService.getMembersByClubId(clubId);
         return ResponseEntity.status(ClubApiStatus.GET_SUCCESS.getCode())
-                .body(ClubApiResponse.getSuccess(members));
+                .body(ClubApiResponse.success(ClubApiStatus.GET_SUCCESS, members));
+    }
+
+    /**
+     * 根据ID获取成员信息
+     * @param memberId 成员ID
+     * @return 响应结果，包含指定ID的成员信息
+     */
+    @GetMapping("/{memberId}")
+    public ResponseEntity<ClubApiResponse<?>> getMemberById(@PathVariable Integer memberId) {
+        final Member member = memberService.getMemberById(memberId);
+        return ResponseEntity.status(ClubApiStatus.GET_SUCCESS.getCode())
+                .body(ClubApiResponse.success(ClubApiStatus.GET_SUCCESS, member));
     }
 
     /**
@@ -98,10 +99,10 @@ public class MemberController {
      * @param userId 用户ID
      * @return 响应结果，包含指定用户的所有成员信息
      */
-    @GetMapping("/{userId}")
+    @GetMapping("/user/{userId}")
     public ResponseEntity<ClubApiResponse<?>> getMembersByUserId(@PathVariable Integer userId) {
         final List<Member> members = memberService.getMembersByUserId(userId);
         return ResponseEntity.status(ClubApiStatus.GET_SUCCESS.getCode())
-                .body(ClubApiResponse.getSuccess(members));
+                .body(ClubApiResponse.success(ClubApiStatus.GET_SUCCESS, members));
     }
 }

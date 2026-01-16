@@ -3,7 +3,7 @@ package org.example.service.imp;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import jakarta.annotation.Resource;
 import org.example.entity.Club;
-import org.example.entity.vo.ClubCardVo;
+import org.example.model.vo.ClubCardVo;
 import org.example.mapper.ClubMapper;
 import org.example.service.ClubService;
 import org.springframework.stereotype.Service;

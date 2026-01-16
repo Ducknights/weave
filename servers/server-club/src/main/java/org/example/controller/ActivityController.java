@@ -7,22 +7,31 @@ package org.example.controller;
 
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
 import org.example.entity.Activity;
 import org.example.model.ClubApiResponse;
 import org.example.model.ClubApiStatus;
+import org.example.model.vo.ActivityCardVo;
 import org.example.service.ActivityService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.logging.LoggingRebinder;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Slf4j
 @RestController
-@RequestMapping("/api/clubs/activities")
+@RequestMapping("/api/club/activities")
 public class ActivityController {
 
     @Resource
     private ActivityService activityService;
+    @Autowired
+    private LoggingRebinder loggingRebinder;
 
     /**
      * 创建活动
@@ -33,7 +42,7 @@ public class ActivityController {
     public ResponseEntity<ClubApiResponse<?>> creatActivity(@Nonnull @RequestBody Activity activity) {
         final Activity newActivity = activityService.creatActivity(activity);
         return ResponseEntity.status(ClubApiStatus.POST_SUCCESS.getCode())
-                .body(ClubApiResponse.postSuccess(newActivity));
+                .body(ClubApiResponse.success(ClubApiStatus.POST_SUCCESS,newActivity));
     }
 
     /**
@@ -45,7 +54,7 @@ public class ActivityController {
     public ResponseEntity<ClubApiResponse<?>> deleteActivity(@Nonnull @RequestBody Integer ActivityId) {
         activityService.deleteActivity(ActivityId);
         return ResponseEntity.status(ClubApiStatus.DELETE_SUCCESS.getCode())
-                .body(ClubApiResponse.deleteSuccess());
+                .body(ClubApiResponse.success(ClubApiStatus.DELETE_SUCCESS,null));
     }
 
     /**
@@ -57,7 +66,7 @@ public class ActivityController {
     public ResponseEntity<ClubApiResponse<?>> updateActivity(@Nonnull @RequestBody Activity activity) {
         final Activity newActivity = activityService.updateActivity(activity);
         return ResponseEntity.status(ClubApiStatus.PUT_SUCCESS.getCode())
-                .body(ClubApiResponse.putSuccess(newActivity));
+                .body(ClubApiResponse.success(ClubApiStatus.PUT_SUCCESS,newActivity));
     }
 
     /**
@@ -66,17 +75,24 @@ public class ActivityController {
      * @param endDate 结束日期时间
      * @return 响应结果，包含符合条件的活动列表
      */
-    @GetMapping()
+    @GetMapping("/week")
     public ResponseEntity<ClubApiResponse<?>> getActivity(
-            @RequestParam LocalDateTime startDate,
-            @RequestParam LocalDateTime endDate) {
-        if (startDate.isBefore(endDate)){
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate) {
+
+        // 转换为LocalDate，只保留日期部分
+        LocalDate start = startDate.toLocalDate();
+        LocalDate end = endDate.toLocalDate();
+
+        if (start.isAfter(end)){
             throw new IllegalArgumentException("开始日期必须在结束日期之前");
         }
-        final List<Activity> activities = activityService.queryActivity(startDate, endDate);
+        log.info("Getting activities between {} and {}", start, end);
+        final List<ActivityCardVo> activities = activityService.queryActivity(start, end);
         return ResponseEntity.status(ClubApiStatus.GET_SUCCESS.getCode())
-                .body(ClubApiResponse.getSuccess(activities));
+                .body(ClubApiResponse.success(ClubApiStatus.GET_SUCCESS,activities));
     }
+
     /**
      * 根据ID获取活动信息
      * @param ActivityId 活动ID
@@ -86,6 +102,6 @@ public class ActivityController {
     public ResponseEntity<ClubApiResponse<?>> getActivityById(@PathVariable Integer ActivityId) {
         final Activity activity = activityService.queryActivityById(ActivityId);
         return ResponseEntity.status(ClubApiStatus.GET_SUCCESS.getCode())
-                .body(ClubApiResponse.getSuccess(activity));
+                .body(ClubApiResponse.success(ClubApiStatus.GET_SUCCESS,activity));
     }
 }

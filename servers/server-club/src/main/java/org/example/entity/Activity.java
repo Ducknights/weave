@@ -1,9 +1,7 @@
 package org.example.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
-import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.*;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -12,8 +10,8 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 @Data
+@NoArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-@Builder
 @TableName("activities")
 public class Activity implements Serializable {
     @Serial
@@ -32,7 +30,4 @@ public class Activity implements Serializable {
     private String description;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    // 关联的社团信息（非数据库字段）
-    @TableField(exist = false)
-    private Club club;
 }

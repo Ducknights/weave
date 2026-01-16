@@ -7,7 +7,9 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 import org.example.entity.Activity;
+import org.example.model.vo.ActivityCardVo;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -36,6 +38,18 @@ public interface ActivityMapper extends BaseMapper<Activity> {
     })
     Activity updateActivity(Activity activity);
 
-    @Select("SELECT * FROM activities WHERE start_date >= #{startDate} AND end_date <= #{endDate}")
-    List<Activity> queryActivity(LocalDateTime startDate, LocalDateTime endDate );
+    @Select("SELECT " +
+            "a.id, " +
+            "a.title, " +
+            "c.name as club_name, " +
+            "a.description, " +
+            "a.date, " +
+            "a.start_time, " +
+            "a.end_time, " +
+            "a.location " +
+            "FROM activities a left join clubs c " +
+            "on a.club_id = c.id " +
+            "WHERE a.date >= #{startDate} AND a.date <= #{endDate} " +
+            "ORDER BY a.date ASC, a.start_time ASC")
+    List<ActivityCardVo> queryActivity(LocalDate startDate, LocalDate endDate);
 }

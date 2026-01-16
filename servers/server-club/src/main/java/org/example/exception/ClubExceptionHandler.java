@@ -55,6 +55,6 @@ public class ClubExceptionHandler {
                 .timestamp(String.valueOf(System.currentTimeMillis()))
                 .build();
         return ResponseEntity.status(status.getCode())
-                .body(ClubApiResponse.error(status,errorDto));
+                .body(ClubApiResponse.fail(status,errorDto));
     }
 }

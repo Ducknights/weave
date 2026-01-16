@@ -1,7 +1,7 @@
 package org.example.service;
 
 import org.example.entity.Club;
-import org.example.entity.vo.ClubCardVo;
+import org.example.model.vo.ClubCardVo;
 
 import java.util.List;
 

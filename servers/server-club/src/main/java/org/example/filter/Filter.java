@@ -23,7 +23,6 @@ public class Filter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request,HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         requestContext.setRequestId(request.getHeader("X-RequestId"));
         requestContext.setUserId(request.getHeader("X-UserId"));
-        log.info("request: {}", request.getRequestURI());
         filterChain.doFilter(request, response);
     }
 }

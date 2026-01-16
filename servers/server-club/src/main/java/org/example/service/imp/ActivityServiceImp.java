@@ -3,9 +3,11 @@ package org.example.service.imp;
 import jakarta.annotation.Resource;
 import org.example.entity.Activity;
 import org.example.mapper.ActivityMapper;
+import org.example.model.vo.ActivityCardVo;
 import org.example.service.ActivityService;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -34,7 +36,7 @@ public class ActivityServiceImp implements ActivityService {
     }
 
     @Override
-    public List<Activity> queryActivity(LocalDateTime startDate, LocalDateTime endDate) {
+    public List<ActivityCardVo> queryActivity(LocalDate startDate, LocalDate endDate) {
         return activityMapper.queryActivity(startDate, endDate);
     }
 
