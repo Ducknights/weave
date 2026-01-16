@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/club/{clubId}/member")
+@RequestMapping("/api/clubs/{clubId}/members")
 public class MemberController {
 
     @Resource
