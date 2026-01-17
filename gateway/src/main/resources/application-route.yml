@@ -27,4 +27,4 @@ spring:
         - id: service-club
           uri: lb://service-club
           predicates:
-            - Path=/api/club/**
+            - Path=/api/clubs/**

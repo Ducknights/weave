@@ -42,7 +42,6 @@ public interface ActivityMapper extends BaseMapper<Activity> {
             "a.id, " +
             "a.title, " +
             "c.name as club_name, " +
-            "a.description, " +
             "a.date, " +
             "a.start_time, " +
             "a.end_time, " +

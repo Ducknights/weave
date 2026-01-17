@@ -38,13 +38,29 @@ public class RabbitMQConfig {
 
     // 交换机
     public static final String TOPIC_EXCHANGE = "topic_exchange";
-    // 队列与路由键
-    public static final String CAPTCHA_QUEUE = "captcha_queue";
+    // 验证路由键和队列
     public static final String CAPTCHA_ROUTING_KEY = "captcha";
-
-    public static final String USER_QUEUE = "user_queue";
+    public static final String CAPTCHA_QUEUE = "captcha_queue";
+    // 用户路由键和队列
     public static final String USER_ROUTING_KEY = "user";
+    public static final String USER_QUEUE = "user_queue";
+    // 审核路由键和队列
+    public static final String AUDIT_IMAGE_ROUTING_KEY = "image";
+    public static final String AUDIT_VIDEO_ROUTING_KEY = "video";
+    public static final String AUDIT_QUEUE = "audit_image_queue";
+    public static final String AUDIT_VIDEO_QUEUE = "audit_video_queue";
+    // 结果通知路由键
+    public static final String RESULT_ROUTING_KEY = "result";
+    public static final String RESULT_QUEUE = "result_queue";
 
+
+    // 交换机
+    @Bean
+    public TopicExchange Exchange() {
+        return new TopicExchange(TOPIC_EXCHANGE);
+    }
+
+    // 验证码队列
     @Bean
     public Queue captchaQueue() {
         return QueueBuilder.durable(CAPTCHA_QUEUE)
@@ -52,6 +68,7 @@ public class RabbitMQConfig {
                 .build();
     }
 
+    // 用户队列
     @Bean
     public Queue userQueue() {
         return QueueBuilder.durable(USER_QUEUE)
@@ -59,11 +76,31 @@ public class RabbitMQConfig {
                 .build();
     }
 
-    @Bean
-    public TopicExchange Exchange() {
-        return new TopicExchange(TOPIC_EXCHANGE);
+    // 审核图片队列
+       @Bean
+    public Queue auditImageQueue() {
+        return QueueBuilder.durable(AUDIT_QUEUE)
+                .withArgument("x-message-ttl", 300000)
+                .build();
     }
 
+    // 审核视频队列
+    @Bean
+    public Queue auditVideoQueue() {
+        return QueueBuilder.durable(AUDIT_VIDEO_QUEUE)
+                .withArgument("x-message-ttl", 300000)
+                .build();
+    }
+
+    // 结果通知队列
+    @Bean
+    public Queue resultQueue() {
+        return QueueBuilder.durable(RESULT_QUEUE)
+                .withArgument("x-message-ttl", 300000)
+                .build();
+    }
+
+    // 验证码队列绑定
     @Bean
     public Binding captchaBinding(Queue captchaQueue, TopicExchange topicExchange) {
         return BindingBuilder.bind(captchaQueue)
@@ -71,10 +108,35 @@ public class RabbitMQConfig {
                 .with(CAPTCHA_ROUTING_KEY);
     }
 
+    // 用户队列绑定
     @Bean
     public Binding userBinding(Queue userQueue, TopicExchange topicExchange) {
         return BindingBuilder.bind(userQueue)
                 .to(topicExchange)
                 .with(USER_ROUTING_KEY);
+    }
+
+    // 审核图片队列绑定
+    @Bean
+    public Binding auditImageBinding(Queue auditImageQueue, TopicExchange topicExchange) {
+        return BindingBuilder.bind(auditImageQueue)
+                .to(topicExchange)
+                .with(AUDIT_IMAGE_ROUTING_KEY);
+    }
+
+    // 审核视频队列绑定
+    @Bean
+    public Binding auditVideoBinding(Queue auditVideoQueue, TopicExchange topicExchange) {
+        return BindingBuilder.bind(auditVideoQueue)
+                .to(topicExchange)
+                .with(AUDIT_VIDEO_ROUTING_KEY);
+    }
+
+    // 结果通知队列绑定
+    @Bean
+    public Binding resultBinding(Queue resultQueue, TopicExchange topicExchange) {
+        return BindingBuilder.bind(resultQueue)
+                .to(topicExchange)
+                .with(RESULT_ROUTING_KEY);
     }
 }

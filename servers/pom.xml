@@ -13,7 +13,7 @@
 
     <modules>
         <module>server-auth</module>
-        <module>server-minio</module>
+        <module>server-resource</module>
         <module>server-club</module>
         <module>server-captcha</module>
         <module>server-user</module>

@@ -13,8 +13,7 @@ import org.example.model.ClubApiResponse;
 import org.example.model.ClubApiStatus;
 import org.example.model.vo.ActivityCardVo;
 import org.example.service.ActivityService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cloud.logging.LoggingRebinder;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,13 +24,13 @@ import java.util.List;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/clubs/activity")
+@RequestMapping("/api/clubs/activities")
 public class ActivityController {
 
     @Resource
     private ActivityService activityService;
-    @Autowired
-    private LoggingRebinder loggingRebinder;
+    @Resource
+    private RedisTemplate<String, Object> redisTemplate;
 
     /**
      * 创建活动
@@ -87,8 +86,8 @@ public class ActivityController {
         if (start.isAfter(end)){
             throw new IllegalArgumentException("开始日期必须在结束日期之前");
         }
-        log.info("Getting activities between {} and {}", start, end);
-        final List<ActivityCardVo> activities = activityService.queryActivity(start, end);
+
+        final List<ActivityCardVo> activities = activityService.queryActivityByDate(start, end);
         return ResponseEntity.status(ClubApiStatus.GET_SUCCESS.getCode())
                 .body(ClubApiResponse.success(ClubApiStatus.GET_SUCCESS,activities));
     }

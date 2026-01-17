@@ -60,11 +60,11 @@ public class AuthService {
                 SecurityContextHolder.getContext().setAuthentication(authentication);
                 System.out.println("authentication:" + authentication);
                 // 3. 生成JWT令牌
-                String subject = "UserId:" + ((MyUserDetails) authentication.getPrincipal()).getUserAuth().getId();
-                String access_token = JwtUtil.generateJwtToken(subject, 1000 * 60 * 5);    // 5分钟
-                String refresh_token = JwtUtil.generateJwtToken(subject, 1000 * 60 * 60 * 24);    // 24小时
+                String key = "UserId:" + ((MyUserDetails) authentication.getPrincipal()).getUserAuth().getId();
+                String access_token = JwtUtil.generateJwtToken(key, 1000 * 60 * 5);    // 5分钟
+                String refresh_token = JwtUtil.generateJwtToken(key, 1000 * 60 * 60 * 24);    // 24小时
                 // 4. 写入用户标识信息到redis
-                redisTemplate.opsForValue().set(subject, authentication.getPrincipal(), 1000 * 60 * 5, TimeUnit.MILLISECONDS);
+                redisTemplate.opsForValue().set(key, authentication.getPrincipal(), 1000 * 60 * 5, TimeUnit.MILLISECONDS);
                 // 5. 构造返回DTO
                 TokenDto tokenDto = new TokenDto(access_token, refresh_token, 60 * 5, 60 * 60 * 24);
                 apiResponseDto = new ApiResponseDto(tokenDto, null);
@@ -107,20 +107,28 @@ public class AuthService {
 
     public AuthApiResponse<?> logout(){
         // 1. 清除redis中的用户信息
-        String subject = "UserId:" + ((MyUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUserAuth().getId();
-        redisTemplate.delete(subject);
+        String key= "UserId:" + ((MyUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUserAuth().getId();
+        redisTemplate.delete(key);
         // 2. 清除认证上下文
         SecurityContextHolder.clearContext();
         // 3. 返回注销成功信息
         return AuthApiResponse.logOutSuccess();
     }
 
+/**
+ * 获取新的成功令牌的方法
+ * @param userId 用户ID
+ * @return AuthApiResponse 包含新生成的令牌或错误信息的响应对象
+ */
     public AuthApiResponse<?> getNewSuccessToken(String userId) {
         try {
             // 1. 生成JWT令牌
+            // 构造JWT主题，包含用户ID信息
             String subject = "UserId:" + userId;
+            // 生成有效期为5分钟的JWT访问令牌
             String access_token = JwtUtil.generateJwtToken(subject, 1000 * 60 * 5);    // 5分钟
             // 2. 构造返回DTO
+            // 创建令牌对象，包含访问令牌、刷新令牌(此处为null)、有效期(5分钟)和过期时间(0)
             TokenDto tokenDto = new TokenDto(access_token, null, 60 * 5, 0);
             return AuthApiResponse.getNewTokenSuccess(tokenDto);
         } catch (Exception e) {

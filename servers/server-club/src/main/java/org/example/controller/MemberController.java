@@ -58,18 +58,6 @@ public class MemberController {
                 .body(ClubApiResponse.success(ClubApiStatus.PUT_SUCCESS, newMember));
     }
 
-    /*
-     * 注意：此方法已禁用，因为在此控制器中不合适
-     * 获取所有成员的操作不应该依赖于特定社团ID
-     * 如果需要获取所有成员，请使用专门的控制器
-     */
-    // @GetMapping()
-    // public ResponseEntity<ClubApiResponse<?>> getMembers() {
-    //     final List<Member> members = memberService.queryMembers();
-    //     return ResponseEntity.status(ClubApiStatus.GET_SUCCESS.getCode())
-    //             .body(ClubApiResponse.success(ClubApiStatus.GET_SUCCESS, members));
-    // }
-
     /**
      * 根据社团ID获取成员列表
      * @param clubId 社团ID
@@ -92,17 +80,5 @@ public class MemberController {
         final Member member = memberService.getMemberById(memberId);
         return ResponseEntity.status(ClubApiStatus.GET_SUCCESS.getCode())
                 .body(ClubApiResponse.success(ClubApiStatus.GET_SUCCESS, member));
-    }
-
-    /**
-     * 根据用户ID获取成员信息
-     * @param userId 用户ID
-     * @return 响应结果，包含指定用户的所有成员信息
-     */
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<ClubApiResponse<?>> getMembersByUserId(@PathVariable Integer userId) {
-        final List<Member> members = memberService.getMembersByUserId(userId);
-        return ResponseEntity.status(ClubApiStatus.GET_SUCCESS.getCode())
-                .body(ClubApiResponse.success(ClubApiStatus.GET_SUCCESS, members));
     }
 }
