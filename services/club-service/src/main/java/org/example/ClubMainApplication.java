@@ -1,18 +1,15 @@
 package org.example;
 
-
 import org.example.config.RedisConfig;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Import;
 
-
-@EnableDiscoveryClient
 @SpringBootApplication
-@Import(RedisConfig.class)
-public class GateWayApplication {
+@EnableCaching
+public class ClubMainApplication {
     public static void main(String[] args) {
-        SpringApplication.run(GateWayApplication.class, args);
+        SpringApplication.run(ClubMainApplication.class, args);
     }
 }
