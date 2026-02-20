@@ -30,9 +30,10 @@ public class JwtFilter implements GlobalFilter {
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
 
         String path = exchange.getRequest().getPath().value();
-        log.info("path: {}", path);
+        log.info("请求路径: {}", path);
 
         if (isWhitelist(path)){
+            log.info("白名单，放行");
             return chain.filter(exchange);
         }
 
@@ -60,12 +61,12 @@ public class JwtFilter implements GlobalFilter {
         // 4. 将用户信息添加到下游请求头中
         ServerHttpRequest mutatedRequest = exchange.getRequest().mutate()
                 .headers(headers -> headers.remove("Authorization"))
-                .header("X-Subject", subject)
                 .header("X-UserId", userId)
                 .build();
 
         ServerWebExchange mutatedExchange = exchange.mutate().request(mutatedRequest).build();
 
+        log.info("验证通过，放行");
         // 5. 将修改后的请求转发给下游服务
         return chain.filter(mutatedExchange);
     }

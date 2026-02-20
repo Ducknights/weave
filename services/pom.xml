@@ -18,7 +18,7 @@
         <module>captcha-service</module>
         <module>user-service</module>
         <module>ai-service</module>
-        <module>interaction-service</module>
+        <module>chat-service</module>
     </modules>
 
     <artifactId>services</artifactId>

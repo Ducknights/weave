@@ -53,6 +53,6 @@ spring:
 app:
   # 邮件发送者名称
   email:
-    from-name: 测试
+    from-name: 毕业设计
     # 配置默认回复邮箱
     reply-to: 2897662424@qq.com

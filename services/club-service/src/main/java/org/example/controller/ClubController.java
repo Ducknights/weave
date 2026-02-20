@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/clubs")
+@RequestMapping("/api/club")
 public class ClubController {
 
     @Resource
@@ -67,7 +67,7 @@ public class ClubController {
      *
      * @return 所有俱乐部信息
      */
-    @GetMapping()
+    @GetMapping("/clubs")
     public ResponseEntity<ClubApiResponse<?>> getClubs() {
         final List<ClubCardVo> clubCardVos = clubService.queryClubs();
         return ResponseEntity.status(ClubApiStatus.GET_SUCCESS.getCode())

@@ -10,7 +10,7 @@ import java.util.UUID;
 @Component
 public class JwtUtil {
 
-    private static final String SECRET = "ChenXin";
+    private static final String SECRET = "TianYongCheng";
 
     //生成token
     public static String generateJwtToken(String subject,int expiration) {

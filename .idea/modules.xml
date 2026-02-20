@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/server-captcha.iml" filepath="$PROJECT_DIR$/server-captcha.iml" />
+      <module fileurl="file://$PROJECT_DIR$/captcha-service.iml" filepath="$PROJECT_DIR$/captcha-service.iml" />
     </modules>
   </component>
 </project>

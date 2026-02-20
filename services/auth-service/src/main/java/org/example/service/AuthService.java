@@ -6,6 +6,8 @@ import jakarta.annotation.Resource;
 import lombok.extern.log4j.Log4j2;
 import org.example.exception.CodeErrorException;
 import org.example.exception.EmailExistedException;
+import org.example.feign.CaptchaFeignClient;
+import org.example.feign.UserFeignClient;
 import org.example.model.AuthApiResponse;
 import org.example.dto.*;
 import org.example.entity.MyUserDetails;
@@ -27,8 +29,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.concurrent.TimeUnit;
 
-import static org.example.config.RabbitMQConfig.*;
-
 @Log4j2
 @Service
 public class AuthService {
@@ -41,9 +41,11 @@ public class AuthService {
     @Resource
     private RedisTemplate<String,Object> redisTemplate;
     @Resource
-    private RabbitTemplate rabbitTemplate;
+    private CaptchaFeignClient captchaFeignClient;
     @Resource
     private AuthMapper authMapper;
+    @Resource
+    private UserFeignClient userFeignClient;
 
     public AuthApiResponse<?> login(ApiRequest apiRequest) {
         ApiResponseDto apiResponseDto = null;
@@ -67,7 +69,8 @@ public class AuthService {
                 redisTemplate.opsForValue().set(key, authentication.getPrincipal(), 1000 * 60 * 5, TimeUnit.MILLISECONDS);
                 // 5. 构造返回DTO
                 TokenDto tokenDto = new TokenDto(access_token, refresh_token, 60 * 5, 60 * 60 * 24);
-                apiResponseDto = new ApiResponseDto(tokenDto, null);
+                UserDto userDto = userFeignClient.getUserById(((MyUserDetails) authentication.getPrincipal()).getUserAuth().getId());
+                apiResponseDto = new ApiResponseDto(tokenDto, userDto);
             }
         } catch (Exception e) {
             System.out.println("登录失败：" + e.getMessage());
@@ -88,7 +91,11 @@ public class AuthService {
         if (Boolean.TRUE.equals(redisTemplate.hasKey(lock))){
             throw new CodeErrorException("验证码已发送，请等待");
         }
-        rabbitTemplate.convertAndSend(TOPIC_EXCHANGE, CAPTCHA_ROUTING_KEY, email);
+        try{
+            captchaFeignClient.sendCaptchaCode(email);
+        }catch (Exception e){
+            throw new CodeErrorException("验证码发送失败");
+        }
         return AuthApiResponse.codeSendSuccess();
     }
 
@@ -120,11 +127,11 @@ public class AuthService {
         return AuthApiResponse.logOutSuccess();
     }
 
-/**
- * 获取新的成功令牌的方法
- * @param userId 用户ID
- * @return AuthApiResponse 包含新生成的令牌或错误信息的响应对象
- */
+    /**
+     * 获取新的成功令牌的方法
+     * @param userId 用户ID
+     * @return AuthApiResponse 包含新生成的令牌或错误信息的响应对象
+     */
     public AuthApiResponse<?> getNewSuccessToken(String userId) {
         try {
             // 1. 生成JWT令牌

@@ -7,7 +7,7 @@
   </component>
   <component name="ExternalStorageConfigurationManager" enabled="true" />
   <component name="FrameworkDetectionExcludesConfiguration">
-    <file type="web" url="file://$PROJECT_DIR$/servers/server-club" />
+    <file type="web" url="file://$PROJECT_DIR$/services/club-service" />
     <file type="web" url="file://$PROJECT_DIR$/user" />
   </component>
   <component name="MavenProjectsManager">
@@ -22,6 +22,7 @@
       <set>
         <option value="$PROJECT_DIR$/servers/server-captcha-ddd/pom.xml" />
         <option value="$PROJECT_DIR$/servers/server-rabbitmq/pom.xml" />
+        <option value="$PROJECT_DIR$/services/interaction-service/pom.xml" />
         <option value="$PROJECT_DIR$/services/service-comment/pom.xml" />
         <option value="$PROJECT_DIR$/services/untitled/pom.xml" />
         <option value="$PROJECT_DIR$/utils/pom.xml" />

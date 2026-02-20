@@ -13,9 +13,9 @@ public interface AuthMapper {
     // 根据邮箱查询用户信息
     UserAuth selectUserByEmail(String email);
 
-    @Insert("INSERT INTO users(email,password,created_at) VALUES(#{email},#{password},CURRENT_TIMESTAMP)")
+    @Insert("INSERT INTO users(email,password) VALUES(#{email},#{password})")
     // 插入一个用户信息，包括邮箱、密码和创建时间
-    void insertUser(UserAuth userAuth);
+    UserAuth insertUser(UserAuth userAuth);
 
     @Select("SELECT id,avatar,name,motto FROM users WHERE id = #{id}")
     // 根据邮箱和密码查询用户信息

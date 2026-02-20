@@ -24,7 +24,7 @@ import java.util.List;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/clubs/activities")
+@RequestMapping("/api/club/activities")
 public class ActivityController {
 
     @Resource

@@ -14,12 +14,12 @@ spring:
       host: localhost
       port: 6379
 
-logging:
-  level:
-    org.springframework.cloud.gateway: TRACE
-    reactor.netty.http.client: DEBUG
-    org.springframework.web.reactive: DEBUG
-    org.springframework.cloud.loadbalancer: DEBUG
+#logging:
+#  level:
+#    org.springframework.cloud.gateway: TRACE
+#    reactor.netty.http.client: DEBUG
+#    org.springframework.web.reactive: DEBUG
+#    org.springframework.cloud.loadbalancer: DEBUG
 
 server:
   port: 80

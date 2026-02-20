@@ -11,9 +11,8 @@ import java.time.LocalDateTime;
 @TableName("resource")
 public class Resource {
     @TableId(type = IdType.AUTO)
-    private Integer ResourcesId;
-
-    private Integer ownerId;
+    private Long ResourcesId;
+    private Long ownerId;
     private String imagePath;
     private String title;
     private String content;

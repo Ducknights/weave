@@ -7,17 +7,19 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="server-club" />
-        <module name="server-captcha" />
+        <module name="captcha-service" />
+        <module name="auth-service" />
         <module name="common" />
-        <module name="server-resource" />
-        <module name="server-ai" />
-        <module name="server-auth" />
-        <module name="server-user" />
+        <module name="club-service" />
+        <module name="resource-service" />
+        <module name="chat-service" />
+        <module name="user-service" />
         <module name="gateway" />
+        <module name="ai-service" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="interaction-service" target="17" />
       <module name="server-captcha-ddd" target="17" />
       <module name="server-rabbitmq" target="17" />
       <module name="service-comment" target="17" />
@@ -27,17 +29,19 @@
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="Graduation-Design-java" options="" />
+      <module name="ai-service" options="-parameters" />
+      <module name="auth-service" options="-parameters" />
+      <module name="captcha-service" options="-parameters" />
+      <module name="chat-service" options="-parameters" />
+      <module name="club-service" options="-parameters" />
       <module name="common" options="-parameters" />
       <module name="gateway" options="-parameters" />
-      <module name="server-ai" options="-parameters" />
-      <module name="server-auth" options="-parameters" />
-      <module name="server-captcha" options="-parameters" />
+      <module name="interaction-service" options="-parameters" />
+      <module name="resource-service" options="-parameters" />
       <module name="server-captcha-ddd" options="-parameters" />
-      <module name="server-club" options="-parameters" />
       <module name="server-rabbitmq" options="-parameters" />
-      <module name="server-resource" options="-parameters" />
-      <module name="server-user" options="-parameters" />
       <module name="service-comment" options="-parameters" />
+      <module name="user-service" options="-parameters" />
       <module name="utils" options="-parameters" />
     </option>
   </component>
