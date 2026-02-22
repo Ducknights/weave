@@ -67,7 +67,7 @@ public class AuthService {
                 String access_token = JwtUtil.generateJwtToken(key, 1000 * 60 * 5); // 5分钟
                 String refresh_token = JwtUtil.generateJwtToken(key, 1000 * 60 * 60 * 24);  // 24小时
                 // 写入用户标识信息到redis
-                redisTemplate.opsForValue().set(key, authentication.getPrincipal()); // 1小时
+                redisTemplate.opsForValue().set(key, ((MyUserDetails) authentication.getPrincipal()).getAuthorityList()); // 1小时
                 // 构造返回DTO
                 TokenDto tokenDto = new TokenDto(access_token, refresh_token, 60 * 5, 60 * 60 * 24);
 //                UserDto userDto = userFeignClient.getUserById(((MyUserDetails) authentication.getPrincipal()).getUserAuth().getId());
