@@ -1,7 +1,6 @@
 package org.example.service;
 
 
-import com.alibaba.nacos.common.utils.UuidUtils;
 import jakarta.annotation.Resource;
 import lombok.extern.log4j.Log4j2;
 import org.example.exception.CodeErrorException;
@@ -14,8 +13,8 @@ import org.example.entity.MyUserDetails;
 import org.example.mapper.AuthMapper;
 import org.example.model.ApiRequest;
 import org.example.model.VerifyCodeDto;
+import org.example.strings.CacheKey;
 import org.example.util.JwtUtil;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -50,7 +49,7 @@ public class AuthService {
     public AuthApiResponse<?> login(ApiRequest apiRequest) {
         ApiResponseDto apiResponseDto = null;
         try {
-            // 1. 使用Spring Security进行认证
+            // 使用Spring Security进行认证
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
                             apiRequest.getEmail(),
@@ -58,23 +57,25 @@ public class AuthService {
                     )
             );
             if (authentication.isAuthenticated()) {
-                // 2. 设置认证上下文
+                // 设置认证上下文
                 SecurityContextHolder.getContext().setAuthentication(authentication);
-                System.out.println("authentication:" + authentication);
-                // 3. 生成JWT令牌
-                String key = "UserId:" + ((MyUserDetails) authentication.getPrincipal()).getUserAuth().getId();
-                String access_token = JwtUtil.generateJwtToken(key, 1000 * 60 * 5);    // 5分钟
-                String refresh_token = JwtUtil.generateJwtToken(key, 1000 * 60 * 60 * 24);    // 24小时
-                // 4. 写入用户标识信息到redis
-                redisTemplate.opsForValue().set(key, authentication.getPrincipal(), 1000 * 60 * 5, TimeUnit.MILLISECONDS);
-                // 5. 构造返回DTO
+                // 获取用户ID
+                Long userId = ((MyUserDetails) authentication.getPrincipal()).getUserAuth().getId();
+                // 生成Redis键
+                String key = CacheKey.buildCacheKey(CacheKey.USER_AUTHORITY_AREA, userId);
+                // 生成JWT令牌
+                String access_token = JwtUtil.generateJwtToken(key, 1000 * 60 * 5); // 5分钟
+                String refresh_token = JwtUtil.generateJwtToken(key, 1000 * 60 * 60 * 24);  // 24小时
+                // 写入用户标识信息到redis
+                redisTemplate.opsForValue().set(key, authentication.getPrincipal()); // 1小时
+                // 构造返回DTO
                 TokenDto tokenDto = new TokenDto(access_token, refresh_token, 60 * 5, 60 * 60 * 24);
-                UserDto userDto = userFeignClient.getUserById(((MyUserDetails) authentication.getPrincipal()).getUserAuth().getId());
-                apiResponseDto = new ApiResponseDto(tokenDto, userDto);
+//                UserDto userDto = userFeignClient.getUserById(((MyUserDetails) authentication.getPrincipal()).getUserAuth().getId());
+                apiResponseDto = new ApiResponseDto(tokenDto, null);
             }
         } catch (Exception e) {
             System.out.println("登录失败：" + e.getMessage());
-            return AuthApiResponse.loginFail("错误码："+UuidUtils.generateUuid());
+            throw new RuntimeException("登录失败", e);
         }
         return AuthApiResponse.loginSuccess(apiResponseDto);
     }
@@ -119,7 +120,7 @@ public class AuthService {
 
     public AuthApiResponse<?> logout(){
         // 1. 清除redis中的用户信息
-        String key= "UserId:" + ((MyUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUserAuth().getId();
+        String key= CacheKey.buildCacheKey(CacheKey.USER_AUTHORITY_AREA, String.valueOf(((MyUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUserAuth().getId()));
         redisTemplate.delete(key);
         // 2. 清除认证上下文
         SecurityContextHolder.clearContext();

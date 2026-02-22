@@ -1,0 +1,57 @@
+package org.example.controller;
+
+
+import jakarta.annotation.Resource;
+import org.example.bean.RequestContext;
+import org.example.dto.UserInteractionDto;
+import org.example.service.InteractionService;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/user/like")
+
+public class LikeController {
+
+    @Resource
+    private InteractionService interactionService;
+    @Resource
+    private RequestContext requestContext;
+
+    /**
+      * 用户点赞帖子的接口
+     *
+     * @param targetPostId 帖子ID，通过路径变量传递
+     */
+    @PostMapping("/{targetPostId}")
+    public void likePost(@PathVariable Long targetPostId) {
+        Long userId = requestContext.getUserId();
+        UserInteractionDto dto = new UserInteractionDto(userId, targetPostId, 1);
+        interactionService.addRecord(dto);
+    }
+
+    /**
+      * 用户取消点赞帖子的接口
+     *
+     * @param targetPostId 帖子ID，通过路径变量传递
+     */
+    @DeleteMapping("/{targetPostId}")
+    public void unlikePost(@PathVariable Long targetPostId) {
+        Long userId = requestContext.getUserId();
+        UserInteractionDto dto = new UserInteractionDto(userId, targetPostId, 1);
+        interactionService.deleteRecord(dto);
+    }
+
+    /**
+      * 获取用户点赞的帖子列表的接口
+     *
+      * @return 返回用户点赞的帖子ID列表的接口
+     */
+    @GetMapping()
+    public List<Long> getUserLikedPosts() {
+        Long userId = requestContext.getUserId();
+        UserInteractionDto dto = new UserInteractionDto(userId, null, 1);
+        return interactionService.getRecord(dto);
+    }
+}

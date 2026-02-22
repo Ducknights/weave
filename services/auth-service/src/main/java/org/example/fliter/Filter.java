@@ -21,8 +21,21 @@ public class Filter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        requestContext.setRequestId(request.getHeader("X-RequestId"));
-        requestContext.setUserId(request.getHeader("X-UserId"));
+        String requestIdStr = request.getHeader("X-RequestId");
+        String userIdStr = request.getHeader("X-UserId");
+        
+        if (requestIdStr != null && !requestIdStr.trim().isEmpty()) {
+            requestContext.setRequestId(Long.valueOf(requestIdStr));
+        } else {
+            requestContext.setRequestId(null); // 或设置默认值 0L
+        }
+        
+        if (userIdStr != null && !userIdStr.trim().isEmpty()) {
+            requestContext.setUserId(Long.valueOf(userIdStr));
+        } else {
+            requestContext.setUserId(null); // 或设置默认值 0L
+        }
+        
         filterChain.doFilter(request, response);
     }
 }

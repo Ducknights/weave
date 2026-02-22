@@ -9,16 +9,16 @@
         <outputRelativeToContentRoot value="true" />
         <module name="captcha-service" />
         <module name="auth-service" />
-        <module name="common" />
         <module name="club-service" />
+        <module name="my-common-boot-starter" />
         <module name="resource-service" />
         <module name="chat-service" />
         <module name="user-service" />
         <module name="gateway" />
-        <module name="ai-service" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="ai-service" target="17" />
       <module name="interaction-service" target="17" />
       <module name="server-captcha-ddd" target="17" />
       <module name="server-rabbitmq" target="17" />
@@ -34,9 +34,9 @@
       <module name="captcha-service" options="-parameters" />
       <module name="chat-service" options="-parameters" />
       <module name="club-service" options="-parameters" />
-      <module name="common" options="-parameters" />
       <module name="gateway" options="-parameters" />
       <module name="interaction-service" options="-parameters" />
+      <module name="my-common-boot-starter" options="-parameters" />
       <module name="resource-service" options="-parameters" />
       <module name="server-captcha-ddd" options="-parameters" />
       <module name="server-rabbitmq" options="-parameters" />

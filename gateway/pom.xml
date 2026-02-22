@@ -51,7 +51,7 @@
         </dependency>
         <dependency>
             <groupId>org.example</groupId>
-            <artifactId>common</artifactId>
+            <artifactId>my-common-boot-starter</artifactId>
             <version>0.0.1-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>

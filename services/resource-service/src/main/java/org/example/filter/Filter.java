@@ -21,8 +21,8 @@ public class Filter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        requestContext.setRequestId(request.getHeader("X-RequestId"));
-        requestContext.setUserId(request.getHeader("X-UserId"));
+        requestContext.setRequestId(Long.valueOf(request.getHeader("X-RequestId")));
+        requestContext.setUserId(Long.valueOf(request.getHeader("X-UserId")));
         filterChain.doFilter(request, response);
     }
 }

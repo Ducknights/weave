@@ -17,7 +17,6 @@
         <module>club-service</module>
         <module>captcha-service</module>
         <module>user-service</module>
-        <module>ai-service</module>
         <module>chat-service</module>
     </modules>
 
@@ -106,7 +105,7 @@
 <!--        common层依赖-->
         <dependency>
             <groupId>org.example</groupId>
-            <artifactId>common</artifactId>
+            <artifactId>my-common-boot-starter</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
         <dependency>

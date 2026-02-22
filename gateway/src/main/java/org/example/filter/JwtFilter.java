@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.config.GatewayWhitelistProperties;
 import org.example.exception.NoTokenException;
 import org.example.exception.TokenVerifyException;
+import org.example.strings.CacheKey;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.annotation.Order;
@@ -32,7 +33,7 @@ public class JwtFilter implements GlobalFilter {
         String path = exchange.getRequest().getPath().value();
         log.info("请求路径: {}", path);
 
-        if (isWhitelist(path)){
+        if (isWhitelist(path)) {
             log.info("白名单，放行");
             return chain.filter(exchange);
         }
@@ -48,12 +49,11 @@ public class JwtFilter implements GlobalFilter {
         String jwt = token.substring(7);
 
         // 3. 验证并解析 JWT
-        String subject; // 用户标识信息(用于redis获取用户信息)
-        String userId;  // 用户id
-
+        String subject; //RedisKey
+        String userId; //用户ID
         try {
-            subject = JwtUtil.getJwtSubject(jwt); // 解析jwt
-            userId = subject.substring(7);
+            subject = JwtUtil.getJwtSubject(jwt);
+            userId = subject.substring(jwt.indexOf("::") + 2);
         } catch (Exception e) {
             throw new TokenVerifyException("登录信息过期，请重新登录");
         }

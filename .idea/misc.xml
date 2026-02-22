@@ -22,6 +22,7 @@
       <set>
         <option value="$PROJECT_DIR$/servers/server-captcha-ddd/pom.xml" />
         <option value="$PROJECT_DIR$/servers/server-rabbitmq/pom.xml" />
+        <option value="$PROJECT_DIR$/services/ai-service/pom.xml" />
         <option value="$PROJECT_DIR$/services/interaction-service/pom.xml" />
         <option value="$PROJECT_DIR$/services/service-comment/pom.xml" />
         <option value="$PROJECT_DIR$/services/untitled/pom.xml" />
