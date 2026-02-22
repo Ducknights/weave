@@ -12,9 +12,7 @@
     <artifactId>gateway</artifactId>
 
     <properties>
-        <maven.compiler.source>22</maven.compiler.source>
-        <maven.compiler.target>22</maven.compiler.target>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <!-- 继承根pom的属性配置 -->
     </properties>
 
     <dependencies>
