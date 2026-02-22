@@ -1,0 +1,26 @@
+# 构建输出目录
+target/
+*/target/
+**/target/
+
+# IDE 相关
+.idea/
+*.iml
+*.iws
+*.ipr
+workspace.xml
+shelf/
+dataSources/
+dataSources.local.xml
+httpRequests/
+
+# 日志文件
+*.log
+
+# 操作系统元数据
+.DS_Store
+Thumbs.db
+
+# 本地配置文件
+application-local.properties
+application-local.yml
