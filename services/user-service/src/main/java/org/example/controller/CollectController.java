@@ -4,6 +4,9 @@ import jakarta.annotation.Resource;
 import org.example.bean.RequestContext;
 import org.example.dto.UserInteractionDto;
 import org.example.service.InteractionService;
+import org.example.strings.CacheKey;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,6 +26,7 @@ public class CollectController {
      * @param targetPostId 帖子ID，通过路径变量传递
      */
     @PostMapping("/{targetPostId}")
+    @CacheEvict(value = CacheKey.USER_COLLECTED_POSTS, key = "#requestContext.userId")
     public void collectPost(@PathVariable Long targetPostId) {
         Long userId = requestContext.getUserId();
         UserInteractionDto dto = new UserInteractionDto(userId, targetPostId, 3);
@@ -35,6 +39,7 @@ public class CollectController {
      * @param targetPostId 帖子ID，通过路径变量传递
      */
     @DeleteMapping("/{targetPostId}")
+    @CacheEvict(value = CacheKey.USER_COLLECTED_POSTS, key = "#requestContext.userId")
     public void uncollectedPost(@PathVariable(value = "targetPostId") Long targetPostId) {
         Long userId = requestContext.getUserId();
         UserInteractionDto dto = new UserInteractionDto(userId, targetPostId, 3);
@@ -45,9 +50,10 @@ public class CollectController {
      * 获取用户收藏的帖子列表
      * 该接口用于处理获取当前登录用户所有收藏帖子的请求
      *
-      * @return 返回用户收藏帖子的ID列表
+     * @return 返回用户收藏帖子的ID列表
      */
     @GetMapping()
+    @Cacheable(value = CacheKey.USER_COLLECTED_POSTS, key = "#requestContext.userId")
     public List<Long> getUserCollectedPosts() {
         Long userId = requestContext.getUserId();
         UserInteractionDto dto = new UserInteractionDto(userId, null, 3);

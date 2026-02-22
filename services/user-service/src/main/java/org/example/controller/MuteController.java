@@ -4,6 +4,9 @@ import jakarta.annotation.Resource;
 import org.example.bean.RequestContext;
 import org.example.dto.UserInteractionDto;
 import org.example.service.InteractionService;
+import org.example.strings.CacheKey;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,6 +20,7 @@ public class MuteController {
     private InteractionService interactionService;
 
     @GetMapping()
+    @Cacheable(value = CacheKey.USER_MUTED_USERS, key = "#requestContext.userId")
     public List<Long> getMutedUsers() {
         Long userId = requestContext.getUserId();
         UserInteractionDto dto = new UserInteractionDto(userId, null, 2);
@@ -24,6 +28,7 @@ public class MuteController {
     }
 
     @PostMapping("/{targetUserId}")
+    @CacheEvict(value = CacheKey.USER_MUTED_USERS, key = "#requestContext.userId")
     public void muteUser(@PathVariable Long targetUserId) {
         Long userId = requestContext.getUserId();
         UserInteractionDto dto = new UserInteractionDto(userId, targetUserId, 2);
@@ -31,6 +36,7 @@ public class MuteController {
     }
 
     @DeleteMapping("/{targetUserId}")
+    @CacheEvict(value = CacheKey.USER_MUTED_USERS, key = "#requestContext.userId")
     public void unmuteUser(@PathVariable Long targetUserId) {
         Long userId = requestContext.getUserId();
         UserInteractionDto dto = new UserInteractionDto(userId, targetUserId, 2);

@@ -4,6 +4,9 @@ import jakarta.annotation.Resource;
 import org.example.bean.RequestContext;
 import org.example.dto.UserInteractionDto;
 import org.example.service.InteractionService;
+import org.example.strings.CacheKey;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,6 +26,7 @@ public class BlockController {
      * @return List<Long> 返回被屏蔽用户的ID列表
      */
     @GetMapping()
+    @Cacheable(value = CacheKey.USER_BLOCKED_USERS, key = "#requestContext.userId")
     public List<Long> getBlockedUsers() {
         Long userId = requestContext.getUserId();
         UserInteractionDto dto = new UserInteractionDto(userId, null, 3);
@@ -35,6 +39,7 @@ public class BlockController {
      * @param targetUserId 被拉黑用户的ID，通过路径变量传递
      */
     @PostMapping("/{targetUserId}")
+    @CacheEvict(value = CacheKey.USER_BLOCKED_USERS, key = "#requestContext.userId")
     public void blockUser(@PathVariable Long targetUserId) {
         Long userId = requestContext.getUserId();
         UserInteractionDto dto = new UserInteractionDto(userId, targetUserId, 3);
@@ -48,6 +53,7 @@ public class BlockController {
      * @param targetUserId 路径变量，表示要解除封禁的目标用户ID
      */
     @DeleteMapping("/{targetUserId}")
+    @CacheEvict(value = CacheKey.USER_BLOCKED_USERS, key = "#requestContext.userId")
     public void unblockUser(@PathVariable Long targetUserId) {
         Long userId = requestContext.getUserId();
         UserInteractionDto dto = new UserInteractionDto(userId, targetUserId, 3);

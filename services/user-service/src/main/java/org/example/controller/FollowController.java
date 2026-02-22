@@ -4,6 +4,9 @@ import jakarta.annotation.Resource;
 import org.example.bean.RequestContext;
 import org.example.dto.UserInteractionDto;
 import org.example.service.InteractionService;
+import org.example.strings.CacheKey;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,6 +26,7 @@ public class FollowController {
      * @return 用户粉丝的ID列表，类型为List<Long>
      */
     @GetMapping()
+    @Cacheable(value = CacheKey.USER_FOLLOWERS, key = "#requestContext.userId")
     public List<Long> getUserFollowers() {
         Long userId = requestContext.getUserId();
         UserInteractionDto dto = new UserInteractionDto(userId, null, 1); // 1-关注 2-屏蔽 3-拉黑
@@ -35,10 +39,11 @@ public class FollowController {
      * @param targetUserId 被关注用户的ID
      */
     @PostMapping("/{targetUserId}")
+    @CacheEvict(value = CacheKey.USER_FOLLOWERS, key = "#requestContext.userId")
     public void followUser(@PathVariable Long targetUserId) {
         Long userId = requestContext.getUserId();
         UserInteractionDto dto = new UserInteractionDto(userId, targetUserId, 1);
-    // 调用交互服务添加关注关系
+        // 调用交互服务添加关注关系
         interactionService.addRecord(dto);
     }
 
@@ -48,6 +53,7 @@ public class FollowController {
      * @param targetUserId 被取消关注用户的ID
      */
     @DeleteMapping("/{targetUserId}")
+    @CacheEvict(value = CacheKey.USER_FOLLOWERS, key = "#requestContext.userId")
     public void unfollowUser(@PathVariable Long targetUserId) {
         Long userId = requestContext.getUserId();
         UserInteractionDto dto = new UserInteractionDto(userId, targetUserId, 1);

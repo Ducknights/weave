@@ -5,6 +5,9 @@ import jakarta.annotation.Resource;
 import org.example.bean.RequestContext;
 import org.example.dto.UserInteractionDto;
 import org.example.service.InteractionService;
+import org.example.strings.CacheKey;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,6 +28,7 @@ public class LikeController {
      * @param targetPostId 帖子ID，通过路径变量传递
      */
     @PostMapping("/{targetPostId}")
+    @CacheEvict(value = CacheKey.USER_LIKED_POSTS, key = "#requestContext.userId")
     public void likePost(@PathVariable Long targetPostId) {
         Long userId = requestContext.getUserId();
         UserInteractionDto dto = new UserInteractionDto(userId, targetPostId, 1);
@@ -37,6 +41,7 @@ public class LikeController {
      * @param targetPostId 帖子ID，通过路径变量传递
      */
     @DeleteMapping("/{targetPostId}")
+    @CacheEvict(value = CacheKey.USER_LIKED_POSTS, key = "#requestContext.userId")
     public void unlikePost(@PathVariable Long targetPostId) {
         Long userId = requestContext.getUserId();
         UserInteractionDto dto = new UserInteractionDto(userId, targetPostId, 1);
@@ -49,6 +54,7 @@ public class LikeController {
       * @return 返回用户点赞的帖子ID列表的接口
      */
     @GetMapping()
+    @Cacheable(value = CacheKey.USER_LIKED_POSTS, key = "#requestContext.userId")
     public List<Long> getUserLikedPosts() {
         Long userId = requestContext.getUserId();
         UserInteractionDto dto = new UserInteractionDto(userId, null, 1);
