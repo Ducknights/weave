@@ -24,3 +24,10 @@ Thumbs.db
 # 本地配置文件
 application-local.properties
 application-local.yml
+
+# Node.js
+node_modules/
+npm-debug.log
+dist/
+build/
+*.env
