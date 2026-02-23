@@ -119,8 +119,21 @@ public class RedisConfig {
 
         configMap.put(CacheKey.USER_AUTHORITY_AREA, defaultConfig.entryTtl(Duration.ofHours(24))); // 用户权限缓存，24小时
         configMap.put(CacheKey.USER_INFO_AREA, defaultConfig.entryTtl(Duration.ofHours(1))); // 用户信息缓存，1小时
-        configMap.put(CacheKey.ACTIVITY_AREA, defaultConfig.entryTtl(Duration.ofHours(1))); // 活动信息缓存，1小时
 
+        // 社团相关
+        configMap.put(CacheKey.ACTIVITY_AREA, defaultConfig.entryTtl(Duration.ofHours(1))); // 活动信息缓存，1小时
+        configMap.put(CacheKey.CLUB_AREA, defaultConfig.entryTtl(Duration.ofHours(1))); // 社团信息缓存，1小时
+        configMap.put(CacheKey.POST_AREA, defaultConfig.entryTtl(Duration.ofHours(1))); // 帖子缓存，1小时
+        configMap.put(CacheKey.POST_DETAIL_AREA, defaultConfig.entryTtl(Duration.ofHours(1))); // 帖子详情缓存，1小时
+
+        // 用户相关
+        configMap.put(CacheKey.USER_LIKED_POSTS, defaultConfig.entryTtl(Duration.ofMinutes(5))); // 用户点赞的帖子缓存，5
+        configMap.put(CacheKey.USER_COLLECTED_POSTS, defaultConfig.entryTtl(Duration.ofMinutes(5))); // 用户收藏的帖子缓存，5分钟
+        configMap.put(CacheKey.USER_SHARED_POSTS, defaultConfig.entryTtl(Duration.ofMinutes(5))); // 用户分享的帖子缓存，5分钟
+        configMap.put(CacheKey.USER_FOLLOWERS, defaultConfig.entryTtl(Duration.ofMinutes(5))); // 用户关注的用户缓存，5分钟
+        configMap.put(CacheKey.USER_FANS, defaultConfig.entryTtl(Duration.ofMinutes(5))); // 用户粉丝缓存，5分钟
+        configMap.put(CacheKey.USER_MUTED_USERS, defaultConfig.entryTtl(Duration.ofMinutes(5))); // 用户屏蔽的用户缓存，5分钟
+        configMap.put(CacheKey.USER_BLOCKED_USERS, defaultConfig.entryTtl(Duration.ofMinutes(5))); // 用户拉黑的用户缓存，5分钟
 
         return RedisCacheManager.builder(factory)
                 .cacheDefaults(defaultConfig)
