@@ -117,8 +117,10 @@ public class RedisConfig {
         // 自定义缓存区域配置
         Map<String, RedisCacheConfiguration> configMap = new HashMap<>();
 
+        // 认证相关
         configMap.put(CacheKey.USER_AUTHORITY_AREA, defaultConfig.entryTtl(Duration.ofHours(24))); // 用户权限缓存，24小时
         configMap.put(CacheKey.USER_INFO_AREA, defaultConfig.entryTtl(Duration.ofHours(1))); // 用户信息缓存，1小时
+        configMap.put(CacheKey.CAPTCHA_AREA, defaultConfig.entryTtl(Duration.ofMinutes(5))); // 验证码缓存，5分钟
 
         // 社团相关
         configMap.put(CacheKey.ACTIVITY_AREA, defaultConfig.entryTtl(Duration.ofHours(1))); // 活动信息缓存，1小时

@@ -1,12 +1,13 @@
 package org.example.strings;
 
 public class CacheKey {
-
     private static final String KEY_SEPARATOR = "::";
     // 用户权限缓存区域
     public static final String USER_AUTHORITY_AREA = "user:authorities";
     // 用户信息缓存区域
     public static final String USER_INFO_AREA = "user:info";
+    // 验证码缓存区域
+    public static final String CAPTCHA_AREA = "verification:code";
     // 活动缓存区域
     public static final String ACTIVITY_AREA = "activity";
     // 社区缓存区域
