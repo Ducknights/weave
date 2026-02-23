@@ -100,9 +100,11 @@ public class AuthService {
         return AuthApiResponse.codeSendSuccess();
     }
 
+
     public AuthApiResponse<?> verifyCode(VerifyCodeDto dto) {
         // 1. 验证验证码
-        String code = (String) redisTemplate.opsForValue().get(dto.getEmail());
+        String key = CacheKey.buildCacheKey(CacheKey.CAPTCHA_AREA, dto.getEmail());
+        String code = (String) redisTemplate.opsForValue().get(key);
         if (!dto.getCode().equals(code)){
             throw new CodeErrorException("验证码错误");
         }
