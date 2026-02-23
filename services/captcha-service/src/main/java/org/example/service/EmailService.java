@@ -4,16 +4,12 @@ import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.mail.MailException;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
-import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.util.Map;
 
@@ -35,6 +31,30 @@ public class EmailService {
 
     @Value("${app.email.reply-to}")
     private String replyTo;
+
+    /**
+     * 使用Thymeleaf模板发送HTML邮件
+     *
+     * @param to             收件人邮箱
+     * @param subject        邮件主题
+     * @param templateName   模板名称（不需要.html后缀）
+     * @param contextVariables 模板变量
+     */
+    public void sendTemplateEmail(String to, String subject, String templateName, Map<String, Object> contextVariables) {
+        try {
+            Context context = new Context();
+            context.setVariables(contextVariables);
+
+            // 渲染模板
+            String htmlContent = templateEngine.process(templateName, context);
+
+            // 发送HTML邮件
+            sendHtmlEmail(to, subject, htmlContent);
+        } catch (Exception e) {
+            System.err.println("模板邮件发送失败: " + e.getMessage());
+            throw new RuntimeException("邮件发送失败", e);
+        }
+    }
 
     /**
      * 发送HTML邮件
@@ -59,27 +79,5 @@ public class EmailService {
         }
     }
 
-    /**
-     * 使用Thymeleaf模板发送HTML邮件
-     *
-     * @param to             收件人邮箱
-     * @param subject        邮件主题
-     * @param templateName   模板名称（不需要.html后缀）
-     * @param contextVariables 模板变量
-     */
-    public void sendTemplateEmail(String to, String subject, String templateName, Map<String, Object> contextVariables) {
-        try {
-            Context context = new Context();
-            context.setVariables(contextVariables);
-            
-            // 渲染模板
-            String htmlContent = templateEngine.process(templateName, context);
-            
-            // 发送HTML邮件
-            sendHtmlEmail(to, subject, htmlContent);
-        } catch (Exception e) {
-            System.err.println("模板邮件发送失败: " + e.getMessage());
-            throw new RuntimeException("邮件发送失败", e);
-        }
-    }
+
 }

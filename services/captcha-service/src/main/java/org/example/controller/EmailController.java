@@ -2,7 +2,9 @@ package org.example.controller;
 
 import lombok.extern.log4j.Log4j2;
 import org.example.service.EmailService;
+import org.example.strings.CacheKey;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -10,9 +12,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.concurrent.TimeUnit;
 
-    /**
+/**
      * 邮件控制器
      * 提供RESTful API接口来发送各种类型的邮件
      */
@@ -23,8 +24,6 @@ public class EmailController {
 
     @Autowired
     private EmailService emailService;
-    @Autowired
-    private RedisTemplate<String, Object> redisTemplate;
 
     /**
      * 发送验证码邮件
@@ -36,7 +35,8 @@ public class EmailController {
      * }
      */
     @PostMapping("/template")
-    public void sendVerificationEmail(String email) {
+    @CachePut(value = CacheKey.CAPTCHA_AREA, key = "#email")
+    public Integer sendVerificationEmail(String email) {
         // 生成6位验证码
         int verificationCode = ThreadLocalRandom.current().nextInt(100000, 1000000);
 
@@ -46,8 +46,8 @@ public class EmailController {
 
         // 发送模板邮件
         emailService.sendTemplateEmail(email, "邮箱验证码", "email-template", contextVariables);
-        // 将验证码存入Redis，设置有效期为5分钟
-        redisTemplate.opsForValue().set(email, verificationCode, 5, TimeUnit.MINUTES);
+
+        return verificationCode;
     }
 
     /**

@@ -1,3 +1,6 @@
+server:
+  port: 8082
+
 spring:
   application:
     name: server-email
@@ -41,14 +44,6 @@ spring:
           timeout: 5000
           # 写入超时时间（毫秒）
           writetimeout: 5000
-  rabbitmq:
-    host: localhost
-    port: 5672
-    username: aliez
-    password: aliez
-    virtual-host: /
-
-
 # 应用配置
 app:
   # 邮件发送者名称
