@@ -3,9 +3,10 @@ package org.example.controller;
 import lombok.extern.log4j.Log4j2;
 import org.example.service.EmailService;
 import org.example.strings.CacheKey;
+import org.example.strings.MQueue;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CachePut;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,15 +27,13 @@ public class EmailController {
     private EmailService emailService;
 
     /**
-     * 发送验证码邮件
-     * POST /api/email/template
-     * 请求参数：
-     * {
-     * "to": "收件人邮箱",
-     * "verificationCode": "6位验证码"
-     * }
+     * 使用RabbitMQ监听队列的方法，处理发送验证码邮件的请求
+     * 并将生成的验证码缓存到指定区域
+     *
+     * @param email 接收验证码的邮箱地址
+     * @return 返回生成的6位验证码
      */
-    @PostMapping("/template")
+    @RabbitListener(queues = MQueue.CAPTCHA_QUEUE)
     @CachePut(value = CacheKey.CAPTCHA_AREA, key = "#email")
     public Integer sendVerificationEmail(String email) {
         // 生成6位验证码
