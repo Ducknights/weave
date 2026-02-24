@@ -6,7 +6,6 @@ import lombok.extern.log4j.Log4j2;
 import org.example.exception.CodeErrorException;
 import org.example.exception.EmailExistedException;
 import org.example.feign.CaptchaFeignClient;
-import org.example.feign.UserFeignClient;
 import org.example.model.AuthApiResponse;
 import org.example.dto.*;
 import org.example.entity.MyUserDetails;
@@ -15,6 +14,7 @@ import org.example.model.ApiRequest;
 import org.example.model.VerifyCodeDto;
 import org.example.strings.CacheKey;
 import org.example.util.JwtUtil;
+import org.example.util.MQService;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -25,8 +25,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.concurrent.TimeUnit;
 
 @Log4j2
 @Service
@@ -44,7 +42,9 @@ public class AuthService {
     @Resource
     private AuthMapper authMapper;
     @Resource
-    private UserFeignClient userFeignClient;
+    private MQService mqService;
+
+
 
     public AuthApiResponse<?> login(ApiRequest apiRequest) {
         ApiResponseDto apiResponseDto = null;
@@ -93,7 +93,8 @@ public class AuthService {
             throw new CodeErrorException("验证码已发送，请等待");
         }
         try{
-            captchaFeignClient.sendCaptchaCode(email);
+            // 发送验证码到验证码队列
+            mqService.sendCaptchaEmail(email);
         }catch (Exception e){
             throw new CodeErrorException("验证码发送失败");
         }
