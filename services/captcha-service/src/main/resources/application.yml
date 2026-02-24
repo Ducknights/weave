@@ -5,6 +5,31 @@ spring:
   application:
     name: server-email
   
+  # RabbitMQ配置
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: admin
+    password: admin
+    virtual-host: /
+    listener:
+      simple:
+        acknowledge-mode: auto
+        concurrency: 5
+        max-concurrency: 10
+        prefetch: 1
+    # 连接失败时的容错配置
+    template:
+      retry:
+        enabled: true
+        initial-interval: 1000ms
+        max-attempts: 3
+        max-interval: 10000ms
+        multiplier: 2
+    # 连接超时配置
+    connection-timeout: 3000
+    requested-heartbeat: 10s
+  
   # 邮件配置
   mail:
     # 配置SMTP服务器地址，例如：smtp.qq.com, smtp.163.com, smtp.gmail.com
@@ -38,7 +63,7 @@ spring:
           # 启用SSL
           ssl:
             enable: false
-          # 连接超时时间（毫秒）
+          # 连接超时时间（毫秒）z
           connectiontimeout: 5000
           # 读取超时时间（毫秒）
           timeout: 5000
