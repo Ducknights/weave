@@ -9,6 +9,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class AuthExceptionHandler {
     @ExceptionHandler(RuntimeException.class)
     public AuthApiResponse<?> handleException(Exception e) {
-        return AuthApiResponse.registerFail(e.getMessage());
+        return null;
     }
 }

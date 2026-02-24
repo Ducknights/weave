@@ -5,12 +5,12 @@ import jakarta.annotation.Resource;
 import lombok.extern.log4j.Log4j2;
 import org.example.exception.CodeErrorException;
 import org.example.exception.EmailExistedException;
-import org.example.feign.CaptchaFeignClient;
 import org.example.model.AuthApiResponse;
 import org.example.dto.*;
 import org.example.entity.MyUserDetails;
 import org.example.mapper.AuthMapper;
 import org.example.model.ApiRequest;
+import org.example.model.AuthApiStatus;
 import org.example.model.VerifyCodeDto;
 import org.example.strings.CacheKey;
 import org.example.util.JwtUtil;
@@ -37,8 +37,6 @@ public class AuthService {
     private PasswordEncoder passwordEncoder;
     @Resource
     private RedisTemplate<String,Object> redisTemplate;
-    @Resource
-    private CaptchaFeignClient captchaFeignClient;
     @Resource
     private AuthMapper authMapper;
     @Resource
@@ -77,7 +75,7 @@ public class AuthService {
             System.out.println("登录失败：" + e.getMessage());
             throw new RuntimeException("登录失败", e);
         }
-        return AuthApiResponse.loginSuccess(apiResponseDto);
+        return AuthApiStatus.LOGIN_SUCCESS.response(apiResponseDto);
     }
 
     @Transactional
@@ -98,7 +96,7 @@ public class AuthService {
         }catch (Exception e){
             throw new CodeErrorException("验证码发送失败");
         }
-        return AuthApiResponse.codeSendSuccess();
+        return AuthApiStatus.CODE_SEND_SUCCESS.response();
     }
 
 
@@ -115,53 +113,45 @@ public class AuthService {
                     .password(passwordEncoder.encode(dto.getPassword()))
                     .build();
             service.createUser(user);
-            return AuthApiResponse.registerSuccess();
+            return AuthApiStatus.REGISTER_SUCCESS.response();
         }catch (Exception e){
-            return AuthApiResponse.registerFail(e.getMessage());
+            return AuthApiStatus.REGISTER_FAILED.response(e.getMessage());
         }
     }
 
-    public AuthApiResponse<?> logout(){
+    public AuthApiResponse<?> logout(Long userId){
         // 1. 清除redis中的用户信息
-        String key= CacheKey.buildCacheKey(CacheKey.USER_AUTHORITY_AREA, String.valueOf(((MyUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUserAuth().getId()));
+        String key= CacheKey.buildCacheKey(CacheKey.USER_AUTHORITY_AREA,userId);
         redisTemplate.delete(key);
         // 2. 清除认证上下文
         SecurityContextHolder.clearContext();
         // 3. 返回注销成功信息
-        return AuthApiResponse.logOutSuccess();
+        return AuthApiStatus.LOGOUT_SUCCESS.response();
     }
 
-    /**
-     * 获取新的成功令牌的方法
-     * @param userId 用户ID
-     * @return AuthApiResponse 包含新生成的令牌或错误信息的响应对象
-     */
-    public AuthApiResponse<?> getNewSuccessToken(String userId) {
+    public AuthApiResponse<?> getNewSuccessToken(Long userId) {
         try {
             // 1. 生成JWT令牌
-            // 构造JWT主题，包含用户ID信息
             String subject = "UserId:" + userId;
-            // 生成有效期为5分钟的JWT访问令牌
             String access_token = JwtUtil.generateJwtToken(subject, 1000 * 60 * 5);    // 5分钟
             // 2. 构造返回DTO
-            // 创建令牌对象，包含访问令牌、刷新令牌(此处为null)、有效期(5分钟)和过期时间(0)
             TokenDto tokenDto = new TokenDto(access_token, null, 60 * 5, 0);
-            return AuthApiResponse.getNewTokenSuccess(tokenDto);
+            return AuthApiStatus.NEW_TOKEN_SUCCESS.response(tokenDto);
         } catch (Exception e) {
-            return AuthApiResponse.getNewTokenFail(e.getMessage());
+            return AuthApiStatus.NEW_TOKEN_FAIL.response(e.getMessage());
         }
     }
 
-    public AuthApiResponse<?> getNewRefreshToken(String userId){
+    public AuthApiResponse<?> getNewRefreshToken(Long userId){
         try {
             // 1. 生成JWT令牌
             String subject = "UserId:" + userId;
             String refresh_token = JwtUtil.generateJwtToken(subject, 1000 * 60 * 60 * 24);    // 24小时
             // 2. 构造返回DTO
             TokenDto tokenDto = new TokenDto(null, refresh_token,0, 60 * 60 * 24);
-            return AuthApiResponse.getNewTokenSuccess(tokenDto);
+            return AuthApiStatus.NEW_TOKEN_SUCCESS.response(tokenDto);
         } catch (Exception e) {
-            return AuthApiResponse.getNewTokenFail(e.getMessage());
+            return AuthApiStatus.NEW_TOKEN_FAIL.response(e.getMessage());
         }
     }
 }
