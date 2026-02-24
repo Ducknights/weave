@@ -20,7 +20,6 @@ import java.util.concurrent.ThreadLocalRandom;
      */
 @Log4j2
 @RestController
-@RequestMapping("/api/email")
 public class EmailController {
 
     @Autowired
@@ -53,11 +52,11 @@ public class EmailController {
      * 健康检查接口
      * GET /api/email/health
      */
-    @GetMapping("/health")
+    @GetMapping("/api/captcha/health")
     public ResponseEntity<Map<String, Object>> healthCheck() {
         return ResponseEntity.ok(Map.of(
                 "status", "UP",
-                "message", "邮件服务运行正常",
+                "message", "服务运行正常",
                 "timestamp", System.currentTimeMillis()));
     }
 }
