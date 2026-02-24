@@ -1,6 +1,6 @@
 package org.example;
 
-import org.example.model.ApiRequest;
+import org.example.dto.ApiRequestDto;
 import org.example.service.AuthService;
 import org.example.strings.CacheKey;
 import org.example.util.JwtUtil;
@@ -16,8 +16,8 @@ public class LoginTest {
 
     @Test
     public void testLogin() {
-        ApiRequest apiRequest = new ApiRequest("2897662424@qq.com", "123456");
-        authService.login(apiRequest);
+        ApiRequestDto apiRequestDto = new ApiRequestDto("2897662424@qq.com", "123456");
+        authService.login(apiRequestDto);
     }
 
     @Test

@@ -3,6 +3,9 @@ package org.example.model;
 
 import lombok.Getter;
 
+import java.util.Collections;
+import java.util.Map;
+
 @Getter
 public enum AuthApiStatus {
     LOGIN_SUCCESS(200,"登录成功"),
@@ -23,8 +26,8 @@ public enum AuthApiStatus {
         this.msg = msg;
     }
 
-    public AuthApiResponse<Void> response() {
-        return new AuthApiResponse<>(code, msg, null);
+    public AuthApiResponse<Map<String, Object>> response() {
+        return response(Collections.emptyMap());
     }
 
     public <T> AuthApiResponse<T> response(T data) {

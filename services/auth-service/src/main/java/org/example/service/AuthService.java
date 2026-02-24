@@ -9,9 +9,9 @@ import org.example.model.AuthApiResponse;
 import org.example.dto.*;
 import org.example.entity.MyUserDetails;
 import org.example.mapper.AuthMapper;
-import org.example.model.ApiRequest;
+import org.example.dto.ApiRequestDto;
 import org.example.model.AuthApiStatus;
-import org.example.model.VerifyCodeDto;
+import org.example.dto.VerifyCodeDto;
 import org.example.strings.CacheKey;
 import org.example.util.JwtUtil;
 import org.example.util.MQService;
@@ -44,14 +44,14 @@ public class AuthService {
 
 
 
-    public AuthApiResponse<?> login(ApiRequest apiRequest) {
+    public AuthApiResponse<?> login(ApiRequestDto apiRequestDto) {
         ApiResponseDto apiResponseDto = null;
         try {
             // 使用Spring Security进行认证
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
-                            apiRequest.getEmail(),
-                            apiRequest.getPassword()
+                            apiRequestDto.getEmail(),
+                            apiRequestDto.getPassword()
                     )
             );
             if (authentication.isAuthenticated()) {
@@ -79,8 +79,8 @@ public class AuthService {
     }
 
     @Transactional
-    public AuthApiResponse<?> sendCode(ApiRequest apiRequest) {
-        String email = apiRequest.getEmail();
+    public AuthApiResponse<?> sendCode(ApiRequestDto apiRequestDto) {
+        String email = apiRequestDto.getEmail();
         // 验证邮箱是否已存在
         if (authMapper.selectUserByEmail(email) != null){
             throw new EmailExistedException("邮箱已被注册");
