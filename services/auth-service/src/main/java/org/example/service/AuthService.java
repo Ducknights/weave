@@ -50,8 +50,8 @@ public class AuthService {
             // 使用Spring Security进行认证
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
-                            apiRequestDto.getEmail(),
-                            apiRequestDto.getPassword()
+                            apiRequestDto.email(),
+                            apiRequestDto.password()
                     )
             );
             if (authentication.isAuthenticated()) {
@@ -68,7 +68,7 @@ public class AuthService {
                 redisTemplate.opsForValue().set(key, ((MyUserDetails) authentication.getPrincipal()).getAuthorityList()); // 1小时
                 // 构造返回DTO
                 TokenDto tokenDto = new TokenDto(access_token, refresh_token, 60 * 5, 60 * 60 * 24);
-//                UserDto userDto = userFeignClient.getUserById(((MyUserDetails) authentication.getPrincipal()).getUserAuth().getId());
+//                UserDto userDto = userFeignClient.getUserById(userId);
                 apiResponseDto = new ApiResponseDto(tokenDto, null);
             }
         } catch (Exception e) {
@@ -80,7 +80,7 @@ public class AuthService {
 
     @Transactional
     public AuthApiResponse<?> sendCode(ApiRequestDto apiRequestDto) {
-        String email = apiRequestDto.getEmail();
+        String email = apiRequestDto.email();
         // 验证邮箱是否已存在
         if (authMapper.selectUserByEmail(email) != null){
             throw new EmailExistedException("邮箱已被注册");
@@ -102,15 +102,15 @@ public class AuthService {
 
     public AuthApiResponse<?> verifyCode(VerifyCodeDto dto) {
         // 1. 验证验证码
-        String key = CacheKey.buildCacheKey(CacheKey.CAPTCHA_AREA, dto.getEmail());
+        String key = CacheKey.buildCacheKey(CacheKey.CAPTCHA_AREA, dto.email());
         String code = (String) redisTemplate.opsForValue().get(key);
-        if (!dto.getCode().equals(code)){
+        if (!dto.code().equals(code)){
             throw new CodeErrorException("验证码错误");
         }
         try {
             UserDetails user = User.builder()
-                    .username(dto.getEmail())
-                    .password(passwordEncoder.encode(dto.getPassword()))
+                    .username(dto.email())
+                    .password(passwordEncoder.encode(dto.password()))
                     .build();
             service.createUser(user);
             return AuthApiStatus.REGISTER_SUCCESS.response();
