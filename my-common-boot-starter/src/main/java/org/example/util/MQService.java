@@ -4,10 +4,12 @@ import jakarta.annotation.Resource;
 import lombok.extern.log4j.Log4j2;
 import org.example.strings.MQueue;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.stereotype.Component;
 
 @Log4j2
 @Component
+@ConditionalOnClass(RabbitTemplate.class)
 public class MQService {
 
     @Resource
