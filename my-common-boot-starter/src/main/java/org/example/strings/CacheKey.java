@@ -30,6 +30,8 @@ public class CacheKey {
     public static final String USER_MUTED_USERS = "user:muted:users";
     // 用户屏蔽用户缓存区域
     public static final String USER_BLOCKED_USERS = "user:blocked:users";
+    // 预签名URL缓存区域
+    public static final String PRESENTED_URL_AREA = "presented:url";
 
     public static String buildCacheKey(String area, Object identifier) {
         return area + KEY_SEPARATOR + identifier;

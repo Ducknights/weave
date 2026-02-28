@@ -137,6 +137,9 @@ public class RedisConfig {
         configMap.put(CacheKey.USER_MUTED_USERS, defaultConfig.entryTtl(Duration.ofMinutes(5))); // 用户屏蔽的用户缓存，5分钟
         configMap.put(CacheKey.USER_BLOCKED_USERS, defaultConfig.entryTtl(Duration.ofMinutes(5))); // 用户拉黑的用户缓存，5分钟
 
+        // 资源相关
+        configMap.put(CacheKey.PRESENTED_URL_AREA, defaultConfig.entryTtl(Duration.ofHours(1))); // 链接缓存，1小时
+
         return RedisCacheManager.builder(factory)
                 .cacheDefaults(defaultConfig)
                 .withInitialCacheConfigurations(configMap)
