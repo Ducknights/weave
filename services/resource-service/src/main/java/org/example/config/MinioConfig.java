@@ -6,7 +6,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-// 创建 Minio 配置类
 @Configuration
 @ConfigurationProperties(prefix = "minio")
 @Data

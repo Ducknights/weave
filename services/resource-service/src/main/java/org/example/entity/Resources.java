@@ -1,30 +1,36 @@
 package org.example.entity;
 
+import cn.hutool.core.date.DateTime;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
 @Data
-@TableName("resources")
+@AllArgsConstructor
+@NoArgsConstructor
+@TableName("resource")
 public class Resources {
     // 资源ID
     @TableId(type = IdType.AUTO)
     private Long id;
-    // 所有者ID
-    private Long ownerId;
-    // 标题
-    private String title;
-    // 内容
-    private String content;
-    // URL路径
-    private String fileUrl;
-    // 是否通过审核
-    private boolean isPass;
-    // 创建时间
+    // 用户ID
+    private Long userId;
+    // 资源名称
+    private String name;
+    // 资源路径
+    private String path;
+    // 资源上传时间
     private LocalDateTime createdTime;
-    // 更新时间
-    private LocalDateTime updatedTime;
+
+    public Resources(Long userId, String name ,String path) {
+        this.name = name;
+        this.userId = userId;
+        this.path = path;
+        this.createdTime = LocalDateTime.now();
+    }
 }

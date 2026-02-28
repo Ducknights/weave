@@ -4,13 +4,11 @@ import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.example.bean.RequestContext;
 import org.example.dto.ErrorDto;
-import org.example.model.ResourceApiStatus;
-import org.example.model.ResourcesApiResponse;
+import org.example.model.ApiResult;
+import org.example.model.ApiStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-
-import java.io.FileNotFoundException;
 
 @RestControllerAdvice
 @Slf4j
@@ -20,28 +18,28 @@ public class ResourceExceptionHandler{
     private RequestContext requestContext;
 
     @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<ResourcesApiResponse<?>>handleBusinessException(Exception e) {
-        return buildErrorResponse(ResourceApiStatus.ERROR, e);
+    public ResponseEntity<ApiResult<?>>handleBusinessException(Exception e) {
+        return buildErrorResponse(ApiStatus.ERROR, e);
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<ResourcesApiResponse<?>>handleFileNotFoundException(IllegalArgumentException e) {
-        return buildErrorResponse(ResourceApiStatus.POST_FAIL, e);
+    public ResponseEntity<ApiResult<?>>handleFileNotFoundException(IllegalArgumentException e) {
+        return buildErrorResponse(ApiStatus.POST_FAIL, e);
     }
 
     @ExceptionHandler(MinioException.class)
-    public ResponseEntity<ResourcesApiResponse<?>>handleFileNotFoundException(MinioException e) {
-        return buildErrorResponse(ResourceApiStatus.ERROR, e);
+    public ResponseEntity<ApiResult<?>>handleFileNotFoundException(MinioException e) {
+        return buildErrorResponse(ApiStatus.ERROR, e);
     }
 
-    private ResponseEntity<ResourcesApiResponse<?>> buildErrorResponse(ResourceApiStatus status, Exception e) {
+    private ResponseEntity<ApiResult<?>> buildErrorResponse(ApiStatus status, Exception e) {
         ErrorDto errorDto = ErrorDto.builder()
                 .message(e.getMessage())
                 .requestId(requestContext.getRequestId())
                 .timestamp(String.valueOf(System.currentTimeMillis()))
                 .build();
-        log.error("Error: {},Time：{},RequestId：{}", e.getMessage(), errorDto.getTimestamp(), errorDto.getRequestId());
+        log.error("Error: {},Time：{},RequestId：{}", e.getMessage(), errorDto.timestamp(), errorDto.requestId());
         return ResponseEntity.status(status.getCode())
-                .body(ResourcesApiResponse.error(status,errorDto));
+                .body(status.response(errorDto));
     }
 }

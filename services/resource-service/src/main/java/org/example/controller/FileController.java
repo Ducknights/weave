@@ -1,27 +1,30 @@
 package org.example.controller;
 
 import jakarta.annotation.Resource;
+import lombok.NonNull;
 import lombok.extern.log4j.Log4j2;
 
-import org.example.model.ResourceApiStatus;
-import org.example.model.ResourcesApiResponse;
-import org.example.model.Result;
+import org.example.dto.FileInfoDto;
+import org.example.dto.ResultDto;
+import org.example.model.ApiStatus;
+import org.example.model.ApiResult;
 import org.example.service.FileService;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.util.UriUtils;
 
-import java.io.FileNotFoundException;
 import java.io.InputStream;
-import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.Map;
 
 @Log4j2
 @RestController
-@RequestMapping("/api/resources/")
+@RequestMapping("/api/resources")
 public class FileController {
 
     @Resource
@@ -30,68 +33,51 @@ public class FileController {
     /**
      * 上传文件
      */
-    @PostMapping("/video")
-    public ResponseEntity<ResourcesApiResponse<?>> uploadFile(
-            @RequestParam("file") MultipartFile file,
-            @RequestParam("test") String test) {
-        final String filePath = fileService.uploadFile(file, "video");
-        System.out.println(filePath);
-        return ResponseEntity.status(ResourceApiStatus.POST_SUCCESS.getCode())
-                .body(ResourcesApiResponse.postSuccess(filePath));
-    }
-
-    /**
-     * 上传文件到指定目录
-     */
-    @PostMapping("/upload/{directory}")
-    public Result<String> uploadFileToDirectory(
-            @RequestParam("file") MultipartFile file,
-            @PathVariable("directory") String directory) {
+    @PostMapping()
+    public ApiResult<?> uploadFileToDirectory(@NonNull @RequestParam("file") List<MultipartFile> files) {
         try {
-            if (file == null || file.isEmpty()) {
-                return Result.error("文件不能为空");
+            if (files.isEmpty()) {
+               throw new IllegalArgumentException("文件不能为空");
             }
-            String filePath = fileService.uploadFile(file, directory);
-            if (filePath == null) {
-                return Result.error("文件上传失败");
-            }
-            return Result.success(filePath);
+            List<FileInfoDto> filePathList = fileService.uploadFile(files);
+            ResultDto resultDto = new ResultDto(filePathList);
+            return ApiStatus.POST_SUCCESS.response(resultDto);
         } catch (Exception e) {
-            e.printStackTrace();
-            return Result.error("文件上传异常：" + e.getMessage());
+            log.error("文件上传异常：{}", e.getMessage());
+            return ApiStatus.POST_FAIL.response("文件上传异常：" + e.getMessage());
         }
     }
 
     /**
      * 下载文件
      */
-    @GetMapping("/download/{filePath}")
-    public ResponseEntity<byte[]> downloadFile(
-            @PathVariable("filePath") String filePath) {
+    @GetMapping("/{filePath}")
+    public ResponseEntity<org.springframework.core.io.Resource> downloadFile(@PathVariable("filePath") String filePath) {
         try {
+            // 1. 从服务获取文件流
             InputStream inputStream = fileService.downloadFile(filePath);
-            if (inputStream == null) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-            }
 
-            // 读取文件内容
-            byte[] bytes = inputStream.readAllBytes();
-            inputStream.close();
+            // 2. 将 InputStream 包装为 Spring 的 Resource
+            InputStreamResource resource = new InputStreamResource(inputStream);
 
-            // 设置响应头
+            // 3. 从filePath中提取文件名并编码
+            String fileName = filePath.substring(filePath.lastIndexOf('/') + 1);
+            String encodedFileName = UriUtils.encode(fileName, StandardCharsets.UTF_8);
+
+            // 4. 构建响应头
             HttpHeaders headers = new HttpHeaders();
-            // 从filePath中提取文件名
-            String fileName = filePath.substring(filePath.lastIndexOf("/") + 1);
-            // 编码文件名，防止中文乱码
-            String encodedFileName = URLEncoder.encode(fileName, StandardCharsets.UTF_8);
-            headers.setContentDispositionFormData("attachment", encodedFileName);
-            headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-            headers.setContentLength(bytes.length);
+            headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + encodedFileName + "\"");
+            headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM_VALUE);
+            // 注意：Content-Length 通常由Spring自动处理，除非你知道确切大小且需要手动设置
 
-            return new ResponseEntity<>(bytes, headers, HttpStatus.OK);
+            // 5. 返回 ResponseEntity，body是Resource，Spring会处理流式传输
+            return ResponseEntity.ok()
+                    .headers(headers)
+                    .body(resource);
+
         } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            log.error("文件下载异常：{}", filePath, e);
+            return ResponseEntity.internalServerError().build();
         }
     }
 
@@ -99,36 +85,39 @@ public class FileController {
      * 删除文件
      */
     @DeleteMapping("/{filePath}")
-    public Result<Boolean> deleteFile(@PathVariable("filePath") String filePath) {
+    public ApiResult<?> deleteFile(@NonNull @PathVariable("filePath") String filePath) {
+        if (filePath.isEmpty()) {
+            throw new IllegalArgumentException("文件路径不能为空");
+        }
         try {
             boolean result = fileService.deleteFile(filePath);
             if (result) {
-                return Result.success(true);
+                return ApiStatus.DELETE_SUCCESS.response();
             } else {
-                return Result.error("文件删除失败");
+                return ApiStatus.DELETE_FAIL.response("文件删除失败");
             }
         } catch (Exception e) {
-            e.printStackTrace();
-            return Result.error("文件删除异常：" + e.getMessage());
+            log.error("文件删除异常：{}", filePath, e);
+            return ApiStatus.DELETE_FAIL.response("文件删除异常：" + e.getMessage());
         }
     }
 
     /**
      * 获取文件临时访问链接
      */
-    @GetMapping("/url/{filePath}")
-    public Result<String> getFileUrl(
-            @PathVariable("filePath") String filePath,
-            @RequestParam(defaultValue = "604800") int expiry) {
+    @GetMapping("/url/{*filePath}")
+    public ApiResult<String> getFileUrl(
+            @NonNull @PathVariable("filePath") String filePath,
+            @RequestParam(defaultValue = "3600") int expiry) {
+        if (filePath.isEmpty()) {
+            throw new IllegalArgumentException("文件路径不能为空");
+        }
         try {
             String url = fileService.getFileUrl(filePath, expiry);
-            if (url == null) {
-                return Result.error("获取文件链接失败");
-            }
-            return Result.success(url);
+            return ApiStatus.GET_SUCCESS.response(url);
         } catch (Exception e) {
-            e.printStackTrace();
-            return Result.error("获取文件链接异常：" + e.getMessage());
+            log.error("获取文件链接异常：{}", filePath, e);
+            return ApiStatus.GET_FAIL.response("获取文件链接异常：" + e.getMessage());
         }
     }
 }

@@ -2,8 +2,11 @@ package org.example.model;
 
 import lombok.Getter;
 
+import java.util.Collections;
+import java.util.Map;
+
 @Getter
-public enum ResourceApiStatus {
+public enum ApiStatus {
     GET_SUCCESS(200, "请求成功"),
     GET_FAIL(400, "请求失败"),
     POST_SUCCESS(201, "创建成功"),
@@ -17,8 +20,17 @@ public enum ResourceApiStatus {
     private final int code;
     private final String msg;
 
-    ResourceApiStatus(int code, String msg) {
+    ApiStatus(int code, String msg) {
         this.code = code;
         this.msg = msg;
     }
+
+    public ApiResult<Map<String, Object>> response() {
+        return response(Collections.emptyMap());
+    }
+
+    public <T> ApiResult<T> response(T data) {
+        return new ApiResult<>(code, msg, data);
+    }
 }
+

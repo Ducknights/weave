@@ -28,7 +28,7 @@ minio:
   access-key: minioadmin
   secret-key: minioadmin
   endpoint: http://127.0.0.1:9000
-  bucket: test
+  bucket: graduation-design
 
 server:
   port: 5000

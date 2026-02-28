@@ -8,6 +8,6 @@ import org.springframework.web.context.annotation.RequestScope;
 @RequestScope
 @Data
 public class RequestContext {
-    Long RequestId;
-    Long UserId;
+    Long RequestId = 0L;
+    Long UserId = 0L;
 }
