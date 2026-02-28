@@ -2,7 +2,7 @@ package org.example.controller;
 
 import jakarta.annotation.Resource;
 import org.example.bean.RequestContext;
-import org.example.dto.UserInteractionDto;
+import org.example.dto.InteractionDto;
 import org.example.service.InteractionService;
 import org.example.strings.CacheKey;
 import org.springframework.cache.annotation.CacheEvict;
@@ -29,7 +29,7 @@ public class BlockController {
     @Cacheable(value = CacheKey.USER_BLOCKED_USERS, key = "#requestContext.userId")
     public List<Long> getBlockedUsers() {
         Long userId = requestContext.getUserId();
-        UserInteractionDto dto = new UserInteractionDto(userId, null, 3);
+        InteractionDto dto = new InteractionDto(userId, null, 3);
         return interactionService.getRecord(dto);
     }
 
@@ -42,7 +42,7 @@ public class BlockController {
     @CacheEvict(value = CacheKey.USER_BLOCKED_USERS, key = "#requestContext.userId")
     public void blockUser(@PathVariable Long targetUserId) {
         Long userId = requestContext.getUserId();
-        UserInteractionDto dto = new UserInteractionDto(userId, targetUserId, 3);
+        InteractionDto dto = new InteractionDto(userId, targetUserId, 3);
         interactionService.addRecord(dto);
     }
 
@@ -56,7 +56,7 @@ public class BlockController {
     @CacheEvict(value = CacheKey.USER_BLOCKED_USERS, key = "#requestContext.userId")
     public void unblockUser(@PathVariable Long targetUserId) {
         Long userId = requestContext.getUserId();
-        UserInteractionDto dto = new UserInteractionDto(userId, targetUserId, 3);
+        InteractionDto dto = new InteractionDto(userId, targetUserId, 3);
         interactionService.deleteRecord(dto);
     }
 }

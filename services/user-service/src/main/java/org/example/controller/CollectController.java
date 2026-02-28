@@ -2,7 +2,7 @@ package org.example.controller;
 
 import jakarta.annotation.Resource;
 import org.example.bean.RequestContext;
-import org.example.dto.UserInteractionDto;
+import org.example.dto.InteractionDto;
 import org.example.service.InteractionService;
 import org.example.strings.CacheKey;
 import org.springframework.cache.annotation.CacheEvict;
@@ -29,7 +29,7 @@ public class CollectController {
     @CacheEvict(value = CacheKey.USER_COLLECTED_POSTS, key = "#requestContext.userId")
     public void collectPost(@PathVariable Long targetPostId) {
         Long userId = requestContext.getUserId();
-        UserInteractionDto dto = new UserInteractionDto(userId, targetPostId, 3);
+        InteractionDto dto = new InteractionDto(userId, targetPostId, 3);
         interactionService.addRecord(dto);
     }
 
@@ -42,7 +42,7 @@ public class CollectController {
     @CacheEvict(value = CacheKey.USER_COLLECTED_POSTS, key = "#requestContext.userId")
     public void uncollectedPost(@PathVariable(value = "targetPostId") Long targetPostId) {
         Long userId = requestContext.getUserId();
-        UserInteractionDto dto = new UserInteractionDto(userId, targetPostId, 3);
+        InteractionDto dto = new InteractionDto(userId, targetPostId, 3);
         interactionService.deleteRecord(dto);
     }
 
@@ -56,7 +56,7 @@ public class CollectController {
     @Cacheable(value = CacheKey.USER_COLLECTED_POSTS, key = "#requestContext.userId")
     public List<Long> getUserCollectedPosts() {
         Long userId = requestContext.getUserId();
-        UserInteractionDto dto = new UserInteractionDto(userId, null, 3);
+        InteractionDto dto = new InteractionDto(userId, null, 3);
         return interactionService.getRecord(dto);
     }
 }

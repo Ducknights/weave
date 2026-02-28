@@ -1,13 +1,13 @@
 package org.example.service;
 
-import org.example.dto.UserInteractionDto;
+import org.example.dto.InteractionDto;
 
 import java.util.List;
 
 public interface InteractionService {
-    void addRecord(UserInteractionDto dto);
+    void addRecord(InteractionDto dto);
 
-    void deleteRecord(UserInteractionDto dto);
+    void deleteRecord(InteractionDto dto);
 
-    List<Long> getRecord(UserInteractionDto dto);
+    List<Long> getRecord(InteractionDto dto);
 }

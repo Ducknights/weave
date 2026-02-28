@@ -2,7 +2,7 @@ package org.example.controller;
 
 import jakarta.annotation.Resource;
 import org.example.bean.RequestContext;
-import org.example.dto.UserInteractionDto;
+import org.example.dto.InteractionDto;
 import org.example.service.InteractionService;
 import org.example.strings.CacheKey;
 import org.springframework.cache.annotation.CacheEvict;
@@ -29,7 +29,7 @@ public class FollowController {
     @Cacheable(value = CacheKey.USER_FOLLOWERS, key = "#requestContext.userId")
     public List<Long> getUserFollowers() {
         Long userId = requestContext.getUserId();
-        UserInteractionDto dto = new UserInteractionDto(userId, null, 1); // 1-关注 2-屏蔽 3-拉黑
+        InteractionDto dto = new InteractionDto(userId, null, 1); // 1-关注 2-屏蔽 3-拉黑
         return interactionService.getRecord(dto);
     }
 
@@ -42,7 +42,7 @@ public class FollowController {
     @CacheEvict(value = CacheKey.USER_FOLLOWERS, key = "#requestContext.userId")
     public void followUser(@PathVariable Long targetUserId) {
         Long userId = requestContext.getUserId();
-        UserInteractionDto dto = new UserInteractionDto(userId, targetUserId, 1);
+        InteractionDto dto = new InteractionDto(userId, targetUserId, 1);
         // 调用交互服务添加关注关系
         interactionService.addRecord(dto);
     }
@@ -56,7 +56,7 @@ public class FollowController {
     @CacheEvict(value = CacheKey.USER_FOLLOWERS, key = "#requestContext.userId")
     public void unfollowUser(@PathVariable Long targetUserId) {
         Long userId = requestContext.getUserId();
-        UserInteractionDto dto = new UserInteractionDto(userId, targetUserId, 1);
+        InteractionDto dto = new InteractionDto(userId, targetUserId, 1);
         interactionService.deleteRecord(dto);
     }
 }

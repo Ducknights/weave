@@ -3,7 +3,7 @@ package org.example.controller;
 
 import jakarta.annotation.Resource;
 import org.example.bean.RequestContext;
-import org.example.dto.UserInteractionDto;
+import org.example.dto.InteractionDto;
 import org.example.service.InteractionService;
 import org.example.strings.CacheKey;
 import org.springframework.cache.annotation.CacheEvict;
@@ -31,7 +31,7 @@ public class LikeController {
     @CacheEvict(value = CacheKey.USER_LIKED_POSTS, key = "#requestContext.userId")
     public void likePost(@PathVariable Long targetPostId) {
         Long userId = requestContext.getUserId();
-        UserInteractionDto dto = new UserInteractionDto(userId, targetPostId, 1);
+        InteractionDto dto = new InteractionDto(userId, targetPostId, 1);
         interactionService.addRecord(dto);
     }
 
@@ -44,7 +44,7 @@ public class LikeController {
     @CacheEvict(value = CacheKey.USER_LIKED_POSTS, key = "#requestContext.userId")
     public void unlikePost(@PathVariable Long targetPostId) {
         Long userId = requestContext.getUserId();
-        UserInteractionDto dto = new UserInteractionDto(userId, targetPostId, 1);
+        InteractionDto dto = new InteractionDto(userId, targetPostId, 1);
         interactionService.deleteRecord(dto);
     }
 
@@ -57,7 +57,7 @@ public class LikeController {
     @Cacheable(value = CacheKey.USER_LIKED_POSTS, key = "#requestContext.userId")
     public List<Long> getUserLikedPosts() {
         Long userId = requestContext.getUserId();
-        UserInteractionDto dto = new UserInteractionDto(userId, null, 1);
+        InteractionDto dto = new InteractionDto(userId, null, 1);
         return interactionService.getRecord(dto);
     }
 }

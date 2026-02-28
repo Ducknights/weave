@@ -2,7 +2,7 @@ package org.example.controller;
 
 import jakarta.annotation.Resource;
 import org.example.bean.RequestContext;
-import org.example.dto.UserInteractionDto;
+import org.example.dto.InteractionDto;
 import org.example.service.InteractionService;
 import org.example.strings.CacheKey;
 import org.springframework.cache.annotation.CacheEvict;
@@ -30,7 +30,7 @@ public class ShareController {
     @CacheEvict(value = CacheKey.USER_SHARED_POSTS, key = "#requestContext.userId")
     public void sharePost(@PathVariable Long targetPostId) {
         Long userId = requestContext.getUserId();
-        UserInteractionDto dto = new UserInteractionDto(userId, targetPostId, 2);
+        InteractionDto dto = new InteractionDto(userId, targetPostId, 2);
         interactionService.addRecord(dto);
     }
 
@@ -43,7 +43,7 @@ public class ShareController {
     @CacheEvict(value = CacheKey.USER_SHARED_POSTS, key = "#requestContext.userId")
     public void unsharedPost(@PathVariable(value = "targetPostId") Long targetPostId) {
         Long userId = requestContext.getUserId();
-        UserInteractionDto dto = new UserInteractionDto(userId, targetPostId, 2);
+        InteractionDto dto = new InteractionDto(userId, targetPostId, 2);
         interactionService.deleteRecord(dto);
     }
 
@@ -57,7 +57,7 @@ public class ShareController {
     @Cacheable(value = CacheKey.USER_SHARED_POSTS, key = "#requestContext.userId")
     public List<Long> getUserSharedPosts() {
         Long userId = requestContext.getUserId();
-        UserInteractionDto dto = new UserInteractionDto(userId, null, 2);
+        InteractionDto dto = new InteractionDto(userId, null, 2);
         return interactionService.getRecord(dto);
     }
 }

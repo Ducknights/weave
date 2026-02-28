@@ -2,7 +2,7 @@ package org.example.controller;
 
 import jakarta.annotation.Resource;
 import org.example.bean.RequestContext;
-import org.example.dto.UserInteractionDto;
+import org.example.dto.InteractionDto;
 import org.example.service.InteractionService;
 import org.example.strings.CacheKey;
 import org.springframework.cache.annotation.CacheEvict;
@@ -23,7 +23,7 @@ public class MuteController {
     @Cacheable(value = CacheKey.USER_MUTED_USERS, key = "#requestContext.userId")
     public List<Long> getMutedUsers() {
         Long userId = requestContext.getUserId();
-        UserInteractionDto dto = new UserInteractionDto(userId, null, 2);
+        InteractionDto dto = new InteractionDto(userId, null, 2);
         return interactionService.getRecord(dto);
     }
 
@@ -31,7 +31,7 @@ public class MuteController {
     @CacheEvict(value = CacheKey.USER_MUTED_USERS, key = "#requestContext.userId")
     public void muteUser(@PathVariable Long targetUserId) {
         Long userId = requestContext.getUserId();
-        UserInteractionDto dto = new UserInteractionDto(userId, targetUserId, 2);
+        InteractionDto dto = new InteractionDto(userId, targetUserId, 2);
         interactionService.addRecord(dto);
     }
 
@@ -39,7 +39,7 @@ public class MuteController {
     @CacheEvict(value = CacheKey.USER_MUTED_USERS, key = "#requestContext.userId")
     public void unmuteUser(@PathVariable Long targetUserId) {
         Long userId = requestContext.getUserId();
-        UserInteractionDto dto = new UserInteractionDto(userId, targetUserId, 2);
+        InteractionDto dto = new InteractionDto(userId, targetUserId, 2);
         interactionService.deleteRecord(dto);
     }
 }

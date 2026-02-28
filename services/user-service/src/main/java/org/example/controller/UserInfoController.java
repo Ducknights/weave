@@ -1,6 +1,7 @@
 package org.example.controller;
 
 import jakarta.annotation.Resource;
+import org.example.bean.RequestContext;
 import org.example.dto.AuthUserDto;
 import org.example.entity.UserInfo;
 import org.example.service.UserService;
@@ -15,6 +16,8 @@ public class UserInfoController {
 
     @Resource
     private UserService userService;
+    @Resource
+    private RequestContext requestContext;
 
     /**
      * 处理用户注册请求的接口方法
@@ -28,14 +31,26 @@ public class UserInfoController {
     }
 
     /**
+     * 根据用户ID获取用户信息
+     * 这是一个HTTP GET请求处理方法，用于获取指定用户的详细信息
+     *
+     * @return UserInfo 返回用户信息对象
+     */
+    @GetMapping("/self")
+    public UserInfo getSelfUserInfo() {
+        Long id = requestContext.getUserId();
+        return userService.getUserById(id);
+    }
+
+    /**
      * 根据用户ID获取用户信息的接口方法
      *
      * @param id 用户ID，通过路径变量传递
      * @return UserInfo 返回用户信息对象
      */
-    @GetMapping("/{id}")    // HTTP GET请求映射，用于处理获取指定ID的用户信息请求
-    public UserInfo getUserById(@PathVariable Long id) {    // 方法参数id通过路径变量绑定
-        return userService.getUserById(id);    // 调用userService中的getUserById方法获取用户信息并返回
+    @GetMapping("/{id}")
+    public UserInfo getUserById(@PathVariable Long id) {
+        return userService.getUserById(id);
     }
 
     /**
