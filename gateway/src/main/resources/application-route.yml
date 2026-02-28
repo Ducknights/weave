@@ -13,13 +13,13 @@ spring:
           predicates: # 断言，判断请求是否符合要求
             - Path=/api/auth/** # 请求路径匹配
 
-        - id: service-comment
-          uri: lb://service-comment
+        - id: service-post
+          uri: lb://service-post
           predicates:
-            - Path=/api/comment/**
+            - Path=/api/post/**
 
         - id: service-resources
-          uri: lb://service-post
+          uri: lb://service-resources
           predicates:
             - Path=/api/resources/**
 
