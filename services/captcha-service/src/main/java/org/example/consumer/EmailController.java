@@ -1,4 +1,4 @@
-package org.example.controller;
+package org.example.consumer;
 
 import lombok.extern.log4j.Log4j2;
 import org.example.service.EmailService;
