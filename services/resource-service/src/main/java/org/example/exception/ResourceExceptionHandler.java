@@ -1,8 +1,6 @@
 package org.example.exception;
 
-import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.example.bean.RequestContext;
 import org.example.dto.ErrorDto;
 import org.example.model.ApiResult;
 import org.example.model.ApiStatus;
@@ -14,8 +12,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @Slf4j
 public class ResourceExceptionHandler{
 
-    @Resource
-    private RequestContext requestContext;
 
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ApiResult<?>>handleBusinessException(Exception e) {
@@ -35,10 +31,10 @@ public class ResourceExceptionHandler{
     private ResponseEntity<ApiResult<?>> buildErrorResponse(ApiStatus status, Exception e) {
         ErrorDto errorDto = ErrorDto.builder()
                 .message(e.getMessage())
-                .requestId(requestContext.getRequestId())
+                .requestId(1L)
                 .timestamp(String.valueOf(System.currentTimeMillis()))
                 .build();
-        log.error("Error: {},Time：{},RequestId：{}", e.getMessage(), errorDto.timestamp(), errorDto.requestId());
+        log.error("Error: {},Time：{},RequestId：{}", e.getMessage(), errorDto.getTimestamp(), errorDto.getRequestId());
         return ResponseEntity.status(status.getCode())
                 .body(status.response(errorDto));
     }

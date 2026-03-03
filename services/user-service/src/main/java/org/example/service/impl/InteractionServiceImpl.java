@@ -23,9 +23,9 @@ public class InteractionServiceImpl implements InteractionService {
         try{
             interactionMapper.insert(dto);
         }catch (DuplicateKeyException e) {
-            log.debug("用户 {} 重复执行操作，目标ID: {}，操作类型: {}", dto.getUserId(), dto.getTargetId(), dto.getType());
+            log.debug("用户 {} 重复执行操作，目标ID: {}，操作类型: {}", dto.userId(), dto.targetId(), dto.type());
         }catch(DataIntegrityViolationException e){
-            log.error("执行操作失败，用户ID: {}, 目标ID: {}，操作类型: {}", dto.getUserId(), dto.getTargetId(), dto.getType(), e);
+            log.error("执行操作失败，用户ID: {}, 目标ID: {}，操作类型: {}", dto.userId(), dto.targetId(), dto.type(), e);
         }
     }
 

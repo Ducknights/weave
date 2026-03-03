@@ -1,10 +1,16 @@
 package org.example.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
+@Data
 @Builder
-public record ErrorDto(
-        String message,
-        Long requestId,
-        String timestamp) {
+@AllArgsConstructor
+@NoArgsConstructor
+public class ErrorDto {
+    private String message;
+    private Long requestId;
+    private String timestamp;
 }

@@ -4,7 +4,7 @@ import jakarta.annotation.Resource;
 import org.example.bean.RequestContext;
 import org.example.dto.InteractionDto;
 import org.example.service.InteractionService;
-import org.example.strings.CacheKey;
+import org.example.constant.CacheKey;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.*;

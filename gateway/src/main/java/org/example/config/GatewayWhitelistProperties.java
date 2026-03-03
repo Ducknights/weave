@@ -10,6 +10,5 @@ import java.util.List;
 @Configuration
 @ConfigurationProperties(prefix = "spring.whitelist")
 public class GatewayWhitelistProperties {
-    // 白名单
     private List<String> paths = new ArrayList<>();
 }

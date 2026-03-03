@@ -5,7 +5,7 @@ import org.example.entity.Activity;
 import org.example.mapper.ActivityMapper;
 import org.example.model.vo.ActivityCardVo;
 import org.example.service.ActivityService;
-import org.example.strings.CacheKey;
+import org.example.constant.CacheKey;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;

@@ -2,7 +2,7 @@ package org.example.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import jakarta.annotation.Resource;
-import org.example.strings.CacheKey;
+import org.example.constant.CacheKey;
 import org.example.dto.AuthUserDto;
 import org.example.mapper.UserMapper;
 import org.example.entity.UserInfo;
@@ -52,9 +52,9 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserInfo createUser(AuthUserDto userDto) {
         UserInfo user = new UserInfo();
-        user.setId(userDto.getId());
-        user.setName("用户"+userDto.getId());
-        user.setEmail(userDto.getEmail());
+        user.setId(userDto.id());
+        user.setName("用户"+userDto.id());
+        user.setEmail(userDto.email());
         userMapper.insert(user);
         return user;
     }

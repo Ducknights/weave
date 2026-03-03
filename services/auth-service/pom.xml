@@ -112,10 +112,26 @@
             <artifactId>annotations</artifactId>
         </dependency>
 
-        <!-- Common模块 -->
+        <!-- Infrastructure modules -->
         <dependency>
             <groupId>org.example</groupId>
-            <artifactId>my-common-boot-starter</artifactId>
+            <artifactId>common-model</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.example</groupId>
+            <artifactId>context-spring-boot-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.example</groupId>
+            <artifactId>redis-spring-boot-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.example</groupId>
+            <artifactId>mybatis-plus-spring-boot-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.example</groupId>
+            <artifactId>rabbitmq-spring-boot-starter</artifactId>
         </dependency>
 
         <!-- 测试 -->

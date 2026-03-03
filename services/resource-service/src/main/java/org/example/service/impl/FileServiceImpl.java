@@ -1,12 +1,10 @@
 package org.example.service.impl;
 
-import org.example.bean.RequestContext;
 import org.example.dto.FileInfoDto;
-import org.example.dto.ResultDto;
 import org.example.entity.Resources;
 import org.example.mapper.ResourceMapper;
 import org.example.service.FileService;
-import org.example.strings.CacheKey;
+import org.example.constant.CacheKey;
 import org.example.utils.MimeTypeUtil;
 import org.example.utils.MinioUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -29,8 +26,6 @@ public class FileServiceImpl implements FileService {
     private MinioUtil minioUtil;
     @Autowired
     private ResourceMapper resourceMapper;
-    @Autowired
-    private RequestContext requestContext;
 
     /**
      * 生成文件名
@@ -49,7 +44,7 @@ public class FileServiceImpl implements FileService {
 
     @Override
     public List<FileInfoDto> uploadFile(List<MultipartFile> files) {
-        Long userId = requestContext.getUserId();
+        Long userId = 1L;
         Map<String, String> pathMap = files.stream()
                 .collect(Collectors.toMap(
                         MultipartFile::getOriginalFilename, file -> {

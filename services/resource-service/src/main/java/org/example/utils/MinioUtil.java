@@ -2,7 +2,7 @@ package org.example.utils;
 
 import io.minio.*;
 import io.minio.http.Method;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.example.config.MinioConfig;
 import org.example.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.InputStream;
 import java.util.concurrent.TimeUnit;
 
-@Log4j2
+@Slf4j
 @Component
 public class MinioUtil {
 

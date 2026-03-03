@@ -8,18 +8,18 @@ spring:
   cloud:
     nacos:
       server-addr: 127.0.0.1:8848
+  zipkin:
+    base-url: http://localhost:9411
+    sender:
+      type: web
+  tracing:
+    sampling:
+      probability: 1.0
   data:
     redis:
       timeout: 2000ms
       host: localhost
       port: 6379
-
-#logging:
-#  level:
-#    org.springframework.cloud.gateway: TRACE
-#    reactor.netty.http.client: DEBUG
-#    org.springframework.web.reactive: DEBUG
-#    org.springframework.cloud.loadbalancer: DEBUG
 
 server:
   port: 80

@@ -4,7 +4,6 @@ import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.extern.log4j.Log4j2;
-import org.example.bean.RequestContext;
 import org.example.dto.ApiRequestDto;
 import org.example.model.AuthApiResponse;
 import org.example.dto.VerifyCodeDto;
@@ -19,8 +18,6 @@ public class AuthController {
 
     @Resource
     private AuthService authService;
-    @Resource
-    private RequestContext requestContext;
 
     @PostMapping("/login")
     public ResponseEntity<AuthApiResponse<?>> login(@Valid @NotNull @RequestBody ApiRequestDto apiRequestDto) {
@@ -42,20 +39,20 @@ public class AuthController {
 
     @PostMapping("/logout")
     public AuthApiResponse<?> logout() {
-        final Long userId = requestContext.getUserId();
+        Long userId = 1L;
         return authService.logout(userId);
     }
 
     @PostMapping("/access")
     public ResponseEntity<AuthApiResponse<?>> getNewToken() {
-        Long userId = requestContext.getUserId();
+        Long userId = 1L;
         final AuthApiResponse<?> response = authService.getNewSuccessToken(userId);
         return ResponseEntity.status(response.code()).body(response);
     }
 
     @PostMapping("/refresh")
     public ResponseEntity<AuthApiResponse<?>> getNewRefreshToken() {
-        Long userId = requestContext.getUserId();
+        Long userId = 1L;
         final AuthApiResponse<?> response = authService.getNewRefreshToken(userId);
         return ResponseEntity.status(response.code()).body(response);
     }

@@ -12,9 +12,9 @@ import org.example.mapper.AuthMapper;
 import org.example.dto.ApiRequestDto;
 import org.example.model.AuthApiStatus;
 import org.example.dto.VerifyCodeDto;
-import org.example.strings.CacheKey;
+import org.example.constant.CacheKey;
 import org.example.util.JwtUtil;
-import org.example.util.MQService;
+import org.example.util.MQUtil;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -40,9 +40,9 @@ public class AuthService {
     @Resource
     private AuthMapper authMapper;
     @Resource
-    private MQService mqService;
-
-
+    private MQUtil mqUtil;
+    @Resource
+    private JwtUtil jwtUtil;
 
     public AuthApiResponse<?> login(ApiRequestDto apiRequestDto) {
         ApiResponseDto apiResponseDto = null;
@@ -60,12 +60,12 @@ public class AuthService {
                 // 获取用户ID
                 Long userId = ((MyUserDetails) authentication.getPrincipal()).getUserAuth().getId();
                 // 生成Redis键
-                String key = CacheKey.buildCacheKey(CacheKey.USER_AUTHORITY_AREA, userId);
+                String permissionsKey = CacheKey.buildCacheKey(CacheKey.USER_AUTHORITY_AREA, userId);
                 // 生成JWT令牌
-                String access_token = JwtUtil.generateJwtToken(key, 1000 * 60 * 5); // 5分钟
-                String refresh_token = JwtUtil.generateJwtToken(key, 1000 * 60 * 60 * 24);  // 24小时
+                String access_token = jwtUtil.generateJwtToken(permissionsKey, 1000 * 60 * 5); // 5分钟
+                String refresh_token = jwtUtil.generateJwtToken(permissionsKey, 1000 * 60 * 60 * 24);  // 24小时
                 // 写入用户标识信息到redis
-                redisTemplate.opsForValue().set(key, ((MyUserDetails) authentication.getPrincipal()).getAuthorityList()); // 1小时
+                redisTemplate.opsForValue().set(permissionsKey, ((MyUserDetails) authentication.getPrincipal()).getAuthorityList()); // 1小时
                 // 构造返回DTO
                 TokenDto tokenDto = new TokenDto(access_token, refresh_token, 60 * 5, 60 * 60 * 24);
 //                UserDto userDto = userFeignClient.getUserById(userId);
@@ -92,7 +92,7 @@ public class AuthService {
         }
         try{
             // 发送验证码到验证码队列
-            mqService.sendCaptchaEmail(email);
+            mqUtil.sendCaptchaEmail(email);
         }catch (Exception e){
             throw new CodeErrorException("验证码发送失败");
         }
@@ -133,7 +133,7 @@ public class AuthService {
         try {
             // 1. 生成JWT令牌
             String subject = "UserId:" + userId;
-            String access_token = JwtUtil.generateJwtToken(subject, 1000 * 60 * 5);    // 5分钟
+            String access_token = jwtUtil.generateJwtToken(subject, 1000 * 60 * 5);    // 5分钟
             // 2. 构造返回DTO
             TokenDto tokenDto = new TokenDto(access_token, null, 60 * 5, 0);
             return AuthApiStatus.NEW_TOKEN_SUCCESS.response(tokenDto);
@@ -146,7 +146,7 @@ public class AuthService {
         try {
             // 1. 生成JWT令牌
             String subject = "UserId:" + userId;
-            String refresh_token = JwtUtil.generateJwtToken(subject, 1000 * 60 * 60 * 24);    // 24小时
+            String refresh_token = jwtUtil.generateJwtToken(subject, 1000 * 60 * 60 * 24);    // 24小时
             // 2. 构造返回DTO
             TokenDto tokenDto = new TokenDto(null, refresh_token,0, 60 * 60 * 24);
             return AuthApiStatus.NEW_TOKEN_SUCCESS.response(tokenDto);

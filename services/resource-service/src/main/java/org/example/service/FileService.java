@@ -4,10 +4,8 @@ import io.minio.errors.MinioException;
 import org.example.dto.FileInfoDto;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.List;
-import java.util.Map;
 
 public interface FileService {
 
