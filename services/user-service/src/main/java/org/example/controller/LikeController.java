@@ -2,7 +2,7 @@ package org.example.controller;
 
 
 import jakarta.annotation.Resource;
-import org.example.bean.RequestContext;
+import org.example.context.UserContext;
 import org.example.dto.InteractionDto;
 import org.example.service.InteractionService;
 import org.example.constant.CacheKey;
@@ -20,7 +20,7 @@ public class LikeController {
     @Resource
     private InteractionService interactionService;
     @Resource
-    private RequestContext requestContext;
+    private UserContext userContext;
 
     /**
       * 用户点赞帖子的接口
@@ -28,9 +28,9 @@ public class LikeController {
      * @param targetPostId 帖子ID，通过路径变量传递
      */
     @PostMapping("/{targetPostId}")
-    @CacheEvict(value = CacheKey.USER_LIKED_POSTS, key = "#requestContext.userId")
+    @CacheEvict(value = CacheKey.USER_LIKED_POSTS, key = "#userContext.userId")
     public void likePost(@PathVariable Long targetPostId) {
-        Long userId = requestContext.getUserId();
+        Long userId = userContext.getUserId();
         InteractionDto dto = new InteractionDto(userId, targetPostId, 1);
         interactionService.addRecord(dto);
     }
@@ -41,9 +41,9 @@ public class LikeController {
      * @param targetPostId 帖子ID，通过路径变量传递
      */
     @DeleteMapping("/{targetPostId}")
-    @CacheEvict(value = CacheKey.USER_LIKED_POSTS, key = "#requestContext.userId")
+    @CacheEvict(value = CacheKey.USER_LIKED_POSTS, key = "#userContext.userId")
     public void unlikePost(@PathVariable Long targetPostId) {
-        Long userId = requestContext.getUserId();
+        Long userId = userContext.getUserId();
         InteractionDto dto = new InteractionDto(userId, targetPostId, 1);
         interactionService.deleteRecord(dto);
     }
@@ -54,9 +54,9 @@ public class LikeController {
       * @return 返回用户点赞的帖子ID列表的接口
      */
     @GetMapping()
-    @Cacheable(value = CacheKey.USER_LIKED_POSTS, key = "#requestContext.userId")
+    @Cacheable(value = CacheKey.USER_LIKED_POSTS, key = "#userContext.userId")
     public List<Long> getUserLikedPosts() {
-        Long userId = requestContext.getUserId();
+        Long userId = userContext.getUserId();
         InteractionDto dto = new InteractionDto(userId, null, 1);
         return interactionService.getRecord(dto);
     }

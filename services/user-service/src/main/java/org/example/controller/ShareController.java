@@ -1,7 +1,7 @@
 package org.example.controller;
 
 import jakarta.annotation.Resource;
-import org.example.bean.RequestContext;
+import org.example.context.UserContext;
 import org.example.dto.InteractionDto;
 import org.example.service.InteractionService;
 import org.example.constant.CacheKey;
@@ -19,7 +19,7 @@ public class ShareController {
     @Resource
     private InteractionService interactionService;
     @Resource
-    private RequestContext requestContext;
+    private UserContext userContext;
 
     /**
      * 分享帖子的接口
@@ -27,9 +27,9 @@ public class ShareController {
      * @param targetPostId 帖子ID，通过路径变量传递
      */
     @PostMapping("/{targetPostId}")
-    @CacheEvict(value = CacheKey.USER_SHARED_POSTS, key = "#requestContext.userId")
+    @CacheEvict(value = CacheKey.USER_SHARED_POSTS, key = "#userContext.userId")
     public void sharePost(@PathVariable Long targetPostId) {
-        Long userId = requestContext.getUserId();
+        Long userId = userContext.getUserId();
         InteractionDto dto = new InteractionDto(userId, targetPostId, 2);
         interactionService.addRecord(dto);
     }
@@ -40,9 +40,9 @@ public class ShareController {
      * @param targetPostId 帖子ID，通过路径变量传递
      */
     @DeleteMapping("/{targetPostId}")
-    @CacheEvict(value = CacheKey.USER_SHARED_POSTS, key = "#requestContext.userId")
+    @CacheEvict(value = CacheKey.USER_SHARED_POSTS, key = "#userContext.userId")
     public void unsharedPost(@PathVariable(value = "targetPostId") Long targetPostId) {
-        Long userId = requestContext.getUserId();
+        Long userId = userContext.getUserId();
         InteractionDto dto = new InteractionDto(userId, targetPostId, 2);
         interactionService.deleteRecord(dto);
     }
@@ -54,9 +54,9 @@ public class ShareController {
      * @return 返回用户分享帖子的ID列表
      */
     @GetMapping()
-    @Cacheable(value = CacheKey.USER_SHARED_POSTS, key = "#requestContext.userId")
+    @Cacheable(value = CacheKey.USER_SHARED_POSTS, key = "#userContext.userId")
     public List<Long> getUserSharedPosts() {
-        Long userId = requestContext.getUserId();
+        Long userId = userContext.getUserId();
         InteractionDto dto = new InteractionDto(userId, null, 2);
         return interactionService.getRecord(dto);
     }

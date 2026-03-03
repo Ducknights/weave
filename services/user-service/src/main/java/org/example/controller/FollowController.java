@@ -1,7 +1,7 @@
 package org.example.controller;
 
 import jakarta.annotation.Resource;
-import org.example.bean.RequestContext;
+import org.example.context.UserContext;
 import org.example.dto.InteractionDto;
 import org.example.service.InteractionService;
 import org.example.constant.CacheKey;
@@ -15,7 +15,7 @@ import java.util.List;
 @RequestMapping("/api/user/follow")
 public class FollowController {
     @Resource
-    private RequestContext requestContext;
+    private UserContext userContext;
     @Resource
     private InteractionService interactionService;
 
@@ -26,9 +26,9 @@ public class FollowController {
      * @return 用户粉丝的ID列表，类型为List<Long>
      */
     @GetMapping()
-    @Cacheable(value = CacheKey.USER_FOLLOWERS, key = "#requestContext.userId")
+    @Cacheable(value = CacheKey.USER_FOLLOWERS, key = "#userContext.userId")
     public List<Long> getUserFollowers() {
-        Long userId = requestContext.getUserId();
+        Long userId = userContext.getUserId();
         InteractionDto dto = new InteractionDto(userId, null, 1); // 1-关注 2-屏蔽 3-拉黑
         return interactionService.getRecord(dto);
     }
@@ -39,9 +39,9 @@ public class FollowController {
      * @param targetUserId 被关注用户的ID
      */
     @PostMapping("/{targetUserId}")
-    @CacheEvict(value = CacheKey.USER_FOLLOWERS, key = "#requestContext.userId")
+    @CacheEvict(value = CacheKey.USER_FOLLOWERS, key = "#userContext.userId")
     public void followUser(@PathVariable Long targetUserId) {
-        Long userId = requestContext.getUserId();
+        Long userId = userContext.getUserId();
         InteractionDto dto = new InteractionDto(userId, targetUserId, 1);
         // 调用交互服务添加关注关系
         interactionService.addRecord(dto);
@@ -53,9 +53,9 @@ public class FollowController {
      * @param targetUserId 被取消关注用户的ID
      */
     @DeleteMapping("/{targetUserId}")
-    @CacheEvict(value = CacheKey.USER_FOLLOWERS, key = "#requestContext.userId")
+    @CacheEvict(value = CacheKey.USER_FOLLOWERS, key = "#userContext.userId")
     public void unfollowUser(@PathVariable Long targetUserId) {
-        Long userId = requestContext.getUserId();
+        Long userId = userContext.getUserId();
         InteractionDto dto = new InteractionDto(userId, targetUserId, 1);
         interactionService.deleteRecord(dto);
     }

@@ -1,7 +1,7 @@
 package org.example.controller;
 
 import jakarta.annotation.Resource;
-import org.example.bean.RequestContext;
+import org.example.context.UserContext;
 import org.example.dto.AuthUserDto;
 import org.example.entity.UserInfo;
 import org.example.service.UserService;
@@ -17,7 +17,7 @@ public class UserInfoController {
     @Resource
     private UserService userService;
     @Resource
-    private RequestContext requestContext;
+    private UserContext userContext;
 
     /**
      * 处理用户注册请求的接口方法
@@ -38,7 +38,7 @@ public class UserInfoController {
      */
     @GetMapping("/self")
     public UserInfo getSelfUserInfo() {
-        Long id = requestContext.getUserId();
+        Long id = userContext.getUserId();
         return userService.getUserById(id);
     }
 

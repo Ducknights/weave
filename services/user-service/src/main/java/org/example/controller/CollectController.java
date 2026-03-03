@@ -1,10 +1,11 @@
 package org.example.controller;
 
 import jakarta.annotation.Resource;
-import org.example.bean.RequestContext;
+import org.example.context.UserContext;
 import org.example.dto.InteractionDto;
 import org.example.service.InteractionService;
 import org.example.constant.CacheKey;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.*;
@@ -17,8 +18,8 @@ public class CollectController {
 
     @Resource
     private InteractionService interactionService;
-    @Resource
-    private RequestContext requestContext;
+    @Autowired
+    private UserContext userContext;
 
     /**
      * 收藏帖子的接口
@@ -26,9 +27,9 @@ public class CollectController {
      * @param targetPostId 帖子ID，通过路径变量传递
      */
     @PostMapping("/{targetPostId}")
-    @CacheEvict(value = CacheKey.USER_COLLECTED_POSTS, key = "#requestContext.userId")
+    @CacheEvict(value = CacheKey.USER_COLLECTED_POSTS, key = "#userContext.userId")
     public void collectPost(@PathVariable Long targetPostId) {
-        Long userId = requestContext.getUserId();
+        Long userId = userContext.getUserId();
         InteractionDto dto = new InteractionDto(userId, targetPostId, 3);
         interactionService.addRecord(dto);
     }
@@ -39,9 +40,9 @@ public class CollectController {
      * @param targetPostId 帖子ID，通过路径变量传递
      */
     @DeleteMapping("/{targetPostId}")
-    @CacheEvict(value = CacheKey.USER_COLLECTED_POSTS, key = "#requestContext.userId")
+    @CacheEvict(value = CacheKey.USER_COLLECTED_POSTS, key = "#userContext.userId")
     public void uncollectedPost(@PathVariable(value = "targetPostId") Long targetPostId) {
-        Long userId = requestContext.getUserId();
+        Long userId = userContext.getUserId();
         InteractionDto dto = new InteractionDto(userId, targetPostId, 3);
         interactionService.deleteRecord(dto);
     }
@@ -53,9 +54,9 @@ public class CollectController {
      * @return 返回用户收藏帖子的ID列表
      */
     @GetMapping()
-    @Cacheable(value = CacheKey.USER_COLLECTED_POSTS, key = "#requestContext.userId")
+    @Cacheable(value = CacheKey.USER_COLLECTED_POSTS, key = "#userContext.userId")
     public List<Long> getUserCollectedPosts() {
-        Long userId = requestContext.getUserId();
+        Long userId = userContext.getUserId();
         InteractionDto dto = new InteractionDto(userId, null, 3);
         return interactionService.getRecord(dto);
     }

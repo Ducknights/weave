@@ -1,7 +1,7 @@
 package org.example.controller;
 
 import jakarta.annotation.Resource;
-import org.example.bean.RequestContext;
+import org.example.context.UserContext;
 import org.example.dto.InteractionDto;
 import org.example.service.InteractionService;
 import org.example.constant.CacheKey;
@@ -15,7 +15,7 @@ import java.util.List;
 @RequestMapping("/api/user/block")
 public class BlockController {
     @Resource
-    private RequestContext requestContext;
+    private UserContext userContext;
     @Resource
     private InteractionService interactionService;
 
@@ -26,9 +26,9 @@ public class BlockController {
      * @return List<Long> 返回被屏蔽用户的ID列表
      */
     @GetMapping()
-    @Cacheable(value = CacheKey.USER_BLOCKED_USERS, key = "#requestContext.userId")
+    @Cacheable(value = CacheKey.USER_BLOCKED_USERS, key = "#userContext.userId")
     public List<Long> getBlockedUsers() {
-        Long userId = requestContext.getUserId();
+        Long userId = userContext.getUserId();
         InteractionDto dto = new InteractionDto(userId, null, 3);
         return interactionService.getRecord(dto);
     }
@@ -39,9 +39,9 @@ public class BlockController {
      * @param targetUserId 被拉黑用户的ID，通过路径变量传递
      */
     @PostMapping("/{targetUserId}")
-    @CacheEvict(value = CacheKey.USER_BLOCKED_USERS, key = "#requestContext.userId")
+    @CacheEvict(value = CacheKey.USER_BLOCKED_USERS, key = "#userContext.userId")
     public void blockUser(@PathVariable Long targetUserId) {
-        Long userId = requestContext.getUserId();
+        Long userId = userContext.getUserId();
         InteractionDto dto = new InteractionDto(userId, targetUserId, 3);
         interactionService.addRecord(dto);
     }
@@ -53,9 +53,9 @@ public class BlockController {
      * @param targetUserId 路径变量，表示要解除封禁的目标用户ID
      */
     @DeleteMapping("/{targetUserId}")
-    @CacheEvict(value = CacheKey.USER_BLOCKED_USERS, key = "#requestContext.userId")
+    @CacheEvict(value = CacheKey.USER_BLOCKED_USERS, key = "#userContext.userId")
     public void unblockUser(@PathVariable Long targetUserId) {
-        Long userId = requestContext.getUserId();
+        Long userId = userContext.getUserId();
         InteractionDto dto = new InteractionDto(userId, targetUserId, 3);
         interactionService.deleteRecord(dto);
     }
