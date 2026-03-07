@@ -38,17 +38,30 @@
         <!-- Micrometer Tracing (替代Sleuth) -->
         <dependency>
             <groupId>io.micrometer</groupId>
-            <artifactId>micrometer-tracing-bridge-brave</artifactId>
+            <artifactId>micrometer-tracing</artifactId>
         </dependency>
         <dependency>
             <groupId>io.micrometer</groupId>
             <artifactId>micrometer-observation</artifactId>
         </dependency>
-        
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-tracing-bridge-brave</artifactId>
+        </dependency>
         <!-- Zipkin Reporter -->
         <dependency>
             <groupId>io.zipkin.reporter2</groupId>
             <artifactId>zipkin-reporter-brave</artifactId>
+        </dependency>
+        <!-- Actuator -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.github.openfeign</groupId>
+            <artifactId>feign-micrometer</artifactId>
+            <version>12.3</version>
         </dependency>
     </dependencies>
 
@@ -117,11 +130,6 @@
             </dependency>
             <dependency>
                 <groupId>org.example</groupId>
-                <artifactId>context-spring-boot-starter</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.example</groupId>
                 <artifactId>redis-spring-boot-starter</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -137,8 +145,8 @@
             </dependency>
             <dependency>
                 <groupId>org.example</groupId>
-                <artifactId>permission-spring-boot-starter</artifactId>
-                <version>${project.version}</version>
+                <artifactId>security-spring-boot-starter</artifactId>
+                <version>0.0.1-SNAPSHOT</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

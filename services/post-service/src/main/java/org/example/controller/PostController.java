@@ -2,12 +2,15 @@ package org.example.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import jakarta.annotation.Resource;
+import lombok.extern.log4j.Log4j2;
 import org.example.dto.PostDto;
 import org.example.entity.Post;
 import org.example.service.PostService;
+import org.example.util.SecurityUtils;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+@Log4j2
 @RestController
 @RequestMapping("/api/post")
 public class PostController {
@@ -25,7 +28,7 @@ public class PostController {
     @PostMapping
     public ResponseEntity<Post> createPost(
             @RequestBody PostDto postDto) {
-        Long userId = 1L;
+        Long userId = SecurityUtils.getCurrentUserId();
         Post post = postService.createPost(userId, postDto);
         return ResponseEntity.ok(post);
     }

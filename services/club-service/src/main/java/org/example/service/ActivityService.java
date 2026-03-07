@@ -1,6 +1,7 @@
 package org.example.service;
 
 import org.example.entity.Activity;
+import org.example.model.ClubApiResponse;
 import org.example.model.vo.ActivityCardVo;
 
 import java.time.LocalDate;
@@ -8,7 +9,7 @@ import java.util.List;
 
 public interface ActivityService {
     Activity creatActivity(Activity activity);
-    void deleteActivity(Integer ActivityId);
+    ClubApiResponse<?> deleteActivity(Integer ActivityId);
     Activity updateActivity(Activity activity);
     List<ActivityCardVo> queryActivityByDate(LocalDate startDate, LocalDate endDate);
     Activity queryActivityById(Integer activityId);

@@ -2,7 +2,6 @@ package org.example.service;
 
 import jakarta.annotation.Resource;
 import lombok.extern.log4j.Log4j2;
-import org.example.bean.RequestContext;
 import org.example.feign.UserInfoFeign;
 import org.example.mapper.ConversationMapper;
 import org.example.mapper.ConversationUserMapper;

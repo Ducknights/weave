@@ -2,6 +2,9 @@ package org.example.model;
 
 import lombok.Getter;
 
+import java.util.Collections;
+import java.util.Map;
+
 @Getter
 public enum ClubApiStatus {
     GET_SUCCESS(200, "请求成功"),
@@ -23,5 +26,13 @@ public enum ClubApiStatus {
     ClubApiStatus(int code, String msg) {
         this.code = code;
         this.msg = msg;
+    }
+
+    public ClubApiResponse<Map<String, Object>> response() {
+        return response(Collections.emptyMap());
+    }
+
+    public <T> ClubApiResponse<T> response(T data) {
+        return new ClubApiResponse<>(code, msg, data);
     }
 }

@@ -2,6 +2,7 @@ package org.example.filter;
 
 import lombok.extern.slf4j.Slf4j;
 import org.example.config.GatewayWhitelistProperties;
+import org.example.constant.RequestHeader;
 import org.example.exception.NoTokenException;
 import org.example.exception.TokenVerifyException;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
@@ -37,30 +38,31 @@ public class JwtFilter implements GlobalFilter {
             return chain.filter(exchange);
         }
 
-        String token = exchange.getRequest().getHeaders().getFirst("Authorization");
+        String token = exchange.getRequest().getHeaders().getFirst(RequestHeader.AUTHORIZATION);
 
         // 1. 检查 Token 是否存在
-        if (token == null || !token.startsWith("Bearer ")) {
+        if (token == null || !token.startsWith(RequestHeader.BEARER)) {
             throw new NoTokenException("用户未登录，请登录后重试");
         }
 
         // 2. 去掉 "Bearer " 前缀
-        String jwt = token.substring(7);
+        String JWT = token.substring(RequestHeader.BEARER.length());
 
         // 3. 验证并解析 JWT
         String subject; //RedisKey
         String userId; //用户ID
         try {
-            subject = JwtUtil.getJwtSubject(jwt);
-            userId = subject.substring(jwt.indexOf("::") + 2);
+            subject = JwtUtil.getJwtSubject(JWT);
+            log.info("用户标识信息: {}", subject);
+            userId = subject.substring(subject.indexOf("::") + 2);
         } catch (Exception e) {
             throw new TokenVerifyException("登录信息过期，请重新登录");
         }
 
         // 4. 将用户信息添加到下游请求头中
         ServerHttpRequest mutatedRequest = exchange.getRequest().mutate()
-                .headers(headers -> headers.remove("Authorization"))
-                .header("X-UserId", userId)
+                .headers(headers -> headers.remove(RequestHeader.AUTHORIZATION))
+                .header(RequestHeader.X_USER_ID, userId)
                 .build();
 
         ServerWebExchange mutatedExchange = exchange.mutate().request(mutatedRequest).build();

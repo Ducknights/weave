@@ -2,10 +2,8 @@ package org.example.feign.fallback;
 
 import lombok.extern.slf4j.Slf4j;
 import org.example.dto.UserDto;
-import org.example.entity.UserAuth;
+import org.example.model.UserAuth;
 import org.example.feign.UserFeignClient;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 /**

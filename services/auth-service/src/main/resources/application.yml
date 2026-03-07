@@ -8,18 +8,6 @@ spring:
     loadbalancer:
       cache:
         enabled: true
-
-  # Zipkin链路追踪
-  zipkin:
-    base-url: http://localhost:9411
-    sender:
-      type: web
-
-  # Micrometer配置
-  tracing:
-    sampling:
-      probability: 1.0
-
   # Feign 客户端配置
   feign:
     circuitbreaker:
@@ -89,9 +77,23 @@ spring:
 server:
   port: 4000
 
-mybatis-plus:
-  configuration:
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
-  configuration-properties:
-    map-underscore-to-camel-case: true
+management:
+  tracing:
+    sampling:
+      probability: 1.0
+    baggage:
+      remote-fields:
+        - X-User-Id
+  zipkin:
+    tracing:
+      endpoint: http://localhost:9411/api/v2/spans
 
+logging:
+  pattern:
+    level: ${spring.application.name:},%X{traceId:-},%X{spanId:-}
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+  level:
+    root: INFO
+    org.springframework.boot.actuate.autoconfigure.tracing: DEBUG
+    brave: DEBUG
+    zipkin2: DEBUG

@@ -3,10 +3,7 @@ package org.example.mapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import jakarta.annotation.Resource;
 import org.apache.ibatis.annotations.Mapper;
-import org.example.bean.RequestContext;
-import org.example.model.entity.Conversation;
 import org.example.model.entity.Message;
 
 import java.util.List;

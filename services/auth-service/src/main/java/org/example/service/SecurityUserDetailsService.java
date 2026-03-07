@@ -1,12 +1,11 @@
 package org.example.service;
 
 import jakarta.annotation.Resource;
-import org.example.entity.MyUserDetails;
-import org.example.entity.UserAuth;
+import org.example.constant.CacheKey;
+import org.example.model.CustomUserDetails;
+import org.example.model.UserAuth;
 import org.example.feign.UserFeignClient;
 import org.example.mapper.AuthMapper;
-import org.example.mapper.AuthorityMapper;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.provisioning.UserDetailsManager;
@@ -20,19 +19,15 @@ public class SecurityUserDetailsService implements UserDetailsManager {
     @Resource
     private AuthMapper authMapper;
     @Resource
-    private AuthorityMapper authorityMapper;
-    @Resource
     private UserFeignClient userFeignClient;
-
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        UserAuth userAuth = authMapper.selectUserByEmail(username);
-        if (userAuth == null) {
+        CustomUserDetails userDetails = authMapper.selectUserDetailsByEmail(username);
+        if (userDetails == null) {
             throw new UsernameNotFoundException("用户不存在");
         }
-        List<String> authorities = authorityMapper.selectUserPermissionById(userAuth.getId());
-        return new MyUserDetails(userAuth, authorities);
+        return userDetails;
     }
 
     @Override

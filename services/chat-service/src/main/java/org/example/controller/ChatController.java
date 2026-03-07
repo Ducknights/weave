@@ -1,7 +1,7 @@
 package org.example.controller;
 
 import jakarta.annotation.Resource;
-import org.example.bean.RequestContext;
+import org.example.context.UserContext;
 import org.example.model.dto.SendMessageDTO;
 import org.example.model.entity.Conversation;
 import org.example.model.entity.Message;
@@ -19,7 +19,7 @@ public class ChatController {
     @Resource
     private ChatServer chatServer;
     @Resource
-    private RequestContext requestContext;
+    private UserContext userContext;
     @Resource
     private LongPollingService longPollingService;
 
@@ -28,7 +28,7 @@ public class ChatController {
      */
     @GetMapping("/conversations")
     public List<ConversationVo> getConversations() {
-        Long userId = requestContext.getUserId();
+        Long userId = userContext.getUserId();
         return chatServer.getConversations(userId);
     }
 
@@ -37,7 +37,7 @@ public class ChatController {
      */
     @PostMapping("/conversation")
     public Conversation creatConversation(@RequestParam Long userB) {
-        Long userA = requestContext.getUserId();
+        Long userA = userContext.getUserId();
         return chatServer.createConversation(userA, userB);
     }
 
@@ -56,7 +56,7 @@ public class ChatController {
      */
     @GetMapping("/messages/poll")
     public List<Message> pollNewMessages(@RequestParam(required = false) Long lastReceivedId) {
-        Long userId = requestContext.getUserId();
+        Long userId = userContext.getUserId();
         if (lastReceivedId == null) {
             lastReceivedId = 0L;
         }
@@ -68,7 +68,7 @@ public class ChatController {
      */
     @PostMapping("/message")
     public Message sendMessage(@RequestBody SendMessageDTO dto) {
-        Long fromUserId = requestContext.getUserId();
+        Long fromUserId = userContext.getUserId();
         return chatServer.sendMessage(fromUserId, dto.getToUserId(), dto.getContent());
     }
 }

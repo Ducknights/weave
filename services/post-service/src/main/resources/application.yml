@@ -3,7 +3,7 @@ server:
 
 spring:
   application:
-    name: service-post
+    name: post-service
   cloud:
     nacos:
       discovery:

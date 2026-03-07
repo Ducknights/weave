@@ -3,6 +3,8 @@ package org.example.service.imp;
 import lombok.extern.log4j.Log4j2;
 import org.example.entity.Activity;
 import org.example.mapper.ActivityMapper;
+import org.example.model.ClubApiResponse;
+import org.example.model.ClubApiStatus;
 import org.example.model.vo.ActivityCardVo;
 import org.example.service.ActivityService;
 import org.example.constant.CacheKey;
@@ -35,8 +37,14 @@ public class ActivityServiceImp implements ActivityService {
 
     @Override
     @CachePut(value = CacheKey.ACTIVITY_AREA, key ="'activityId:'+ #activityId")
-    public void deleteActivity(Integer activityId) {
-        activityMapper.deleteById(activityId);
+    public ClubApiResponse<?> deleteActivity(Integer activityId) {
+        try {
+            activityMapper.deleteById(activityId);
+            return ClubApiStatus.DELETE_SUCCESS.response();
+        } catch (Exception e) {
+            log.error("删除活动失败，参数： {}", activityId, e);
+            throw new RuntimeException("删除活动失败");
+        }
     }
 
     @Override

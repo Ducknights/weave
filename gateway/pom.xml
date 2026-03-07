@@ -35,6 +35,10 @@
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt</artifactId>
         </dependency>
+        <dependency>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+        </dependency>
 
         <!-- Lombok -->
         <dependency>
@@ -52,17 +56,29 @@
         <!-- Micrometer Tracing (替代Sleuth) -->
         <dependency>
             <groupId>io.micrometer</groupId>
-            <artifactId>micrometer-tracing-bridge-brave</artifactId>
+            <artifactId>micrometer-tracing</artifactId>
         </dependency>
         <dependency>
             <groupId>io.micrometer</groupId>
             <artifactId>micrometer-observation</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-tracing-bridge-brave</artifactId>
+        </dependency>
         <!-- Zipkin Reporter -->
         <dependency>
             <groupId>io.zipkin.reporter2</groupId>
             <artifactId>zipkin-reporter-brave</artifactId>
+        </dependency>
+        <!-- Actuator -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.example</groupId>
+            <artifactId>common-model</artifactId>
         </dependency>
     </dependencies>
 

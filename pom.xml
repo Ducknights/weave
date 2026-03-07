@@ -40,7 +40,10 @@
         <!-- 安全相关 -->
         <jwt.version>0.9.1</jwt.version>
         <jaxb.version>2.3.1</jaxb.version>
-        
+
+        <!-- 链路追踪-->
+        <micrometer.version>1.5.1</micrometer.version>
+
         <!-- 工具类 -->
         <hutool.version>5.8.41</hutool.version>
         <annotations.version>13.0</annotations.version>
@@ -144,7 +147,7 @@
             </dependency>
             <dependency>
                 <groupId>org.example</groupId>
-                <artifactId>context-spring-boot-starter</artifactId>
+                <artifactId>user-context-spring-boot-starter</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -166,6 +169,13 @@
                 <groupId>org.example</groupId>
                 <artifactId>permission-spring-boot-starter</artifactId>
                 <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.micrometer</groupId>
+                <artifactId>micrometer-tracing-bom</artifactId>
+                <version>${micrometer.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>

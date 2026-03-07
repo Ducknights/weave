@@ -7,8 +7,10 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
 public class AuthExceptionHandler {
+
     @ExceptionHandler(RuntimeException.class)
     public AuthApiResponse<?> handleException(Exception e) {
         return null;
     }
+
 }

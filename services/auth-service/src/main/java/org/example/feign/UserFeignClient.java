@@ -1,7 +1,7 @@
 package org.example.feign;
 
 import org.example.dto.UserDto;
-import org.example.entity.UserAuth;
+import org.example.model.UserAuth;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;

@@ -16,11 +16,10 @@
     <modules>
         <module>common-model</module>
         <module>common-util</module>
-        <module>context-spring-boot-starter</module>
         <module>redis-spring-boot-starter</module>
         <module>rabbitmq-spring-boot-starter</module>
         <module>mybatis-plus-spring-boot-starter</module>
-        <module>permission-spring-boot-starter</module>
+        <module>security-spring-boot-starter</module>
     </modules>
 
     <properties>

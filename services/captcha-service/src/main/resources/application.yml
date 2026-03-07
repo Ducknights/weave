@@ -3,7 +3,7 @@ server:
 
 spring:
   application:
-    name: server-email
+    name: captcha-service
   
   cloud:
     nacos:
@@ -12,8 +12,6 @@ spring:
   
   zipkin:
     base-url: http://localhost:9411
-    sender:
-      type: web
   
   tracing:
     baggage:

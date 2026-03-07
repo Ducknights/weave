@@ -66,15 +66,15 @@
         </dependency>
         <dependency>
             <groupId>org.example</groupId>
-            <artifactId>context-spring-boot-starter</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.example</groupId>
             <artifactId>redis-spring-boot-starter</artifactId>
         </dependency>
         <dependency>
             <groupId>org.example</groupId>
             <artifactId>mybatis-plus-spring-boot-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.example</groupId>
+            <artifactId>security-spring-boot-starter</artifactId>
         </dependency>
 
         <!-- 测试 -->

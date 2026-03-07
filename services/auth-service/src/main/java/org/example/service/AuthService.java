@@ -7,7 +7,7 @@ import org.example.exception.CodeErrorException;
 import org.example.exception.EmailExistedException;
 import org.example.model.AuthApiResponse;
 import org.example.dto.*;
-import org.example.entity.MyUserDetails;
+import org.example.model.CustomUserDetails;
 import org.example.mapper.AuthMapper;
 import org.example.dto.ApiRequestDto;
 import org.example.model.AuthApiStatus;
@@ -15,6 +15,7 @@ import org.example.dto.VerifyCodeDto;
 import org.example.constant.CacheKey;
 import org.example.util.JwtUtil;
 import org.example.util.MQUtil;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -25,6 +26,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.concurrent.TimeUnit;
 
 @Log4j2
 @Service
@@ -58,14 +61,14 @@ public class AuthService {
                 // 设置认证上下文
                 SecurityContextHolder.getContext().setAuthentication(authentication);
                 // 获取用户ID
-                Long userId = ((MyUserDetails) authentication.getPrincipal()).getUserAuth().getId();
+                Long userId = ((CustomUserDetails) authentication.getPrincipal()).getUserId();
                 // 生成Redis键
                 String permissionsKey = CacheKey.buildCacheKey(CacheKey.USER_AUTHORITY_AREA, userId);
                 // 生成JWT令牌
                 String access_token = jwtUtil.generateJwtToken(permissionsKey, 1000 * 60 * 5); // 5分钟
                 String refresh_token = jwtUtil.generateJwtToken(permissionsKey, 1000 * 60 * 60 * 24);  // 24小时
                 // 写入用户标识信息到redis
-                redisTemplate.opsForValue().set(permissionsKey, ((MyUserDetails) authentication.getPrincipal()).getAuthorityList()); // 1小时
+                redisTemplate.opsForValue().set(permissionsKey, ((CustomUserDetails) authentication.getPrincipal()),1, TimeUnit.HOURS); // 1小时
                 // 构造返回DTO
                 TokenDto tokenDto = new TokenDto(access_token, refresh_token, 60 * 5, 60 * 60 * 24);
 //                UserDto userDto = userFeignClient.getUserById(userId);
@@ -119,11 +122,8 @@ public class AuthService {
         }
     }
 
+    @CacheEvict(value = CacheKey.USER_AUTHORITY_AREA, key = "#userId")
     public AuthApiResponse<?> logout(Long userId){
-        // 1. 清除redis中的用户信息
-        String key= CacheKey.buildCacheKey(CacheKey.USER_AUTHORITY_AREA,userId);
-        redisTemplate.delete(key);
-        // 2. 清除认证上下文
         SecurityContextHolder.clearContext();
         // 3. 返回注销成功信息
         return AuthApiStatus.LOGOUT_SUCCESS.response();

@@ -33,7 +33,7 @@ public class ClubController {
     public ResponseEntity<ClubApiResponse<?>> createClub(@Nonnull @RequestBody Club club) {
         final Club newClub = clubService.createClub(club);
         return ResponseEntity.status(ClubApiStatus.POST_SUCCESS.getCode())
-                .body(ClubApiResponse.success(ClubApiStatus.POST_SUCCESS,newClub));
+                .body(ClubApiStatus.POST_SUCCESS.response(newClub));
     }
 
     /**
@@ -46,7 +46,7 @@ public class ClubController {
     public ResponseEntity<ClubApiResponse<?>> deleteClub(@Nonnull @RequestBody Integer clubId) {
         clubService.deleteClub(clubId);
         return ResponseEntity.status(ClubApiStatus.DELETE_SUCCESS.getCode())
-                .body(ClubApiResponse.success(ClubApiStatus.DELETE_SUCCESS,null));
+                .body(ClubApiStatus.DELETE_SUCCESS.response());
     }
 
     /**
@@ -59,7 +59,7 @@ public class ClubController {
     public ResponseEntity<ClubApiResponse<?>> updateClub(@Nonnull @RequestBody Club club) {
         final Club newClub = clubService.updateClub(club);
         return ResponseEntity.status(ClubApiStatus.PUT_SUCCESS.getCode())
-                .body(ClubApiResponse.success(ClubApiStatus.PUT_SUCCESS,newClub));
+                .body(ClubApiStatus.PUT_SUCCESS.response(newClub));
     }
 
     /**
@@ -71,7 +71,7 @@ public class ClubController {
     public ResponseEntity<ClubApiResponse<?>> getClubs() {
         final List<ClubCardVo> clubCardVos = clubService.queryClubs();
         return ResponseEntity.status(ClubApiStatus.GET_SUCCESS.getCode())
-                .body(ClubApiResponse.success(ClubApiStatus.GET_SUCCESS,clubCardVos));
+                .body(ClubApiStatus.GET_SUCCESS.response(clubCardVos));
     }
 
     /**
@@ -84,6 +84,6 @@ public class ClubController {
     public ResponseEntity<ClubApiResponse<?>> getClubById(@PathVariable Integer clubId) {
         final Club club = clubService.getClubById(clubId);
         return ResponseEntity.status(ClubApiStatus.GET_SUCCESS.getCode())
-                .body(ClubApiResponse.success(ClubApiStatus.GET_SUCCESS,club));
+                .body(ClubApiStatus.GET_SUCCESS.response(club));
     }
 }

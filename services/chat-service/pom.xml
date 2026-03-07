@@ -24,6 +24,12 @@
             <artifactId>spring-cloud-starter-openfeign</artifactId>
         </dependency>
 
+        <!-- LoadBalancer负载均衡 -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-loadbalancer</artifactId>
+        </dependency>
+
         <!-- Web -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -88,10 +94,6 @@
         <dependency>
             <groupId>org.example</groupId>
             <artifactId>common-model</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.example</groupId>
-            <artifactId>context-spring-boot-starter</artifactId>
         </dependency>
         <dependency>
             <groupId>org.example</groupId>

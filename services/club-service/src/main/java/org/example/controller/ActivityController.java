@@ -1,7 +1,3 @@
-/**
- * 活动管理控制器
- * 提供活动的增删改查等基本操作
- */
 package org.example.controller;
 
 
@@ -15,6 +11,7 @@ import org.example.model.vo.ActivityCardVo;
 import org.example.service.ActivityService;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -41,7 +38,7 @@ public class ActivityController {
     public ResponseEntity<ClubApiResponse<?>> creatActivity(@Nonnull @RequestBody Activity activity) {
         final Activity newActivity = activityService.creatActivity(activity);
         return ResponseEntity.status(ClubApiStatus.POST_SUCCESS.getCode())
-                .body(ClubApiResponse.success(ClubApiStatus.POST_SUCCESS,newActivity));
+                .body(ClubApiStatus.POST_SUCCESS.response(newActivity));
     }
 
     /**
@@ -50,10 +47,11 @@ public class ActivityController {
      * @return 响应结果
      */
     @DeleteMapping()
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public ResponseEntity<ClubApiResponse<?>> deleteActivity(@Nonnull @RequestBody Integer ActivityId) {
         activityService.deleteActivity(ActivityId);
         return ResponseEntity.status(ClubApiStatus.DELETE_SUCCESS.getCode())
-                .body(ClubApiResponse.success(ClubApiStatus.DELETE_SUCCESS,null));
+                .body(ClubApiStatus.DELETE_SUCCESS.response());
     }
 
     /**
@@ -65,7 +63,7 @@ public class ActivityController {
     public ResponseEntity<ClubApiResponse<?>> updateActivity(@Nonnull @RequestBody Activity activity) {
         final Activity newActivity = activityService.updateActivity(activity);
         return ResponseEntity.status(ClubApiStatus.PUT_SUCCESS.getCode())
-                .body(ClubApiResponse.success(ClubApiStatus.PUT_SUCCESS,newActivity));
+                .body(ClubApiStatus.PUT_SUCCESS.response(newActivity));
     }
 
     /**
@@ -89,7 +87,7 @@ public class ActivityController {
 
         final List<ActivityCardVo> activities = activityService.queryActivityByDate(start, end);
         return ResponseEntity.status(ClubApiStatus.GET_SUCCESS.getCode())
-                .body(ClubApiResponse.success(ClubApiStatus.GET_SUCCESS,activities));
+                .body(ClubApiStatus.GET_SUCCESS.response(activities));
     }
 
     /**
@@ -101,6 +99,6 @@ public class ActivityController {
     public ResponseEntity<ClubApiResponse<?>> getActivityById(@PathVariable Integer ActivityId) {
         final Activity activity = activityService.queryActivityById(ActivityId);
         return ResponseEntity.status(ClubApiStatus.GET_SUCCESS.getCode())
-                .body(ClubApiResponse.success(ClubApiStatus.GET_SUCCESS,activity));
+                .body(ClubApiStatus.GET_SUCCESS.response(activity));
     }
 }

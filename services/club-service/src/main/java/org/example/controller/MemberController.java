@@ -31,7 +31,7 @@ public class MemberController {
     public ResponseEntity<ClubApiResponse<?>> createMember(@Nonnull @RequestBody Member member) {
         final Member memberVo = memberService.createMember(member);
         return ResponseEntity.status(ClubApiStatus.POST_SUCCESS.getCode())
-                .body(ClubApiResponse.success(ClubApiStatus.POST_SUCCESS, memberVo));
+                .body(ClubApiStatus.POST_SUCCESS.response(memberVo));
     }
 
     /**
@@ -43,7 +43,7 @@ public class MemberController {
     public ResponseEntity<ClubApiResponse<?>> deleteMember(@Nonnull @RequestBody Integer memberId) {
         memberService.deleteMember(memberId);
         return ResponseEntity.status(ClubApiStatus.DELETE_SUCCESS.getCode())
-                .body(ClubApiResponse.success(ClubApiStatus.DELETE_SUCCESS, null));
+                .body(ClubApiStatus.DELETE_SUCCESS.response());
     }
 
     /**
@@ -55,7 +55,7 @@ public class MemberController {
     public ResponseEntity<ClubApiResponse<?>> updateMember(@Nonnull @RequestBody Member member) {
         final Member newMember = memberService.updateMember(member);
         return ResponseEntity.status(ClubApiStatus.PUT_SUCCESS.getCode())
-                .body(ClubApiResponse.success(ClubApiStatus.PUT_SUCCESS, newMember));
+                .body(ClubApiStatus.PUT_SUCCESS.response(newMember));
     }
 
     /**
@@ -67,7 +67,7 @@ public class MemberController {
     public ResponseEntity<ClubApiResponse<?>> getMembersByClubId(@PathVariable Integer clubId) {
         final List<Member> members = memberService.getMembersByClubId(clubId);
         return ResponseEntity.status(ClubApiStatus.GET_SUCCESS.getCode())
-                .body(ClubApiResponse.success(ClubApiStatus.GET_SUCCESS, members));
+                .body(ClubApiStatus.GET_SUCCESS.response(members));
     }
 
     /**
@@ -79,6 +79,6 @@ public class MemberController {
     public ResponseEntity<ClubApiResponse<?>> getMemberById(@PathVariable Integer memberId) {
         final Member member = memberService.getMemberById(memberId);
         return ResponseEntity.status(ClubApiStatus.GET_SUCCESS.getCode())
-                .body(ClubApiResponse.success(ClubApiStatus.GET_SUCCESS, member));
+                .body(ClubApiStatus.GET_SUCCESS.response(member));
     }
 }
