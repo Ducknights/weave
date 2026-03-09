@@ -1,19 +1,25 @@
 package org.example.config;
 
 import jakarta.annotation.Resource;
+import org.example.filter.HeaderFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
+@EnableWebSecurity
 public class SecurityConfiguration {
 
     @Resource
@@ -33,18 +39,17 @@ public class SecurityConfiguration {
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        //自定义配置
+    public SecurityFilterChain filterChain(HttpSecurity http, HeaderFilter headerFilter) throws Exception {
         http
-                //关闭CSRF
                 .csrf(AbstractHttpConfigurer::disable)
-                //关闭session管理
-                .sessionManagement(AbstractHttpConfigurer::disable)
-                //关闭默认的表单登录
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .formLogin(AbstractHttpConfigurer::disable)
-                //关闭默认的注销
-                .logout(AbstractHttpConfigurer::disable);
-        //返回新的过滤器链
+                .logout(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/auth/login", "/api/auth/register/*").permitAll()
+                        .anyRequest().authenticated()
+                )
+                .addFilterBefore(headerFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 }

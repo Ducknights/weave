@@ -1,10 +1,10 @@
 package org.example.controller;
 
 import jakarta.annotation.Resource;
-import org.example.context.UserContext;
 import org.example.dto.AuthUserDto;
 import org.example.entity.UserInfo;
 import org.example.service.UserService;
+import org.example.util.SecurityUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -16,8 +16,6 @@ public class UserInfoController {
 
     @Resource
     private UserService userService;
-    @Resource
-    private UserContext userContext;
 
     /**
      * 处理用户注册请求的接口方法
@@ -38,7 +36,7 @@ public class UserInfoController {
      */
     @GetMapping("/self")
     public UserInfo getSelfUserInfo() {
-        Long id = userContext.getUserId();
+        Long id = SecurityUtils.getCurrentUserId();
         return userService.getUserById(id);
     }
 

@@ -23,36 +23,33 @@ public class MicroserviceSecurityConfig {
 
     @Bean
     @ConditionalOnMissingBean
-    public HeaderFilter preAuthenticatedHeaderFilter(RedisTemplate<String, Object> redisTemplate) {
+    public HeaderFilter HeaderFilter(RedisTemplate<String, Object> redisTemplate) {
         return new HeaderFilter(redisTemplate);
     }
 
     @Bean
+    @ConditionalOnMissingBean
     public SecurityFilterChain filterChain(HttpSecurity http,
                                            HeaderFilter headerFilter) throws Exception {
         http
-                // 关闭CSRF保护
                 .csrf(AbstractHttpConfigurer::disable)
-                // 关闭会话管理
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                // 关闭默认表单登录
                 .formLogin(AbstractHttpConfigurer::disable)
-                // 关闭默认的注销
                 .logout(AbstractHttpConfigurer::disable)
-                // 允许所有请求（网关会认证）
                 .authorizeHttpRequests(auth -> auth
                         .anyRequest().permitAll())
-                // 添加自定义过滤器（验证请求头）
                 .addFilterBefore(headerFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 
     @Bean
+    @ConditionalOnMissingBean
     public AuthenticationManager authenticationManager(HeaderAuthenticationProvider provider) {
         return new ProviderManager(Collections.singletonList(provider));
     }
 
     @Bean
+    @ConditionalOnMissingBean
     public HeaderAuthenticationProvider headerAuthenticationProvider() {
         return new HeaderAuthenticationProvider();
     }

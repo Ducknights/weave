@@ -125,7 +125,6 @@ public class AuthService {
     @CacheEvict(value = CacheKey.USER_AUTHORITY_AREA, key = "#userId")
     public AuthApiResponse<?> logout(Long userId){
         SecurityContextHolder.clearContext();
-        // 3. 返回注销成功信息
         return AuthApiStatus.LOGOUT_SUCCESS.response();
     }
 
