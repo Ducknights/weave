@@ -1,8 +1,7 @@
 package org.example.controller;
 
-
 import jakarta.annotation.Resource;
-import org.example.context.UserContext;
+import org.example.util.SecurityUtils;
 import org.example.dto.InteractionDto;
 import org.example.service.InteractionService;
 import org.example.constant.CacheKey;
@@ -19,8 +18,6 @@ public class LikeController {
 
     @Resource
     private InteractionService interactionService;
-    @Resource
-    private UserContext userContext;
 
     /**
       * 用户点赞帖子的接口
@@ -30,7 +27,7 @@ public class LikeController {
     @PostMapping("/{targetPostId}")
     @CacheEvict(value = CacheKey.USER_LIKED_POSTS, key = "#userContext.userId")
     public void likePost(@PathVariable Long targetPostId) {
-        Long userId = userContext.getUserId();
+        Long userId = SecurityUtils.getCurrentUserId();
         InteractionDto dto = new InteractionDto(userId, targetPostId, 1);
         interactionService.addRecord(dto);
     }
@@ -43,7 +40,7 @@ public class LikeController {
     @DeleteMapping("/{targetPostId}")
     @CacheEvict(value = CacheKey.USER_LIKED_POSTS, key = "#userContext.userId")
     public void unlikePost(@PathVariable Long targetPostId) {
-        Long userId = userContext.getUserId();
+        Long userId = SecurityUtils.getCurrentUserId();
         InteractionDto dto = new InteractionDto(userId, targetPostId, 1);
         interactionService.deleteRecord(dto);
     }
@@ -56,7 +53,7 @@ public class LikeController {
     @GetMapping()
     @Cacheable(value = CacheKey.USER_LIKED_POSTS, key = "#userContext.userId")
     public List<Long> getUserLikedPosts() {
-        Long userId = userContext.getUserId();
+        Long userId = SecurityUtils.getCurrentUserId();
         InteractionDto dto = new InteractionDto(userId, null, 1);
         return interactionService.getRecord(dto);
     }

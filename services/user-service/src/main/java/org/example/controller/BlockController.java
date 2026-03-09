@@ -1,7 +1,7 @@
 package org.example.controller;
 
 import jakarta.annotation.Resource;
-import org.example.context.UserContext;
+import org.example.util.SecurityUtils;
 import org.example.dto.InteractionDto;
 import org.example.service.InteractionService;
 import org.example.constant.CacheKey;
@@ -15,8 +15,6 @@ import java.util.List;
 @RequestMapping("/api/user/block")
 public class BlockController {
     @Resource
-    private UserContext userContext;
-    @Resource
     private InteractionService interactionService;
 
     /**
@@ -28,7 +26,7 @@ public class BlockController {
     @GetMapping()
     @Cacheable(value = CacheKey.USER_BLOCKED_USERS, key = "#userContext.userId")
     public List<Long> getBlockedUsers() {
-        Long userId = userContext.getUserId();
+        Long userId = SecurityUtils.getCurrentUserId();
         InteractionDto dto = new InteractionDto(userId, null, 3);
         return interactionService.getRecord(dto);
     }
@@ -41,7 +39,7 @@ public class BlockController {
     @PostMapping("/{targetUserId}")
     @CacheEvict(value = CacheKey.USER_BLOCKED_USERS, key = "#userContext.userId")
     public void blockUser(@PathVariable Long targetUserId) {
-        Long userId = userContext.getUserId();
+        Long userId = SecurityUtils.getCurrentUserId();
         InteractionDto dto = new InteractionDto(userId, targetUserId, 3);
         interactionService.addRecord(dto);
     }
@@ -55,7 +53,7 @@ public class BlockController {
     @DeleteMapping("/{targetUserId}")
     @CacheEvict(value = CacheKey.USER_BLOCKED_USERS, key = "#userContext.userId")
     public void unblockUser(@PathVariable Long targetUserId) {
-        Long userId = userContext.getUserId();
+        Long userId = SecurityUtils.getCurrentUserId();
         InteractionDto dto = new InteractionDto(userId, targetUserId, 3);
         interactionService.deleteRecord(dto);
     }

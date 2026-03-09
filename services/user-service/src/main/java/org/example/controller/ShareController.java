@@ -1,7 +1,7 @@
 package org.example.controller;
 
 import jakarta.annotation.Resource;
-import org.example.context.UserContext;
+import org.example.util.SecurityUtils;
 import org.example.dto.InteractionDto;
 import org.example.service.InteractionService;
 import org.example.constant.CacheKey;
@@ -18,8 +18,6 @@ public class ShareController {
 
     @Resource
     private InteractionService interactionService;
-    @Resource
-    private UserContext userContext;
 
     /**
      * 分享帖子的接口
@@ -29,7 +27,7 @@ public class ShareController {
     @PostMapping("/{targetPostId}")
     @CacheEvict(value = CacheKey.USER_SHARED_POSTS, key = "#userContext.userId")
     public void sharePost(@PathVariable Long targetPostId) {
-        Long userId = userContext.getUserId();
+        Long userId = SecurityUtils.getCurrentUserId();
         InteractionDto dto = new InteractionDto(userId, targetPostId, 2);
         interactionService.addRecord(dto);
     }
@@ -42,7 +40,7 @@ public class ShareController {
     @DeleteMapping("/{targetPostId}")
     @CacheEvict(value = CacheKey.USER_SHARED_POSTS, key = "#userContext.userId")
     public void unsharedPost(@PathVariable(value = "targetPostId") Long targetPostId) {
-        Long userId = userContext.getUserId();
+        Long userId = SecurityUtils.getCurrentUserId();
         InteractionDto dto = new InteractionDto(userId, targetPostId, 2);
         interactionService.deleteRecord(dto);
     }
@@ -56,7 +54,7 @@ public class ShareController {
     @GetMapping()
     @Cacheable(value = CacheKey.USER_SHARED_POSTS, key = "#userContext.userId")
     public List<Long> getUserSharedPosts() {
-        Long userId = userContext.getUserId();
+        Long userId = SecurityUtils.getCurrentUserId();
         InteractionDto dto = new InteractionDto(userId, null, 2);
         return interactionService.getRecord(dto);
     }

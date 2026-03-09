@@ -2,9 +2,11 @@ package org.example.service.impl;
 
 import jakarta.annotation.Resource;
 import lombok.extern.log4j.Log4j2;
+import org.example.constant.CacheKey;
 import org.example.dto.InteractionDto;
 import org.example.mapper.InteractionMapper;
 import org.example.service.InteractionService;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
@@ -35,6 +37,7 @@ public class InteractionServiceImpl implements InteractionService {
     }
 
     @Override
+    @Cacheable(value = CacheKey.USER_MUTED_USERS, key = "#dto.userId()")
     public List<Long> getRecord(InteractionDto dto) {
         return List.of();
     }

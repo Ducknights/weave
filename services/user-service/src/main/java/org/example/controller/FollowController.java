@@ -1,7 +1,7 @@
 package org.example.controller;
 
 import jakarta.annotation.Resource;
-import org.example.context.UserContext;
+import org.example.util.SecurityUtils;
 import org.example.dto.InteractionDto;
 import org.example.service.InteractionService;
 import org.example.constant.CacheKey;
@@ -15,8 +15,6 @@ import java.util.List;
 @RequestMapping("/api/user/follow")
 public class FollowController {
     @Resource
-    private UserContext userContext;
-    @Resource
     private InteractionService interactionService;
 
     /**
@@ -28,7 +26,7 @@ public class FollowController {
     @GetMapping()
     @Cacheable(value = CacheKey.USER_FOLLOWERS, key = "#userContext.userId")
     public List<Long> getUserFollowers() {
-        Long userId = userContext.getUserId();
+        Long userId = SecurityUtils.getCurrentUserId();
         InteractionDto dto = new InteractionDto(userId, null, 1); // 1-关注 2-屏蔽 3-拉黑
         return interactionService.getRecord(dto);
     }
@@ -41,7 +39,7 @@ public class FollowController {
     @PostMapping("/{targetUserId}")
     @CacheEvict(value = CacheKey.USER_FOLLOWERS, key = "#userContext.userId")
     public void followUser(@PathVariable Long targetUserId) {
-        Long userId = userContext.getUserId();
+        Long userId = SecurityUtils.getCurrentUserId();
         InteractionDto dto = new InteractionDto(userId, targetUserId, 1);
         // 调用交互服务添加关注关系
         interactionService.addRecord(dto);
@@ -55,7 +53,7 @@ public class FollowController {
     @DeleteMapping("/{targetUserId}")
     @CacheEvict(value = CacheKey.USER_FOLLOWERS, key = "#userContext.userId")
     public void unfollowUser(@PathVariable Long targetUserId) {
-        Long userId = userContext.getUserId();
+        Long userId = SecurityUtils.getCurrentUserId();
         InteractionDto dto = new InteractionDto(userId, targetUserId, 1);
         interactionService.deleteRecord(dto);
     }
