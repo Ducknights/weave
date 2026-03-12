@@ -126,7 +126,7 @@ public class RedisConfig {
         configMap.put(CacheKey.POST_DETAIL_AREA, defaultConfig.entryTtl(Duration.ofHours(1)));
         // 用户行为相关
         configMap.put(CacheKey.USER_LIKED_POSTS, defaultConfig.entryTtl(Duration.ofMinutes(5)));
-        configMap.put(CacheKey.USER_COLLECTED_POSTS, defaultConfig.entryTtl(Duration.ofMinutes(5)));
+        configMap.put(CacheKey.USER_FAVORITE_POSTS, defaultConfig.entryTtl(Duration.ofMinutes(5)));
         configMap.put(CacheKey.USER_SHARED_POSTS, defaultConfig.entryTtl(Duration.ofMinutes(5)));
         configMap.put(CacheKey.USER_FOLLOWERS, defaultConfig.entryTtl(Duration.ofMinutes(5)));
         configMap.put(CacheKey.USER_FANS, defaultConfig.entryTtl(Duration.ofMinutes(5)));

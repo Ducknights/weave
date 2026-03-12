@@ -8,34 +8,34 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Set;
 
-import static org.example.model.InteractionEnum.LIKE;
+import static org.example.model.InteractionEnum.FAVORITE;
 
 @RestController
-@RequestMapping("/api/user/like")
-public class LikeController {
+@RequestMapping("/api/user/collect")
+public class FavoriteController {
 
     @Resource
     private InteractionService interactionService;
 
     @PostMapping("/{targetPostId}")
-    public void likePost(@PathVariable Long targetPostId) {
+    public void collectPost(@PathVariable Long targetPostId) {
         Long userId = SecurityUtils.getCurrentUserId();
-        InteractionDto dto = new InteractionDto(userId, targetPostId, LIKE);
+        InteractionDto dto = new InteractionDto(userId, targetPostId, FAVORITE);
         interactionService.addRecord(dto);
     }
 
     @DeleteMapping("/{targetPostId}")
-    public void unlikePost(@PathVariable Long targetPostId) {
+    public void uncollectedPost(@PathVariable Long targetPostId) {
         Long userId = SecurityUtils.getCurrentUserId();
-        InteractionDto dto = new InteractionDto(userId, targetPostId, LIKE);
+        InteractionDto dto = new InteractionDto(userId, targetPostId, FAVORITE);
         interactionService.deleteRecord(dto);
     }
 
     @GetMapping()
-    public Set<Long> getUserLikedPosts(@RequestParam(defaultValue = "0") Integer page,
-                                       @RequestParam(defaultValue = "20") Integer size) {
+    public Set<Long> getUserCollectedPosts(@RequestParam(defaultValue = "0") Integer page,
+                                           @RequestParam(defaultValue = "20") Integer size) {
         Long userId = SecurityUtils.getCurrentUserId();
-        InteractionDto dto = new InteractionDto(userId, null, LIKE);
+        InteractionDto dto = new InteractionDto(userId, null, FAVORITE);
         return interactionService.getRecord(dto, page, size);
     }
 }

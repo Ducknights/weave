@@ -1,7 +1,6 @@
 package org.example.service;
 
 import jakarta.annotation.Resource;
-import org.example.constant.CacheKey;
 import org.example.model.CustomUserDetails;
 import org.example.model.UserAuth;
 import org.example.feign.UserFeignClient;

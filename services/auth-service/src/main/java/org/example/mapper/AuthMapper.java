@@ -3,7 +3,6 @@ package org.example.mapper;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
-import org.example.dto.UserDto;
 import org.example.model.CustomUserDetails;
 import org.example.model.UserAuth;
 
@@ -16,8 +15,8 @@ public interface AuthMapper {
     // 根据邮箱查询用户信息
     UserAuth selectUserByEmail(String email);
 
-    @Insert("INSERT INTO users(email,password) VALUES(#{email},#{password})")
-    // 插入一个用户信息，包括邮箱、密码和创建时间
+    @Insert("INSERT INTO users(email,password) VALUES(#{email},#{password}) AND INSERT INTO user_roles(user_id,role_id) VALUES(#{id},2)")
+    // 插入一个用户信息，包括邮箱、密码和创建时间，默认角色为普通用户
     UserAuth insertUser(UserAuth userAuth);
 
     // 一次查询获取所有信息，使用 GROUP_CONCAT 避免 N+1 问题

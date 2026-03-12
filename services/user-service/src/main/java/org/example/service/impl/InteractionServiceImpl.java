@@ -6,21 +6,25 @@ import org.example.constant.CacheKey;
 import org.example.dto.InteractionDto;
 import org.example.mapper.InteractionMapper;
 import org.example.service.InteractionService;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import java.util.Set;
 
 @Log4j2
 @Service
 public class InteractionServiceImpl implements InteractionService {
 
     @Resource
+    private RedisTemplate<String, Object> redisTemplate;
+    @Resource
     private InteractionMapper interactionMapper;
 
     @Override
+    @Transactional
     public void addRecord(InteractionDto dto) {
         try{
             interactionMapper.insert(dto);
@@ -32,13 +36,25 @@ public class InteractionServiceImpl implements InteractionService {
     }
 
     @Override
+    @Transactional
     public void deleteRecord(InteractionDto dto) {
         interactionMapper.deleteRecord(dto);
     }
 
     @Override
-    @Cacheable(value = CacheKey.USER_MUTED_USERS, key = "#dto.userId()")
-    public List<Long> getRecord(InteractionDto dto) {
-        return List.of();
+    public Set<Long> getRecord(InteractionDto dto, int page, int size) {
+        Set<Long> result = interactionMapper.getRecord(dto, page, size);
+        String key = switch (dto.type()) {
+            case LIKE -> CacheKey.buildCacheKey(CacheKey.USER_LIKED_POSTS, dto.userId());
+            case FAVORITE -> CacheKey.buildCacheKey(CacheKey.USER_FAVORITE_POSTS, dto.userId());
+            case SHARE -> CacheKey.buildCacheKey(CacheKey.USER_SHARED_POSTS, dto.userId());
+            case FOLLOW -> CacheKey.buildCacheKey(CacheKey.USER_FOLLOWERS, dto.userId());
+            case MUTE -> CacheKey.buildCacheKey(CacheKey.USER_MUTED_USERS, dto.userId());
+            case BLOCK -> CacheKey.buildCacheKey(CacheKey.USER_BLOCKED_USERS, dto.userId());
+        };
+        if (!result.isEmpty()) {
+            redisTemplate.opsForSet().add(key, result.toArray(new Long[0]));
+        }
+        return result;
     }
 }

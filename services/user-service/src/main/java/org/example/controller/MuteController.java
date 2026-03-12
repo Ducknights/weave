@@ -1,42 +1,41 @@
 package org.example.controller;
 
 import jakarta.annotation.Resource;
-import org.example.util.SecurityUtils;
 import org.example.dto.InteractionDto;
 import org.example.service.InteractionService;
-import org.example.constant.CacheKey;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
+import org.example.util.SecurityUtils;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.util.Set;
+
+import static org.example.model.InteractionEnum.MUTE;
 
 @RestController
 @RequestMapping("/api/user/mute")
 public class MuteController {
+
     @Resource
     private InteractionService interactionService;
 
-    @GetMapping()
-    public List<Long> getMutedUsers() {
-        Long userId = SecurityUtils.getCurrentUserId();
-        InteractionDto dto = new InteractionDto(userId, null, 2);
-        return interactionService.getRecord(dto);
-    }
-
     @PostMapping("/{targetUserId}")
-    @CacheEvict(value = CacheKey.USER_MUTED_USERS, key = "#userId")
     public void muteUser(@PathVariable Long targetUserId) {
         Long userId = SecurityUtils.getCurrentUserId();
-        InteractionDto dto = new InteractionDto(userId, targetUserId, 2);
+        InteractionDto dto = new InteractionDto(userId, targetUserId, MUTE);
         interactionService.addRecord(dto);
     }
 
     @DeleteMapping("/{targetUserId}")
-    @CacheEvict(value = CacheKey.USER_MUTED_USERS, key = "#userContext.userId")
     public void unmuteUser(@PathVariable Long targetUserId) {
         Long userId = SecurityUtils.getCurrentUserId();
-        InteractionDto dto = new InteractionDto(userId, targetUserId, 2);
+        InteractionDto dto = new InteractionDto(userId, targetUserId, MUTE);
         interactionService.deleteRecord(dto);
+    }
+
+    @GetMapping()
+    public Set<Long> getMutedUsers(@RequestParam(defaultValue = "0") Integer page,
+                                   @RequestParam(defaultValue = "20") Integer size) {
+        Long userId = SecurityUtils.getCurrentUserId();
+        InteractionDto dto = new InteractionDto(userId, null, MUTE);
+        return interactionService.getRecord(dto, page, size);
     }
 }
