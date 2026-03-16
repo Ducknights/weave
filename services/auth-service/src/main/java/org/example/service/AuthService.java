@@ -5,6 +5,7 @@ import jakarta.annotation.Resource;
 import lombok.extern.log4j.Log4j2;
 import org.example.exception.CodeErrorException;
 import org.example.exception.EmailExistedException;
+import org.example.feign.UserFeignClient;
 import org.example.model.AuthApiResponse;
 import org.example.dto.*;
 import org.example.model.CustomUserDetails;
@@ -16,6 +17,7 @@ import org.example.constant.CacheKey;
 import org.example.util.JwtUtil;
 import org.example.util.MQUtil;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -42,6 +44,8 @@ public class AuthService {
     private RedisTemplate<String,Object> redisTemplate;
     @Resource
     private AuthMapper authMapper;
+    @Resource
+    private UserFeignClient userFeignClient;
     @Resource
     private MQUtil mqUtil;
     @Resource
@@ -71,7 +75,7 @@ public class AuthService {
                 redisTemplate.opsForValue().set(permissionsKey, ((CustomUserDetails) authentication.getPrincipal()),1, TimeUnit.HOURS); // 1小时
                 // 构造返回DTO
                 TokenDto tokenDto = new TokenDto(access_token, refresh_token, 60 * 5, 60 * 60 * 24);
-//                UserDto userDto = userFeignClient.getUserById(userId);
+                UserDto userDto = userFeignClient.getUserById(userId);
                 apiResponseDto = new ApiResponseDto(tokenDto, null);
             }
         } catch (Exception e) {
@@ -103,6 +107,7 @@ public class AuthService {
     }
 
 
+    @Transactional
     public AuthApiResponse<?> verifyCode(VerifyCodeDto dto) {
         // 1. 验证验证码
         String key = CacheKey.buildCacheKey(CacheKey.CAPTCHA_AREA, dto.email());
@@ -122,7 +127,10 @@ public class AuthService {
         }
     }
 
-    @CacheEvict(value = CacheKey.USER_AUTHORITY_AREA, key = "#userId")
+    @Caching(evict = {
+            @CacheEvict(value = CacheKey.USER_AUTHORITY_AREA, key = "#userId"),
+            @CacheEvict(value = CacheKey.USER_ONLINE_AREA,key = "#userId")
+    })
     public AuthApiResponse<?> logout(Long userId){
         SecurityContextHolder.clearContext();
         return AuthApiStatus.LOGOUT_SUCCESS.response();

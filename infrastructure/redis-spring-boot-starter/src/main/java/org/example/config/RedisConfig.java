@@ -118,6 +118,7 @@ public class RedisConfig {
         // 用户认证相关
         configMap.put(CacheKey.USER_AUTHORITY_AREA, defaultConfig.entryTtl(Duration.ofHours(24)));
         configMap.put(CacheKey.USER_INFO_AREA, defaultConfig.entryTtl(Duration.ofHours(1)));
+        configMap.put(CacheKey.USER_ONLINE_AREA, defaultConfig.entryTtl(Duration.ofMinutes(5)));
         configMap.put(CacheKey.CAPTCHA_AREA, defaultConfig.entryTtl(Duration.ofMinutes(5)));
         // 社区相关
         configMap.put(CacheKey.ACTIVITY_AREA, defaultConfig.entryTtl(Duration.ofHours(1)));

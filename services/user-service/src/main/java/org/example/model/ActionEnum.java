@@ -4,22 +4,24 @@ import com.baomidou.mybatisplus.annotation.EnumValue;
 import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.Getter;
 
+
+/**
+ * 动作枚举类，表示用户可能执行的动作，如点赞、收藏、分享等。
+ */
+
 @Getter
-public enum InteractionEnum {
+public enum ActionEnum {
     LIKE(1,"点赞"),
     FAVORITE(2,"收藏"),
-    SHARE(3,"分享"),
-    FOLLOW(4,"关注"),
-    MUTE(5,"屏蔽"),
-    BLOCK(6,"拉黑");
+    SHARE(3,"分享");
 
     @EnumValue
     private final int code;
     @JsonValue
-    private final String description;
+    private final String desc;
 
-    InteractionEnum(int code, String description) {
+    ActionEnum(int code, String desc) {
         this.code = code;
-        this.description = description;
+        this.desc = desc;
     }
 }

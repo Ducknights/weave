@@ -6,8 +6,6 @@ import org.apache.ibatis.annotations.Select;
 import org.example.model.CustomUserDetails;
 import org.example.model.UserAuth;
 
-import java.util.List;
-
 @Mapper
 public interface AuthMapper {
 

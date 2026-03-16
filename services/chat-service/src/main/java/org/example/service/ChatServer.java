@@ -2,6 +2,7 @@ package org.example.service;
 
 import jakarta.annotation.Resource;
 import lombok.extern.log4j.Log4j2;
+import org.example.constant.CacheKey;
 import org.example.feign.UserInfoFeign;
 import org.example.mapper.ConversationMapper;
 import org.example.mapper.ConversationUserMapper;
@@ -18,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @Log4j2
 @Service
@@ -75,64 +77,46 @@ public class ChatServer {
      * @return 会话列表
      */
     public List<ConversationVo> getConversations(Long userId) {
-        // 根据用户ID获取会话列表
+        // 查找会话表
         List<Conversation> conversations = conversationMapper.findByUserId(userId);
         if (conversations == null || conversations.isEmpty()) {
             return new ArrayList<>();
         }
-
-        List<ConversationVo> conversationVos = new ArrayList<>(conversations.size());
-        Set<Long> userIdsToQuery = new HashSet<>();
-
-        // 第一遍：处理缓存中存在的用户信息
-        conversations.forEach(conversation -> {
-            ConversationVo conversationVo = new ConversationVo();
-            conversationVo.setId(conversation.getId());
-
+        // 获取到对方的id
+        Set<Long> otherUserIds = conversations.stream()
+                .map(conversation -> Objects.equals(conversation.getUserSmallId(), userId)
+                        ? conversation.getUserBigId()
+                        : conversation.getUserSmallId())
+                .collect(Collectors.toSet());
+        // 根据id获取到对方信息（用户名，头像，在线状态）
+        Map<Long, User> userInfos = userInfoFeign.getUserInfosByIds(otherUserIds);
+        // 构造返回体
+        return conversations.stream().map(conversation -> {
+            ConversationVo vo = new ConversationVo();
+            // 会话id
+            vo.setId(conversation.getId());
+            // 用户id
+            vo.setUserId(userId);
+            // 对方id
             Long otherUserId = Objects.equals(conversation.getUserSmallId(), userId)
                     ? conversation.getUserBigId()
                     : conversation.getUserSmallId();
-
-            // 尝试从缓存获取
-            String cacheKey = "user:" + otherUserId;
-            User cachedUser = (User) redisTemplate.opsForValue().get(cacheKey);
-
-            if (cachedUser != null) {
-                conversationVo.setOtherUserNickname(cachedUser.getName());
-                conversationVo.setOtherUserAvatar(cachedUser.getAvatar());
-            } else {
-                userIdsToQuery.add(otherUserId);
+            vo.setOtherUserId(otherUserId);
+            // 对方信息
+            User user = userInfos.get(otherUserId);
+            if (user != null) {
+                vo.setOtherUserNickname(user.getName());
+                vo.setOtherUserAvatar(user.getAvatar());
             }
-
-            conversationVo.setLastMessage(conversation.getLastMessage());
-            conversationVo.setLastMessageTime(conversation.getLastMessageTime());
-            conversationVos.add(conversationVo);
-        });
-
-        // 批量查询未缓存的用户信息
-        if (!userIdsToQuery.isEmpty()) {
-            try {
-                Map<Long, User> userInfos = userInfoFeign.getUserInfosByIds(userIdsToQuery);
-
-                // 更新缓存和VO对象
-                conversationVos.forEach(vo -> {
-                    Long otherUserId = vo.getOtherUserId();
-
-                    User user = userInfos.get(otherUserId);
-                    if (user != null) {
-                        vo.setOtherUserNickname(user.getName());
-                        vo.setOtherUserAvatar(user.getAvatar());
-                    }
-                });
-            } catch (Exception e) {
-                log.error("获取用户信息失败", e);
-                // 可以选择抛出异常或使用默认值
-                throw new RuntimeException("获取用户信息失败", e);
-            }
-        }
-
-        return conversationVos;
+            // 最后的消息
+            vo.setLastMessage(conversation.getLastMessage());
+            vo.setLastMessageTime(conversation.getLastMessageTime());
+            // 是否在线
+            vo.setOnline(redisTemplate.hasKey(CacheKey.buildCacheKey(CacheKey.USER_INFO_AREA,userId)));
+            return vo;
+        }).collect(Collectors.toList());
     }
+
     /**
      * 创建会话
      * @param userA 用户A
@@ -148,9 +132,6 @@ public class ChatServer {
      * @param conversationId 会话ID
      * @return 消息列表
      */
-//    @CacheEvict(
-//            value = "messages",
-//            key ="'messages:' + #conversationId")
     public List<Message> getMessages(Long conversationId ,int page,int size) {
         return messageMapper.selectLastN(conversationId,page,size);
     }

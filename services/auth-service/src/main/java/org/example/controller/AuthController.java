@@ -8,6 +8,7 @@ import org.example.dto.ApiRequestDto;
 import org.example.model.AuthApiResponse;
 import org.example.dto.VerifyCodeDto;
 import org.example.service.AuthService;
+import org.example.util.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -42,20 +43,20 @@ public class AuthController {
 
     @PostMapping("/logout")
     public AuthApiResponse<?> logout() {
-        Long userId = 17L;
+        Long userId = SecurityUtils.getCurrentUserId();
         return authService.logout(userId);
     }
 
     @PostMapping("/access")
     public ResponseEntity<AuthApiResponse<?>> getNewToken() {
-        Long userId = 17L;
+        Long userId = SecurityUtils.getCurrentUserId();
         final AuthApiResponse<?> response = authService.getNewSuccessToken(userId);
         return ResponseEntity.status(response.code()).body(response);
     }
 
     @PostMapping("/refresh")
     public ResponseEntity<AuthApiResponse<?>> getNewRefreshToken() {
-        Long userId = 17L;
+        Long userId = SecurityUtils.getCurrentUserId();
         final AuthApiResponse<?> response = authService.getNewRefreshToken(userId);
         return ResponseEntity.status(response.code()).body(response);
     }

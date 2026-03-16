@@ -1,20 +1,20 @@
 package org.example.controller;
 
 import jakarta.annotation.Resource;
+import org.example.dto.RelationDto;
 import org.example.util.SecurityUtils;
-import org.example.dto.InteractionDto;
-import org.example.service.InteractionService;
+import org.example.service.RelationService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Set;
 
-import static org.example.model.InteractionEnum.BLOCK;
+import static org.example.model.RelationEnum.BLOCK;
 
 @RestController
 @RequestMapping("/api/user/block")
 public class BlockController {
     @Resource
-    private InteractionService interactionService;
+    private RelationService relationService;
 
     /**
      * 处理用户拉黑请求的接口方法
@@ -24,8 +24,8 @@ public class BlockController {
     @PostMapping("/{targetUserId}")
     public void blockUser(@PathVariable Long targetUserId) {
         Long userId = SecurityUtils.getCurrentUserId();
-        InteractionDto dto = new InteractionDto(userId, targetUserId, BLOCK);
-        interactionService.addRecord(dto);
+        RelationDto dto = new RelationDto(userId, targetUserId, BLOCK);
+        relationService.addRecord(dto);
     }
 
     /**
@@ -37,8 +37,8 @@ public class BlockController {
     @DeleteMapping("/{targetUserId}")
     public void unblockUser(@PathVariable Long targetUserId) {
         Long userId = SecurityUtils.getCurrentUserId();
-        InteractionDto dto = new InteractionDto(userId, targetUserId, BLOCK);
-        interactionService.deleteRecord(dto);
+        RelationDto dto = new RelationDto(userId, targetUserId, BLOCK);
+        relationService.deleteRecord(dto);
     }
 
     /**
@@ -51,7 +51,7 @@ public class BlockController {
     public Set<Long> getBlockedUsers(@RequestParam(defaultValue = "0") Integer page,
                                      @RequestParam(defaultValue = "20") Integer size) {
         Long userId = SecurityUtils.getCurrentUserId();
-        InteractionDto dto = new InteractionDto(userId, null, BLOCK);
-        return interactionService.getRecord(dto, page, size);
+        RelationDto dto = new RelationDto(userId, null, BLOCK);
+        return relationService.getRecord(dto, page, size);
     }
 }

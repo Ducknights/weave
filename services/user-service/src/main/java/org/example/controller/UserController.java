@@ -3,7 +3,7 @@ package org.example.controller;
 import jakarta.annotation.Resource;
 import org.example.dto.AuthUserDto;
 import org.example.entity.UserInfo;
-import org.example.service.UserService;
+import org.example.service.UserInfoService;
 import org.example.util.SecurityUtils;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,11 +11,11 @@ import java.util.Map;
 import java.util.Set;
 
 @RestController
-@RequestMapping("/api/user/info")
-public class UserInfoController {
+@RequestMapping("/api/user")
+public class UserController {
 
     @Resource
-    private UserService userService;
+    private UserInfoService userInfoService;
 
     /**
      * 处理用户注册请求的接口方法
@@ -25,41 +25,60 @@ public class UserInfoController {
      */
     @PostMapping()
     public UserInfo createUser(@RequestBody AuthUserDto user) {
-        return userService.createUser(user);
+        return userInfoService.createUser(user);
     }
 
     /**
-     * 根据用户ID获取用户信息
-     * 这是一个HTTP GET请求处理方法，用于获取指定用户的详细信息
+     * 获取当前用户信息
      *
      * @return UserInfo 返回用户信息对象
      */
-    @GetMapping("/self")
+    @GetMapping()
     public UserInfo getSelfUserInfo() {
         Long id = SecurityUtils.getCurrentUserId();
-        return userService.getUserById(id);
+        return userInfoService.getUserById(id);
     }
 
     /**
-     * 根据用户ID获取用户信息的接口方法
+     * 根据ID获取用户信息的接口方法
      *
      * @param id 用户ID，通过路径变量传递
      * @return UserInfo 返回用户信息对象
      */
     @GetMapping("/{id}")
     public UserInfo getUserById(@PathVariable Long id) {
-        return userService.getUserById(id);
+        return userInfoService.getUserById(id);
     }
 
     /**
      * 根据用户ID批量获取用户信息
      *
-     * @param userIds 用户ID集合
+     * @param ids 用户ID集合
      * @return 返回一个Map，键为用户ID，值为对应的用户信息对象
      */
     @PostMapping("/batch")
-    public Map<Long, UserInfo> getUserInfosByIds(@RequestBody Set<Long> userIds) {
-        // 调用userService的getUserInfosByIds方法获取用户信息
-        return userService.getUserInfosByIds(userIds);
+    public Map<Long, UserInfo> getUserInfosByIds(@RequestBody Set<Long> ids) {
+        return userInfoService.getUserInfosByIds(ids);
+    }
+
+    /**
+     * 更新用户信息
+     *
+     */
+    @PutMapping()
+    public UserInfo updateUser(@RequestBody UserInfo user) {
+        Long userId = SecurityUtils.getCurrentUserId();
+        user.setId(userId);
+        return userInfoService.updateUser(user);
+    }
+
+    /**
+     * 处理用户在线心跳请求的方法
+     * 保持用户在线状态
+     */
+    @PostMapping("/online")
+    public Boolean heartBeat () {
+        Long userId = SecurityUtils.getCurrentUserId();
+        return userInfoService.refresh(userId);
     }
 }

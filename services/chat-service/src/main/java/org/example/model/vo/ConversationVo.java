@@ -1,5 +1,8 @@
 package org.example.model.vo;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.OrderBy;
+import com.baomidou.mybatisplus.annotation.TableId;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -7,6 +10,7 @@ import java.time.LocalDateTime;
 @Data
 public class ConversationVo {
     //会话id
+    @TableId(type = IdType.AUTO)
     private Long id;
     //用户id
     private Long userId;
@@ -19,5 +23,8 @@ public class ConversationVo {
     //最后一条消息
     private String lastMessage;
     //最后一条消息时间
+    @OrderBy
     private LocalDateTime lastMessageTime;
+    // 是否在线
+    private Boolean online;
 }

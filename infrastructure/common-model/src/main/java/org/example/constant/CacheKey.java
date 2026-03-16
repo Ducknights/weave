@@ -6,6 +6,8 @@ public class CacheKey {
     public static final String USER_AUTHORITY_AREA = "user:authorities";
     // 用户信息缓存区域
     public static final String USER_INFO_AREA = "user:info";
+    // 用户在线状态区域
+    public static final String USER_ONLINE_AREA ="user:online";
     // 验证码缓存区域
     public static final String CAPTCHA_AREA = "verification:code";
     // 活动缓存区域

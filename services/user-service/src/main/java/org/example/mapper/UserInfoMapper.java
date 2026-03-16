@@ -5,6 +5,8 @@ import org.apache.ibatis.annotations.Mapper;
 import org.example.entity.UserInfo;
 
 @Mapper
-public interface UserMapper extends BaseMapper<UserInfo> {
-
+public interface UserInfoMapper extends BaseMapper<UserInfo> {
+    default int updateInfo(UserInfo user){
+        return updateById(user);
+    }
 }

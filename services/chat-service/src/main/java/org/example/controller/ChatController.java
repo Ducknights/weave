@@ -1,13 +1,13 @@
 package org.example.controller;
 
 import jakarta.annotation.Resource;
-import org.example.context.UserContext;
 import org.example.model.dto.SendMessageDTO;
 import org.example.model.entity.Conversation;
 import org.example.model.entity.Message;
 import org.example.model.vo.ConversationVo;
 import org.example.service.ChatServer;
 import org.example.service.LongPollingService;
+import org.example.util.SecurityUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,8 +19,6 @@ public class ChatController {
     @Resource
     private ChatServer chatServer;
     @Resource
-    private UserContext userContext;
-    @Resource
     private LongPollingService longPollingService;
 
     /**
@@ -28,7 +26,7 @@ public class ChatController {
      */
     @GetMapping("/conversations")
     public List<ConversationVo> getConversations() {
-        Long userId = userContext.getUserId();
+        Long userId = SecurityUtils.getCurrentUserId();
         return chatServer.getConversations(userId);
     }
 
@@ -37,7 +35,7 @@ public class ChatController {
      */
     @PostMapping("/conversation")
     public Conversation creatConversation(@RequestParam Long userB) {
-        Long userA = userContext.getUserId();
+        Long userA = SecurityUtils.getCurrentUserId();
         return chatServer.createConversation(userA, userB);
     }
 
@@ -56,7 +54,7 @@ public class ChatController {
      */
     @GetMapping("/messages/poll")
     public List<Message> pollNewMessages(@RequestParam(required = false) Long lastReceivedId) {
-        Long userId = userContext.getUserId();
+        Long userId = SecurityUtils.getCurrentUserId();
         if (lastReceivedId == null) {
             lastReceivedId = 0L;
         }
@@ -68,7 +66,7 @@ public class ChatController {
      */
     @PostMapping("/message")
     public Message sendMessage(@RequestBody SendMessageDTO dto) {
-        Long fromUserId = userContext.getUserId();
+        Long fromUserId = SecurityUtils.getCurrentUserId();
         return chatServer.sendMessage(fromUserId, dto.getToUserId(), dto.getContent());
     }
 }
