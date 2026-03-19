@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 @FeignClient(name = "resource-service")
 public interface UserAvatarFeign {
 
-    @GetMapping("/api/resources/url/{*filePath}")
-    ApiResult<String> getFileUrl(
+    @GetMapping("/internal/resources/url/{*filePath}")
+    String getFileUrl(
             @PathVariable("filePath") String filePath,
             @RequestParam(defaultValue = "3600") int expiry);
 }
