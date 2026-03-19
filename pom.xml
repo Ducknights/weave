@@ -147,7 +147,7 @@
             </dependency>
             <dependency>
                 <groupId>org.example</groupId>
-                <artifactId>user-context-spring-boot-starter</artifactId>
+                <artifactId>userDto-context-spring-boot-starter</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

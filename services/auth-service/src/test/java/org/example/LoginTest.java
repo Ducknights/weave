@@ -22,7 +22,7 @@ public class LoginTest {
 
     @Test
     public void testJwt() {
-//        String key = CacheKey.buildCacheKey(CacheKey.USER_AUTHORITY_AREA, 123456);
+//        String key = CacheKey.buildCacheKey(CacheKey.USER_AUTHORITY, 123456);
 //        String token = JwtUtil.generateJwtToken(key, 1000*60);
 //        System.out.println(token);
 //        String subject = JwtUtil.getJwtSubject(token);

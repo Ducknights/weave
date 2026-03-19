@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.example.model.Enum.MessageType;
 
 import java.time.LocalDateTime;
 
@@ -22,7 +23,7 @@ public class Message {
     private Long fromUserId;
     private Long toUserId;
     private String content;
-    private Integer msgType; // 0: 文字, 1: 图片
+    private MessageType type;
     private LocalDateTime createTime;
 }
 

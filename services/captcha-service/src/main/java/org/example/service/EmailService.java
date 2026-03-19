@@ -2,8 +2,10 @@ package org.example.service;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+import org.example.constant.CacheKey;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -11,7 +13,9 @@ import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
 import java.io.UnsupportedEncodingException;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * 邮件服务类
@@ -79,5 +83,25 @@ public class EmailService {
         }
     }
 
+    /**
+     * 生成6位验证码并发送验证码邮件
+     *
+     * @param email 收件人邮箱
+     * @return 生成的6位验证码
+     */
+    @CachePut(value = CacheKey.CAPTCHA, key = "#email")
+    public Integer sendVerificationCodeEmail(String email) {
+        // 生成6位验证码
+        int verificationCode = ThreadLocalRandom.current().nextInt(100000, 1000000);
+
+        // 准备模板变量，只传递验证码
+        Map<String, Object> contextVariables = new HashMap<>();
+        contextVariables.put("verificationCode", verificationCode);
+
+        // 发送模板邮件
+        sendTemplateEmail(email, "邮箱验证码", "email-template", contextVariables);
+
+        return verificationCode;
+    }
 
 }

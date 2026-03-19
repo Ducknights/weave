@@ -3,21 +3,21 @@ package org.example.constant;
 public class CacheKey {
     private static final String KEY_SEPARATOR = "::";
     // 用户权限缓存区域
-    public static final String USER_AUTHORITY_AREA = "user:authorities";
+    public static final String USER_AUTHORITY = "user:authorities";
     // 用户信息缓存区域
-    public static final String USER_INFO_AREA = "user:info";
+    public static final String USER_INFO = "user:info";
     // 用户在线状态区域
-    public static final String USER_ONLINE_AREA ="user:online";
+    public static final String USER_ONLINE ="user:online";
     // 验证码缓存区域
-    public static final String CAPTCHA_AREA = "verification:code";
+    public static final String CAPTCHA = "verification:code";
     // 活动缓存区域
-    public static final String ACTIVITY_AREA = "activity";
+    public static final String ACTIVITY = "activity";
     // 社区缓存区域
-    public static final String CLUB_AREA = "club";
+    public static final String CLUB = "club";
     // 帖子缓存区域
-    public static final String POST_AREA = "post";
+    public static final String POST = "post";
     // 帖子详情缓存区域
-    public static final String POST_DETAIL_AREA = "post:detail";
+    public static final String POST_DETAIL = "post:detail";
     // 用户点赞的帖子缓存区域
     public static final String USER_LIKED_POSTS = "user:liked:posts";
     // 用户收藏的帖子缓存区域
@@ -34,6 +34,8 @@ public class CacheKey {
     public static final String USER_BLOCKED_USERS = "user:blocked:users";
     // 预签名URL缓存区域
     public static final String PRESENTED_URL_AREA = "presented:url";
+    // 会话列表缓存区域
+    public static final String CONVERSATION_LIST = "conversation:list";
 
     public static String buildCacheKey(String area, Object identifier) {
         return area + KEY_SEPARATOR + identifier;

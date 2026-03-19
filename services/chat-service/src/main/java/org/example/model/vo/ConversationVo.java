@@ -9,20 +9,20 @@ import java.time.LocalDateTime;
 
 @Data
 public class ConversationVo {
-    //会话id
+    // 会话id
     @TableId(type = IdType.AUTO)
     private Long id;
-    //用户id
+    // 用户id
     private Long userId;
-    //对方用户id
+    // 对方用户id
     private Long otherUserId;
-    //对方用户昵称
+    // 对方用户昵称
     private String otherUserNickname;
-    //对方用户头像
+    // 对方用户头像
     private String otherUserAvatar;
-    //最后一条消息
+    // 最后一条消息
     private String lastMessage;
-    //最后一条消息时间
+    // 最后一条消息时间
     @OrderBy
     private LocalDateTime lastMessageTime;
     // 是否在线

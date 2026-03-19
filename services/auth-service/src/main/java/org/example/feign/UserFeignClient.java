@@ -1,6 +1,6 @@
 package org.example.feign;
 
-import org.example.dto.UserDto;
+import org.example.dto.UserBriefDto;
 import org.example.model.UserAuth;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,5 +25,5 @@ public interface UserFeignClient {
      * @return 返回UserDto对象，包含用户详细信息
      */
     @GetMapping("/api/user/info/{id}")
-    UserDto getUserById(@PathVariable Long id);
+    UserBriefDto getUserBriefById(@PathVariable Long id);
 }

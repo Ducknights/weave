@@ -18,12 +18,12 @@ public class UserInfo {
     @TableId(type = IdType.AUTO)
     private Long id;
     private String name;
+    private String avatar;
     private String email;
     private GenderEnum gender;
     private LocalDateTime birthday;
     private String address;
     private String motto;
-    private String avatar;
     private LocalDateTime createTime;
     private LocalDateTime updateTime;
 }

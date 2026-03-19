@@ -24,11 +24,11 @@ public enum AuthApiStatus {
         this.msg = msg;
     }
 
-    public AuthApiResponse<Map<String, Object>> response() {
+    public ApiResult<Map<String, Object>> response() {
         return response(Collections.emptyMap());
     }
 
-    public <T> AuthApiResponse<T> response(T data) {
-        return new AuthApiResponse<>(code, msg, data);
+    public <T> ApiResult<T> response(T data) {
+        return new ApiResult<>(code, msg, data);
     }
 }

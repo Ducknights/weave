@@ -5,15 +5,13 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.extern.log4j.Log4j2;
 import org.example.dto.ApiRequestDto;
-import org.example.model.AuthApiResponse;
+import org.example.model.ApiResult;
 import org.example.dto.VerifyCodeDto;
+import org.example.model.AuthApiStatus;
 import org.example.service.AuthService;
 import org.example.util.SecurityUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Objects;
 
 @Log4j2
 @RestController
@@ -24,40 +22,47 @@ public class AuthController {
     private AuthService authService;
 
     @PostMapping("/login")
-    public ResponseEntity<AuthApiResponse<?>> login(@Valid @NotNull @RequestBody ApiRequestDto apiRequestDto) {
-        final AuthApiResponse<?> response = authService.login(apiRequestDto);
-        return ResponseEntity.status(response.code()).body(response);
+    public ResponseEntity<ApiResult<?>> login(@Valid @NotNull @RequestBody ApiRequestDto apiRequestDto) {
+        var apiResult = authService.login(apiRequestDto);
+        return ResponseEntity.ok()
+                .body(AuthApiStatus.LOGIN_SUCCESS.response(apiResult));
     }
 
     @PostMapping("/register/sendCode")
-    public ResponseEntity<AuthApiResponse<?>> sendCode(@Valid @NotNull @RequestBody ApiRequestDto apiRequestDto) {
-        final AuthApiResponse<?> response = authService.sendCode(apiRequestDto);
-        return ResponseEntity.status(response.code()).body(response);
+    public ResponseEntity<ApiResult<?>> sendCode(@Valid @NotNull @RequestBody ApiRequestDto apiRequestDto) {
+        authService.sendCode(apiRequestDto);
+        return ResponseEntity.ok()
+                .body(AuthApiStatus.CODE_SEND_SUCCESS.response());
     }
 
     @PostMapping("/register/verifyCode")
-    public ResponseEntity<AuthApiResponse<?>> verify(@Valid @NotNull @RequestBody VerifyCodeDto dto) {
-        final AuthApiResponse<?> response = authService.verifyCode(dto);
-        return ResponseEntity.status(response.code()).body(response);
+    public ResponseEntity<ApiResult<?>> verify(@Valid @NotNull @RequestBody VerifyCodeDto dto) {
+        authService.verifyCode(dto);
+        return ResponseEntity.status(201)
+                .body(AuthApiStatus.REGISTER_SUCCESS.response());
     }
 
     @PostMapping("/logout")
-    public AuthApiResponse<?> logout() {
+    public ResponseEntity<ApiResult<?>> logout() {
         Long userId = SecurityUtils.getCurrentUserId();
-        return authService.logout(userId);
+        authService.logout(userId);
+        return ResponseEntity.ok()
+                .body(AuthApiStatus.LOGOUT_SUCCESS.response());
     }
 
     @PostMapping("/access")
-    public ResponseEntity<AuthApiResponse<?>> getNewToken() {
+    public ResponseEntity<ApiResult<?>> getNewToken() {
         Long userId = SecurityUtils.getCurrentUserId();
-        final AuthApiResponse<?> response = authService.getNewSuccessToken(userId);
-        return ResponseEntity.status(response.code()).body(response);
+        var res = authService.getNewSuccessToken(userId);
+        return ResponseEntity.ok()
+                .body(AuthApiStatus.NEW_TOKEN_SUCCESS.response(res));
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<AuthApiResponse<?>> getNewRefreshToken() {
+    public ResponseEntity<ApiResult<?>> getNewRefreshToken() {
         Long userId = SecurityUtils.getCurrentUserId();
-        final AuthApiResponse<?> response = authService.getNewRefreshToken(userId);
-        return ResponseEntity.status(response.code()).body(response);
+        var res = authService.getNewRefreshToken(userId);
+        return ResponseEntity.ok()
+                .body(AuthApiStatus.NEW_TOKEN_SUCCESS.response(res));
     }
 }

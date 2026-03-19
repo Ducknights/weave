@@ -12,13 +12,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 @Log4j2
 @Service
@@ -36,7 +33,7 @@ public class ActivityServiceImp implements ActivityService {
     }
 
     @Override
-    @CachePut(value = CacheKey.ACTIVITY_AREA, key ="'activityId:'+ #activityId")
+    @CachePut(value = CacheKey.ACTIVITY, key ="'activityId:'+ #activityId")
     public ClubApiResponse<?> deleteActivity(Integer activityId) {
         try {
             activityMapper.deleteById(activityId);
@@ -48,19 +45,19 @@ public class ActivityServiceImp implements ActivityService {
     }
 
     @Override
-    @CacheEvict(value = CacheKey.ACTIVITY_AREA, key ="'activityId:'+ #activity.id")
+    @CacheEvict(value = CacheKey.ACTIVITY, key ="'activityId:'+ #activity.id")
     public Activity updateActivity(Activity activity) {
         return activityMapper.updateActivity(activity);
     }
 
     @Override
-    @Cacheable(value = CacheKey.ACTIVITY_AREA, key ="'activities:'+ #startDate +':' + #endDate")
+    @Cacheable(value = CacheKey.ACTIVITY, key ="'activities:'+ #startDate +':' + #endDate")
     public List<ActivityCardVo> queryActivityByDate(LocalDate startDate, LocalDate endDate) {
         log.info("从数据库查询活动，参数： {} to {}", startDate, endDate);
         return activityMapper.queryActivity(startDate, endDate);
     }
 
-    @Cacheable(value = CacheKey.ACTIVITY_AREA, key ="'activityId:'+ #activityId ")
+    @Cacheable(value = CacheKey.ACTIVITY, key ="'activityId:'+ #activityId ")
     @Override
     public Activity queryActivityById(Integer activityId) {
         return activityMapper.selectById(activityId);

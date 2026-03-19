@@ -31,7 +31,7 @@ public class HeaderFilter extends OncePerRequestFilter {
         if (userIdStr != null) {
             try {
                 Long userId = Long.valueOf(userIdStr);
-                String key = CacheKey.buildCacheKey(CacheKey.USER_AUTHORITY_AREA, userId);
+                String key = CacheKey.buildCacheKey(CacheKey.USER_AUTHORITY, userId);
                 
                 CustomUserDetails userDetails = (CustomUserDetails) redisTemplate.opsForValue().get(key);
                 

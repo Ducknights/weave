@@ -19,11 +19,16 @@ import java.time.LocalDateTime;
 public class Conversation {
     @TableId(type = IdType.AUTO)
     private Long id;
+    // 小ID
     private Long userSmallId;
+    // 大ID
     private Long userBigId;
+    // 最后一条消息
     private String lastMessage;
+    // 最后一条消息时间
     @OrderBy
     private LocalDateTime lastMessageTime;
+    // 创建时间
     private LocalDateTime createTime;
 }
 

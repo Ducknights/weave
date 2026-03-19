@@ -6,16 +6,15 @@ import lombok.extern.log4j.Log4j2;
 import org.example.exception.CodeErrorException;
 import org.example.exception.EmailExistedException;
 import org.example.feign.UserFeignClient;
-import org.example.model.AuthApiResponse;
 import org.example.dto.*;
 import org.example.model.CustomUserDetails;
 import org.example.mapper.AuthMapper;
 import org.example.dto.ApiRequestDto;
-import org.example.model.AuthApiStatus;
 import org.example.dto.VerifyCodeDto;
 import org.example.constant.CacheKey;
 import org.example.util.JwtUtil;
 import org.example.util.MQUtil;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -29,7 +28,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @Log4j2
 @Service
@@ -51,7 +52,7 @@ public class AuthService {
     @Resource
     private JwtUtil jwtUtil;
 
-    public AuthApiResponse<?> login(ApiRequestDto apiRequestDto) {
+    public ApiResponseDto login(ApiRequestDto apiRequestDto) {
         ApiResponseDto apiResponseDto = null;
         try {
             // 使用Spring Security进行认证
@@ -67,26 +68,33 @@ public class AuthService {
                 // 获取用户ID
                 Long userId = ((CustomUserDetails) authentication.getPrincipal()).getUserId();
                 // 生成Redis键
-                String permissionsKey = CacheKey.buildCacheKey(CacheKey.USER_AUTHORITY_AREA, userId);
+                String permissionsKey = CacheKey.buildCacheKey(CacheKey.USER_AUTHORITY, userId);
                 // 生成JWT令牌
                 String access_token = jwtUtil.generateJwtToken(permissionsKey, 1000 * 60 * 5); // 5分钟
                 String refresh_token = jwtUtil.generateJwtToken(permissionsKey, 1000 * 60 * 60 * 24);  // 24小时
                 // 写入用户标识信息到redis
-                redisTemplate.opsForValue().set(permissionsKey, ((CustomUserDetails) authentication.getPrincipal()),1, TimeUnit.HOURS); // 1小时
+                redisTemplate.opsForValue().set(permissionsKey, authentication.getPrincipal(),1, TimeUnit.HOURS); // 1小时
                 // 构造返回DTO
                 TokenDto tokenDto = new TokenDto(access_token, refresh_token, 60 * 5, 60 * 60 * 24);
-                UserDto userDto = userFeignClient.getUserById(userId);
-                apiResponseDto = new ApiResponseDto(tokenDto, null);
+                // 获取用户信息
+                UserBriefDto userDto = userFeignClient.getUserBriefById(userId);
+                // 获取用户角色
+                List<String> roleNames = authentication.getAuthorities().stream()
+                        .map(GrantedAuthority::getAuthority)
+                        .collect(Collectors.toList());
+                userDto.setRoles(roleNames);
+                // 返回结果
+                apiResponseDto = new ApiResponseDto(tokenDto, userDto);
             }
         } catch (Exception e) {
             System.out.println("登录失败：" + e.getMessage());
             throw new RuntimeException("登录失败", e);
         }
-        return AuthApiStatus.LOGIN_SUCCESS.response(apiResponseDto);
+        return apiResponseDto;
     }
 
     @Transactional
-    public AuthApiResponse<?> sendCode(ApiRequestDto apiRequestDto) {
+    public void sendCode(ApiRequestDto apiRequestDto) {
         String email = apiRequestDto.email();
         // 验证邮箱是否已存在
         if (authMapper.selectUserByEmail(email) != null){
@@ -103,14 +111,13 @@ public class AuthService {
         }catch (Exception e){
             throw new CodeErrorException("验证码发送失败");
         }
-        return AuthApiStatus.CODE_SEND_SUCCESS.response();
     }
 
 
     @Transactional
-    public AuthApiResponse<?> verifyCode(VerifyCodeDto dto) {
+    public void verifyCode(VerifyCodeDto dto) {
         // 1. 验证验证码
-        String key = CacheKey.buildCacheKey(CacheKey.CAPTCHA_AREA, dto.email());
+        String key = CacheKey.buildCacheKey(CacheKey.CAPTCHA, dto.email());
         String code = (String) redisTemplate.opsForValue().get(key);
         if (!dto.code().equals(code)){
             throw new CodeErrorException("验证码错误");
@@ -121,44 +128,45 @@ public class AuthService {
                     .password(passwordEncoder.encode(dto.password()))
                     .build();
             service.createUser(user);
-            return AuthApiStatus.REGISTER_SUCCESS.response();
         }catch (Exception e){
-            return AuthApiStatus.REGISTER_FAILED.response(e.getMessage());
+            throw new RuntimeException("注册失败", e);
         }
     }
 
     @Caching(evict = {
-            @CacheEvict(value = CacheKey.USER_AUTHORITY_AREA, key = "#userId"),
-            @CacheEvict(value = CacheKey.USER_ONLINE_AREA,key = "#userId")
+            @CacheEvict(value = CacheKey.USER_AUTHORITY, key = "#userId"),
+            @CacheEvict(value = CacheKey.USER_ONLINE,key = "#userId")
     })
-    public AuthApiResponse<?> logout(Long userId){
-        SecurityContextHolder.clearContext();
-        return AuthApiStatus.LOGOUT_SUCCESS.response();
-    }
-
-    public AuthApiResponse<?> getNewSuccessToken(Long userId) {
+    public void logout(Long userId){
         try {
-            // 1. 生成JWT令牌
-            String subject = "UserId:" + userId;
-            String access_token = jwtUtil.generateJwtToken(subject, 1000 * 60 * 5);    // 5分钟
-            // 2. 构造返回DTO
-            TokenDto tokenDto = new TokenDto(access_token, null, 60 * 5, 0);
-            return AuthApiStatus.NEW_TOKEN_SUCCESS.response(tokenDto);
+            SecurityContextHolder.clearContext();
+            log.info("User logged out: {}", userId);
         } catch (Exception e) {
-            return AuthApiStatus.NEW_TOKEN_FAIL.response(e.getMessage());
+            throw new RuntimeException("Logout failed", e);
         }
     }
 
-    public AuthApiResponse<?> getNewRefreshToken(Long userId){
+    public TokenDto getNewSuccessToken(Long userId) {
+        try {
+            // 1. 生成JWT令牌
+            String subject = "UserId:" + userId;
+            String access_token = jwtUtil.generateJwtToken(subject, 1000 * 60 * 5);  // 5分钟
+            // 2. 构造返回DTO
+            return new TokenDto(access_token, null, 60 * 5, 0);
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
+    public TokenDto getNewRefreshToken(Long userId){
         try {
             // 1. 生成JWT令牌
             String subject = "UserId:" + userId;
             String refresh_token = jwtUtil.generateJwtToken(subject, 1000 * 60 * 60 * 24);    // 24小时
             // 2. 构造返回DTO
-            TokenDto tokenDto = new TokenDto(null, refresh_token,0, 60 * 60 * 24);
-            return AuthApiStatus.NEW_TOKEN_SUCCESS.response(tokenDto);
+            return new TokenDto(null, refresh_token,0, 60 * 60 * 24);
         } catch (Exception e) {
-            return AuthApiStatus.NEW_TOKEN_FAIL.response(e.getMessage());
+            throw new RuntimeException(e.getMessage());
         }
     }
 }

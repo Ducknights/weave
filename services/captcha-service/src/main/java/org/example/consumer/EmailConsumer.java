@@ -10,17 +10,15 @@ import org.springframework.cache.annotation.CachePut;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ThreadLocalRandom;
 
 /**
      * 邮件控制器
-     * 提供RESTful API接口来发送各种类型的邮件
+     * 提供RESTful API接口和RabbitMQ队列来发送各种类型的邮件
      */
 @Log4j2
 @RestController
-public class EmailController {
+public class EmailConsumer {
 
     @Autowired
     private EmailService emailService;
@@ -33,24 +31,14 @@ public class EmailController {
      * @return 返回生成的6位验证码
      */
     @RabbitListener(queues = MQueue.CAPTCHA_QUEUE)
-    @CachePut(value = CacheKey.CAPTCHA_AREA, key = "#email")
     public Integer sendVerificationEmail(String email) {
-        // 生成6位验证码
-        int verificationCode = ThreadLocalRandom.current().nextInt(100000, 1000000);
-
-        // 准备模板变量，只传递验证码
-        Map<String, Object> contextVariables = new HashMap<>();
-        contextVariables.put("verificationCode", verificationCode);
-
-        // 发送模板邮件
-        emailService.sendTemplateEmail(email, "邮箱验证码", "email-template", contextVariables);
-
-        return verificationCode;
+        // 调用服务方法生成验证码并发送邮件
+        return emailService.sendVerificationCodeEmail(email);
     }
 
     /**
      * 健康检查接口
-     * GET /api/email/health
+     * GET /api/captcha/health
      */
     @GetMapping("/api/captcha/health")
     public ResponseEntity<Map<String, Object>> healthCheck() {

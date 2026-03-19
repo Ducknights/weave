@@ -5,11 +5,11 @@ import jakarta.annotation.Resource;
 import lombok.extern.log4j.Log4j2;
 import org.example.constant.CacheKey;
 import org.example.dto.AuthUserDto;
+import org.example.dto.ConversationUserDto;
 import org.example.feign.UserAvatarFeign;
 import org.example.mapper.UserInfoMapper;
 import org.example.entity.UserInfo;
 import org.example.service.UserInfoService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
@@ -40,20 +40,24 @@ public class UserInfoServiceImpl implements UserInfoService {
      * @return 返回用户ID与用户信息的映射Map
      */
     @Override
-    public Map<Long, UserInfo> getUserInfosByIds(Set<Long> ids) {
+    public Map<Long, ConversationUserDto> getUserInfosByIds(Set<Long> ids) {
         if (ids == null || ids.isEmpty()) {
             return new HashMap<>();
         }
 
-        Map<Long, UserInfo> result = new HashMap<>();
+        Map<Long, ConversationUserDto> result = new HashMap<>();
         Set<Long> idsToQuery = new HashSet<>();
 
         ids.forEach(id -> {
             // 尝试从redis中获取用户信息
-            String key = CacheKey.buildCacheKey(CacheKey.USER_INFO_AREA, id);
+            String key = CacheKey.buildCacheKey(CacheKey.USER_INFO, id);
             UserInfo cachedUser = (UserInfo) redisTemplate.opsForValue().get(key);
             if (cachedUser != null) {
-                result.put(id, cachedUser);
+                ConversationUserDto userDto = new ConversationUserDto();
+                userDto.setId(cachedUser.getId());
+                userDto.setName(cachedUser.getName());
+                userDto.setAvatar(cachedUser.getAvatar());
+                result.put(id, userDto);
             } else {
                 // 缓存未命中，需要从数据库中查询的id
                 idsToQuery.add(id);
@@ -69,9 +73,13 @@ public class UserInfoServiceImpl implements UserInfoService {
             if (userList != null && !userList.isEmpty()) {
                 for (UserInfo user : userList) {
                     user.setAvatar(userAvatarFeign.getFileUrl(user.getAvatar(),3600));
-                    String key = CacheKey.buildCacheKey(CacheKey.USER_INFO_AREA, user.getId());
+                    String key = CacheKey.buildCacheKey(CacheKey.USER_INFO, user.getId());
                     redisTemplate.opsForValue().set(key, user, 1, TimeUnit.HOURS);
-                    result.put(user.getId(), user);
+                    ConversationUserDto userDto = new ConversationUserDto();
+                    userDto.setId(user.getId());
+                    userDto.setName(user.getName());
+                    userDto.setAvatar(user.getAvatar());
+                    result.put(user.getId(), userDto);
                 }
             }
         }
@@ -100,7 +108,7 @@ public class UserInfoServiceImpl implements UserInfoService {
      * @return 返回用户信息
      */
     @Override
-    @Cacheable(value = CacheKey.USER_INFO_AREA,key = "#id")
+    @Cacheable(value = CacheKey.USER_INFO,key = "#id")
     public UserInfo getUserById(Long id) {
         UserInfo user = userInfoMapper.selectById(id);
         user.setAvatar(userAvatarFeign.getFileUrl(user.getAvatar(),3600));
@@ -113,7 +121,7 @@ public class UserInfoServiceImpl implements UserInfoService {
      * @return 返回更新后的用户信息
      */
     @Override
-    @CacheEvict(value = CacheKey.USER_INFO_AREA,key = "#user.id")
+    @CacheEvict(value = CacheKey.USER_INFO,key = "#user.id")
     public UserInfo updateUser(UserInfo user) {
         if(userInfoMapper.updateInfo(user) > 0){
             return user;
@@ -128,7 +136,7 @@ public class UserInfoServiceImpl implements UserInfoService {
      * @return 返回是否刷新成功
      */
     @Override
-    @CachePut(value = CacheKey.USER_ONLINE_AREA,key = "#id")
+    @CachePut(value = CacheKey.USER_ONLINE,key = "#id")
     public Boolean refresh(Long id) {
         log.info("id:{}的用户维持心跳",id);
         return true;

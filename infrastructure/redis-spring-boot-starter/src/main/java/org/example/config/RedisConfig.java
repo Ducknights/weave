@@ -116,15 +116,15 @@ public class RedisConfig {
 
         Map<String, RedisCacheConfiguration> configMap = new HashMap<>();
         // 用户认证相关
-        configMap.put(CacheKey.USER_AUTHORITY_AREA, defaultConfig.entryTtl(Duration.ofHours(24)));
-        configMap.put(CacheKey.USER_INFO_AREA, defaultConfig.entryTtl(Duration.ofHours(1)));
-        configMap.put(CacheKey.USER_ONLINE_AREA, defaultConfig.entryTtl(Duration.ofMinutes(5)));
-        configMap.put(CacheKey.CAPTCHA_AREA, defaultConfig.entryTtl(Duration.ofMinutes(5)));
+        configMap.put(CacheKey.USER_AUTHORITY, defaultConfig.entryTtl(Duration.ofHours(24)));
+        configMap.put(CacheKey.USER_INFO, defaultConfig.entryTtl(Duration.ofHours(1)));
+        configMap.put(CacheKey.USER_ONLINE, defaultConfig.entryTtl(Duration.ofMinutes(5)));
+        configMap.put(CacheKey.CAPTCHA, defaultConfig.entryTtl(Duration.ofMinutes(5)));
         // 社区相关
-        configMap.put(CacheKey.ACTIVITY_AREA, defaultConfig.entryTtl(Duration.ofHours(1)));
-        configMap.put(CacheKey.CLUB_AREA, defaultConfig.entryTtl(Duration.ofHours(1)));
-        configMap.put(CacheKey.POST_AREA, defaultConfig.entryTtl(Duration.ofHours(1)));
-        configMap.put(CacheKey.POST_DETAIL_AREA, defaultConfig.entryTtl(Duration.ofHours(1)));
+        configMap.put(CacheKey.ACTIVITY, defaultConfig.entryTtl(Duration.ofHours(1)));
+        configMap.put(CacheKey.CLUB, defaultConfig.entryTtl(Duration.ofHours(1)));
+        configMap.put(CacheKey.POST, defaultConfig.entryTtl(Duration.ofHours(1)));
+        configMap.put(CacheKey.POST_DETAIL, defaultConfig.entryTtl(Duration.ofHours(1)));
         // 用户行为相关
         configMap.put(CacheKey.USER_LIKED_POSTS, defaultConfig.entryTtl(Duration.ofMinutes(5)));
         configMap.put(CacheKey.USER_FAVORITE_POSTS, defaultConfig.entryTtl(Duration.ofMinutes(5)));

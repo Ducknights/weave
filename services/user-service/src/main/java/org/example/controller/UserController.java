@@ -2,6 +2,7 @@ package org.example.controller;
 
 import jakarta.annotation.Resource;
 import org.example.dto.AuthUserDto;
+import org.example.dto.ConversationUserDto;
 import org.example.entity.UserInfo;
 import org.example.service.UserInfoService;
 import org.example.util.SecurityUtils;
@@ -57,7 +58,7 @@ public class UserController {
      * @return 返回一个Map，键为用户ID，值为对应的用户信息对象
      */
     @PostMapping("/batch")
-    public Map<Long, UserInfo> getUserInfosByIds(@RequestBody Set<Long> ids) {
+    public Map<Long, ConversationUserDto> getUserInfosByIds(@RequestBody Set<Long> ids) {
         return userInfoService.getUserInfosByIds(ids);
     }
 
