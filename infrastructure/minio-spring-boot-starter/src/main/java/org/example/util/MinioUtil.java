@@ -1,26 +1,24 @@
-package org.example.utils;
+package org.example.util;
 
 import io.minio.*;
 import io.minio.http.Method;
 import lombok.extern.slf4j.Slf4j;
 import org.example.config.MinioConfig;
-import org.example.exception.ResourceNotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
-@Component
 public class MinioUtil {
 
-    @Autowired
-    private MinioClient minioClient;
+    private final MinioClient minioClient;
+    private final MinioConfig minioConfig;
 
-    @Autowired
-    private MinioConfig minioConfig;
+    public MinioUtil(MinioClient minioClient, MinioConfig minioConfig) {
+        this.minioClient = minioClient;
+        this.minioConfig = minioConfig;
+    }
 
     /**
      * 上传文件
@@ -34,10 +32,11 @@ public class MinioUtil {
                             .stream(inputStream, file.getSize(), -1)
                             .contentType(file.getContentType())
                             .build());
+            log.info("文件上传成功：[{}] -> [{}]", bucketName, objectName);
             return objectName;
         } catch (Exception e) {
-            log.error("文件上传失败: [{}] -> [{}]", bucketName, objectName, e);
-            return null;
+            log.error("文件上传失败：[{}] -> [{}]", bucketName, objectName, e);
+            throw new RuntimeException("文件上传失败：" + e.getMessage(), e);
         }
     }
 
@@ -59,8 +58,8 @@ public class MinioUtil {
                             .object(objectName)
                             .build());
         } catch (Exception e) {
-            log.error("获取文件失败: [{}] -> [{}]", bucketName, objectName, e);
-            throw new ResourceNotFoundException(e.getMessage());
+            log.error("获取文件失败：[{}] -> [{}]", bucketName, objectName, e);
+            throw new RuntimeException("获取文件失败：" + e.getMessage(), e);
         }
     }
 
@@ -81,9 +80,10 @@ public class MinioUtil {
                             .bucket(bucketName)
                             .object(objectName)
                             .build());
+            log.info("文件删除成功：[{}] -> [{}]", bucketName, objectName);
             return true;
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("文件删除失败：[{}] -> [{}]", bucketName, objectName, e);
             return false;
         }
     }
@@ -96,7 +96,7 @@ public class MinioUtil {
     }
 
     /**
-     * 获取文件URL（临时链接）
+     * 获取文件 URL（临时链接）
      */
     public String getPresignedUrl(String bucketName, String objectName, int expiry) {
         try {
@@ -108,13 +108,13 @@ public class MinioUtil {
                             .expiry(expiry, TimeUnit.SECONDS)
                             .build());
         } catch (Exception e) {
-            log.error("获取文件URL失败: [{}] -> [{}]", bucketName, objectName, e);
-            throw new RuntimeException(e.getMessage());
+            log.error("获取文件 URL 失败：[{}] -> [{}]", bucketName, objectName, e);
+            throw new RuntimeException("获取文件 URL 失败：" + e.getMessage(), e);
         }
     }
 
     /**
-     * 获取文件URL（使用默认桶）
+     * 获取文件 URL（使用默认桶）
      */
     public String getPresignedUrl(String objectName, int expiry) {
         return getPresignedUrl(minioConfig.getBucket(), objectName, expiry);
