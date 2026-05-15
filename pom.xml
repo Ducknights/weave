@@ -167,6 +167,11 @@
             </dependency>
             <dependency>
                 <groupId>org.example</groupId>
+                <artifactId>minio-spring-boot-starter</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.example</groupId>
                 <artifactId>permission-spring-boot-starter</artifactId>
                 <version>${project.version}</version>
             </dependency>
