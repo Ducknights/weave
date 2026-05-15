@@ -1,8 +1,9 @@
 package org.example.controller;
 
 import jakarta.annotation.Resource;
+import lombok.extern.log4j.Log4j2;
 import org.example.dto.AuthUserDto;
-import org.example.dto.ConversationUserDto;
+import org.example.dto.UserBriefDto;
 import org.example.entity.UserInfo;
 import org.example.service.UserInfoService;
 import org.example.util.SecurityUtils;
@@ -11,9 +12,10 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 import java.util.Set;
 
+@Log4j2
 @RestController
 @RequestMapping("/api/user")
-public class UserController {
+public class UserInfoController {
 
     @Resource
     private UserInfoService userInfoService;
@@ -37,7 +39,7 @@ public class UserController {
     @GetMapping()
     public UserInfo getSelfUserInfo() {
         Long id = SecurityUtils.getCurrentUserId();
-        return userInfoService.getUserById(id);
+        return userInfoService.getSelfInfo(id);
     }
 
     /**
@@ -47,8 +49,9 @@ public class UserController {
      * @return UserInfo 返回用户信息对象
      */
     @GetMapping("/{id}")
-    public UserInfo getUserById(@PathVariable Long id) {
-        return userInfoService.getUserById(id);
+    public UserBriefDto getUserById(@PathVariable Long id) {
+        log.info("收到请求{}",id);
+        return userInfoService.getUserBriefDtoById(id);
     }
 
     /**
@@ -58,7 +61,7 @@ public class UserController {
      * @return 返回一个Map，键为用户ID，值为对应的用户信息对象
      */
     @PostMapping("/batch")
-    public Map<Long, ConversationUserDto> getUserInfosByIds(@RequestBody Set<Long> ids) {
+    public Map<Long, UserBriefDto> getUserInfosByIds(@RequestBody Set<Long> ids) {
         return userInfoService.getUserInfosByIds(ids);
     }
 

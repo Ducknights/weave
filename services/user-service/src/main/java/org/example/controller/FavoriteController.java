@@ -3,7 +3,6 @@ package org.example.controller;
 import jakarta.annotation.Resource;
 import org.example.dto.ActionDto;
 import org.example.service.ActionService;
-import org.example.service.RelationService;
 import org.example.util.SecurityUtils;
 import org.springframework.web.bind.annotation.*;
 

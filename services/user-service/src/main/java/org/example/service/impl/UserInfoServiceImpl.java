@@ -5,7 +5,7 @@ import jakarta.annotation.Resource;
 import lombok.extern.log4j.Log4j2;
 import org.example.constant.CacheKey;
 import org.example.dto.AuthUserDto;
-import org.example.dto.ConversationUserDto;
+import org.example.dto.UserBriefDto;
 import org.example.feign.UserAvatarFeign;
 import org.example.mapper.UserInfoMapper;
 import org.example.entity.UserInfo;
@@ -15,13 +15,13 @@ import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 @Log4j2
 @Service
@@ -29,8 +29,6 @@ public class UserInfoServiceImpl implements UserInfoService {
 
     @Resource
     private UserInfoMapper userInfoMapper;
-    @Resource
-    private UserAvatarFeign userAvatarFeign;
     @Resource
     private RedisTemplate<String, Object> redisTemplate;
 
@@ -40,24 +38,21 @@ public class UserInfoServiceImpl implements UserInfoService {
      * @return 返回用户ID与用户信息的映射Map
      */
     @Override
-    public Map<Long, ConversationUserDto> getUserInfosByIds(Set<Long> ids) {
+    public Map<Long, UserBriefDto> getUserInfosByIds(Set<Long> ids) {
         if (ids == null || ids.isEmpty()) {
             return new HashMap<>();
         }
 
-        Map<Long, ConversationUserDto> result = new HashMap<>();
+        Map<Long, UserBriefDto> result = new HashMap<>();
         Set<Long> idsToQuery = new HashSet<>();
 
         ids.forEach(id -> {
             // 尝试从redis中获取用户信息
-            String key = CacheKey.buildCacheKey(CacheKey.USER_INFO, id);
-            UserInfo cachedUser = (UserInfo) redisTemplate.opsForValue().get(key);
+            String key = CacheKey.buildCacheKey(CacheKey.USER_BRIEF_INFO, id);
+            UserBriefDto cachedUser = (UserBriefDto) redisTemplate.opsForValue().get(key);
+            // 缓存命中，直接使用缓存中的数据
             if (cachedUser != null) {
-                ConversationUserDto userDto = new ConversationUserDto();
-                userDto.setId(cachedUser.getId());
-                userDto.setName(cachedUser.getName());
-                userDto.setAvatar(cachedUser.getAvatar());
-                result.put(id, userDto);
+                result.put(id, cachedUser);
             } else {
                 // 缓存未命中，需要从数据库中查询的id
                 idsToQuery.add(id);
@@ -69,21 +64,31 @@ public class UserInfoServiceImpl implements UserInfoService {
             List<UserInfo> userList = userInfoMapper.selectList(
                 new LambdaQueryWrapper<UserInfo>().in(UserInfo::getId, idsToQuery)
             );
-            // TODO: 2023/3/20 批量操作（用户信息和 redis）
+            
+            // 记录已找到的用户ID
+            Set<Long> foundIds = new HashSet<>();
+            
+            // 处理查询到的用户
             if (userList != null && !userList.isEmpty()) {
                 for (UserInfo user : userList) {
-                    user.setAvatar(userAvatarFeign.getFileUrl(user.getAvatar(),3600));
-                    String key = CacheKey.buildCacheKey(CacheKey.USER_INFO, user.getId());
-                    redisTemplate.opsForValue().set(key, user, 1, TimeUnit.HOURS);
-                    ConversationUserDto userDto = new ConversationUserDto();
-                    userDto.setId(user.getId());
-                    userDto.setName(user.getName());
-                    userDto.setAvatar(user.getAvatar());
-                    result.put(user.getId(), userDto);
+                    UserBriefDto userBriefDto = new UserBriefDto(user.getId(), user.getName(), user.getAvatar());
+                    String key = CacheKey.buildCacheKey(CacheKey.USER_BRIEF_INFO, user.getId());
+                    redisTemplate.opsForValue().set(key, userBriefDto);
+                    result.put(user.getId(), userBriefDto);
+                    foundIds.add(user.getId());
+                }
+            }
+            
+            // 处理未找到的用户，构建空对象并缓存
+            for (Long id : idsToQuery) {
+                if (!foundIds.contains(id)) {
+                    UserBriefDto emptyUser = UserBriefDto.buildEmpty(id);
+                    String key = CacheKey.buildCacheKey(CacheKey.USER_BRIEF_INFO, id);
+                    redisTemplate.opsForValue().set(key, emptyUser);
+                    result.put(id, emptyUser);
                 }
             }
         }
-
         return result;
     }
 
@@ -93,6 +98,7 @@ public class UserInfoServiceImpl implements UserInfoService {
      * @return 返回创建的用户信息
      */
     @Override
+    @CacheEvict(value = CacheKey.USER_BRIEF_INFO, key = "#userDto.id")
     public UserInfo createUser(AuthUserDto userDto) {
         UserInfo user = new UserInfo();
         user.setId(userDto.id());
@@ -108,11 +114,22 @@ public class UserInfoServiceImpl implements UserInfoService {
      * @return 返回用户信息
      */
     @Override
-    @Cacheable(value = CacheKey.USER_INFO,key = "#id")
-    public UserInfo getUserById(Long id) {
-        UserInfo user = userInfoMapper.selectById(id);
-        user.setAvatar(userAvatarFeign.getFileUrl(user.getAvatar(),3600));
-        return user;
+    @Cacheable(value = CacheKey.USER_BRIEF_INFO, key = "#id")
+    public UserBriefDto getUserBriefDtoById(Long id) {
+        UserInfo userInfo = userInfoMapper.selectById(id);
+        if (userInfo == null){
+            return UserBriefDto.buildEmpty(id);
+        }
+        return new UserBriefDto(
+                userInfo.getId(),
+                userInfo.getName(),
+                userInfo.getAvatar()
+        );
+    }
+
+    @Override
+    public UserInfo getSelfInfo(Long id) {
+        return userInfoMapper.selectById(id);
     }
 
     /**
@@ -121,7 +138,8 @@ public class UserInfoServiceImpl implements UserInfoService {
      * @return 返回更新后的用户信息
      */
     @Override
-    @CacheEvict(value = CacheKey.USER_INFO,key = "#user.id")
+    @Transactional
+    @CacheEvict(value = CacheKey.USER_BRIEF_INFO, key = "#user.id")
     public UserInfo updateUser(UserInfo user) {
         if(userInfoMapper.updateInfo(user) > 0){
             return user;
@@ -141,5 +159,4 @@ public class UserInfoServiceImpl implements UserInfoService {
         log.info("id:{}的用户维持心跳",id);
         return true;
     }
-
 }

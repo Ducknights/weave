@@ -13,6 +13,7 @@ import static org.example.model.RelationEnum.BLOCK;
 @RestController
 @RequestMapping("/api/user/block")
 public class BlockController {
+
     @Resource
     private RelationService relationService;
 

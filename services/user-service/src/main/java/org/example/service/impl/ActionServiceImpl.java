@@ -28,18 +28,22 @@ public class ActionServiceImpl implements ActionService {
         UserActions userActions = new UserActions(null, dto.userId(), dto.targetId(), dto.type(), LocalDateTime.now());
         try {
             actionMapper.insert(userActions);
-            redisTemplate.opsForSet().add(buildCacheKey(dto), dto.targetId());
+            redisTemplate.delete(buildCacheKey(dto));
         } catch (DuplicateKeyException e) {
-            log.error("Duplicate key exception", e);
+            log.error("重复添加记录", e);
         } catch (Exception e) {
-            log.error("Error adding record", e);
+            log.error("添加记录时发生错误", e);
         }
     }
 
     @Override
     public void deleteRecord(ActionDto dto) {
-        actionMapper.deleteRecord(dto);
-        redisTemplate.opsForSet().remove(buildCacheKey(dto), dto.targetId());
+        try {
+            actionMapper.deleteRecord(dto);
+            redisTemplate.delete(buildCacheKey(dto));
+        } catch (Exception e) {
+            log.error("删除记录时发生错误", e);
+        }
     }
 
     @Override
