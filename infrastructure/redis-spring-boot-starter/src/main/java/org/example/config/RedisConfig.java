@@ -117,7 +117,7 @@ public class RedisConfig {
         Map<String, RedisCacheConfiguration> configMap = new HashMap<>();
         // 用户认证相关
         configMap.put(CacheKey.USER_AUTHORITY, defaultConfig.entryTtl(Duration.ofHours(24)));
-        configMap.put(CacheKey.USER_INFO, defaultConfig.entryTtl(Duration.ofHours(1)));
+        configMap.put(CacheKey.USER_BRIEF_INFO, defaultConfig.entryTtl(Duration.ofHours(1)));
         configMap.put(CacheKey.USER_ONLINE, defaultConfig.entryTtl(Duration.ofMinutes(5)));
         configMap.put(CacheKey.CAPTCHA, defaultConfig.entryTtl(Duration.ofMinutes(5)));
         // 社区相关
@@ -134,7 +134,7 @@ public class RedisConfig {
         configMap.put(CacheKey.USER_MUTED_USERS, defaultConfig.entryTtl(Duration.ofMinutes(5)));
         configMap.put(CacheKey.USER_BLOCKED_USERS, defaultConfig.entryTtl(Duration.ofMinutes(5)));
         // 资源相关
-        configMap.put(CacheKey.PRESENTED_URL_AREA, defaultConfig.entryTtl(Duration.ofHours(1)));
+        configMap.put(CacheKey.AVATAR_URL, defaultConfig.entryTtl(Duration.ofHours(2)));
 
         return RedisCacheManager.builder(factory)
                 .cacheDefaults(defaultConfig)
