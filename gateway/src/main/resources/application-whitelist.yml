@@ -4,5 +4,7 @@ spring:
       - /api/auth/login
       - /api/auth/register
       - /api/auth/logout
-      - /api/resources/get/**
+      - /api/resources
       - /api/clubs/**
+      - /api/resources/presign
+      - /api/posts
