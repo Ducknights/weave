@@ -1,7 +1,6 @@
 package org.example.feign;
 
-import org.example.dto.ConversationUserDto;
-import org.springframework.cache.annotation.Cacheable;
+import org.example.dto.UserBriefDto;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -17,5 +16,5 @@ public interface UserInfoFeign {
      * @return 用户信息Map，key为用户ID，value为用户信息
      */
     @PostMapping("/batch")
-    Map<Long, ConversationUserDto> getUserInfosByIds(@RequestBody Set<Long> userIds);
+    Map<Long, UserBriefDto> getUserInfosByIds(@RequestBody Set<Long> userIds);
 }

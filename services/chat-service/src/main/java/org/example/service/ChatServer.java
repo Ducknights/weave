@@ -3,18 +3,17 @@ package org.example.service;
 import jakarta.annotation.Resource;
 import lombok.extern.log4j.Log4j2;
 import org.example.constant.CacheKey;
+import org.example.dto.UserBriefDto;
 import org.example.feign.UserInfoFeign;
 import org.example.mapper.ConversationMapper;
 import org.example.mapper.MessageMapper;
-import org.example.model.Enum.MessageType;
+import org.example.model.enums.MessageType;
 import org.example.model.entity.Conversation;
-import org.example.dto.ConversationUserDto;
 import org.example.model.entity.Message;
 import org.example.model.vo.ConversationVo;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -54,7 +53,7 @@ public class ChatServer {
                 .fromUserId(fromId)
                 .toUserId(toId)
                 .content(content)
-                // TODO: 2023/3/20 支持不同类型消息
+                // TODO: 希望支持不同类型消息
                 .type(MessageType.TEXT)
                 .createTime(LocalDateTime.now())
                 .build();
@@ -91,7 +90,7 @@ public class ChatServer {
                         : conversation.getUserSmallId())
                 .collect(Collectors.toSet());
         // 根据id获取到对方信息（ID，用户名，头像）
-        Map<Long, ConversationUserDto> userInfos = userInfoFeign.getUserInfosByIds(otherUserIds);
+        Map<Long, UserBriefDto> userInfos = userInfoFeign.getUserInfosByIds(otherUserIds);
         // 构造返回体
         return conversations.stream().map(conversation -> {
             ConversationVo vo = new ConversationVo();
@@ -105,7 +104,7 @@ public class ChatServer {
                     : conversation.getUserSmallId();
             vo.setOtherUserId(otherUserId);
             // 对方信息
-            ConversationUserDto userDto = userInfos.get(otherUserId);
+            UserBriefDto userDto = userInfos.get(otherUserId);
             if (userDto != null) {
                 vo.setOtherUserNickname(userDto.getName());
                 vo.setOtherUserAvatar(userDto.getAvatar());
