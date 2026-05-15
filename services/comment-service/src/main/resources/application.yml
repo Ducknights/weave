@@ -1,0 +1,22 @@
+spring:
+  application:
+    name: comment-service
+  cloud:
+    nacos:
+      discovery:
+        server-addr: localhost:8848
+        namespace: dev
+  # MongoDB 配置
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/school
+      database: school
+
+server:
+  port: 3001
+
+# 日志配置
+logging:
+  level:
+    root: info
+    org.example: debug
