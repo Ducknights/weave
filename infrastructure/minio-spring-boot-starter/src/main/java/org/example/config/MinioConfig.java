@@ -1,6 +1,5 @@
 package org.example.config;
 
-import io.minio.MinioClient;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
