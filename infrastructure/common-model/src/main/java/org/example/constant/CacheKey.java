@@ -4,8 +4,8 @@ public class CacheKey {
     private static final String KEY_SEPARATOR = "::";
     // 用户权限缓存区域
     public static final String USER_AUTHORITY = "user:authorities";
-    // 用户信息缓存区域
-    public static final String USER_INFO = "user:info";
+    // 用户简单信息缓存区域
+    public static final String USER_BRIEF_INFO = "user:info";
     // 用户在线状态区域
     public static final String USER_ONLINE ="user:online";
     // 验证码缓存区域
@@ -33,7 +33,7 @@ public class CacheKey {
     // 用户封禁的用户缓存区域
     public static final String USER_BLOCKED_USERS = "user:blocked:users";
     // 预签名URL缓存区域
-    public static final String PRESENTED_URL_AREA = "presented:url";
+    public static final String AVATAR_URL = "avatar:url";
     // 会话列表缓存区域
     public static final String CONVERSATION_LIST = "conversation:list";
 
