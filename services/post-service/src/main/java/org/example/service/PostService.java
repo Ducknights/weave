@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import org.example.dto.PostDto;
 import org.example.entity.Post;
 
-public interface PostService {
+public interface PostService extends IService<Post> {
     Post createPost(Long userId, PostDto postDto);
 
     Post getPostById(Long id);
@@ -17,4 +17,12 @@ public interface PostService {
     boolean deletePost(Long id, Long userId);
 
     void incrementViewCount(Long id);
+
+    boolean toggleLike(Long userId, Long postId);
+
+    boolean toggleFavorite(Long userId, Long postId);
+
+    boolean sharePost(Long userId, Long postId);
+
+    void updateStats(Long postId, String action, boolean increment);
 }

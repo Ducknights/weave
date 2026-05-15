@@ -1,22 +1,21 @@
-package org.example.entity;
+package org.example.model.vo;
 
-import com.baomidou.mybatisplus.annotation.*;
-import lombok.Builder;
 import lombok.Data;
 import org.example.model.PostStatus;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
-@Builder
-@TableName("post")
-public class Post {
-    @TableId(type = IdType.AUTO)
-    private Long id;    //postID
-    private Long userId;  // 用户id
-    private Integer clubId;  // 社团id
-    private String title;   // 标题
-    private String content; // 内容
+public class postDetailVo {
+    private Long id;            //postID
+    private Long userId;        // 用户id
+    private Integer clubId;     // 社团id
+    private String username;    // 用户名
+    private String avatar;      // 头像
+    private String title;       // 标题
+    private String content;     // 内容
+    private List<String> urls;  // 资源地址
     private PostStatus status;  // 状态
     private Integer viewCount;  // 浏览次数
     private Integer likeCount;  // 点赞次数

@@ -2,9 +2,11 @@ package org.example.dto;
 
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 public class PostDto {
     private String title;
     private String content;
-    private String coverImage;
+    private List<String> coverImage;
 }
