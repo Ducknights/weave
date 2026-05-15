@@ -39,18 +39,19 @@ public class RabbitMQConfig {
         return factory;
     }
 
+    // topic交换机
     @Bean
     public TopicExchange topicExchange() {
         return new TopicExchange(MQueue.TOPIC_EXCHANGE);
     }
 
+    // 审核队列
     @Bean
     public Queue auditQueue() {
         return QueueBuilder.durable(MQueue.AUDIT_QUEUE)
                 .withArgument("x-message-ttl", 300000)
                 .build();
     }
-
     @Bean
     public Binding auditVideoBinding(Queue auditQueue, TopicExchange topicExchange) {
         return BindingBuilder.bind(auditQueue)
@@ -58,13 +59,13 @@ public class RabbitMQConfig {
                 .with(MQueue.AUDIT_ROUTING_KEY);
     }
 
+    // 结果队列
     @Bean
     public Queue resultQueue() {
         return QueueBuilder.durable(MQueue.RESULT_QUEUE)
                 .withArgument("x-message-ttl", 300000)
                 .build();
     }
-
     @Bean
     public Binding resultBinding(Queue resultQueue, TopicExchange topicExchange) {
         return BindingBuilder.bind(resultQueue)
@@ -72,17 +73,59 @@ public class RabbitMQConfig {
                 .with(MQueue.RESULT_ROUTING_KEY);
     }
 
+    // 验证队列
     @Bean
     public Queue captchaQueue() {
         return QueueBuilder.durable(MQueue.CAPTCHA_QUEUE)
                 .withArgument("x-message-ttl", 300000)
                 .build();
     }
-
     @Bean
     public Binding captchaBinding(Queue captchaQueue, TopicExchange topicExchange) {
         return BindingBuilder.bind(captchaQueue)
                 .to(topicExchange)
                 .with(MQueue.CAPTCHA_ROUTING_KEY);
+    }
+
+    // 认证队列
+    @Bean
+    public Queue authQueue() {
+        return QueueBuilder.durable(MQueue.AUTH_QUEUE)
+                .withArgument("x-message-ttl", 300000)
+                .build();
+    }
+    @Bean
+    public Binding authBinding(Queue authQueue, TopicExchange topicExchange) {
+        return BindingBuilder.bind(authQueue)
+                .to(topicExchange)
+                .with(MQueue.AUTH_QUEUE_KEY);
+    }
+
+    // 帖子行为队列
+    @Bean
+    public Queue postActionQueue() {
+        return QueueBuilder.durable(MQueue.POST_ACTION_QUEUE)
+                .withArgument("x-message-ttl", 300000)
+                .build();
+    }
+    @Bean
+    public Binding postActionBinding(Queue postActionQueue, TopicExchange topicExchange) {
+        return BindingBuilder.bind(postActionQueue)
+                .to(topicExchange)
+                .with(MQueue.POST_ACTION_ROUTING_KEY);
+    }
+
+    // 帖子同步队列
+    @Bean
+    public Queue postSyncQueue() {
+        return QueueBuilder.durable(MQueue.POST_SYNC_QUEUE)
+                .withArgument("x-message-ttl", 300000)
+                .build();
+    }
+    @Bean
+    public Binding postSyncBinding(Queue postSyncQueue, TopicExchange topicExchange) {
+        return BindingBuilder.bind(postSyncQueue)
+                .to(topicExchange)
+                .with(MQueue.POST_SYNC_ROUTING_KEY);
     }
 }
