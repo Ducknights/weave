@@ -1,7 +1,7 @@
 package org.example.exception;
 
 
-import org.example.model.AuthApiResponse;
+import org.example.model.ApiResult;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class AuthExceptionHandler {
 
     @ExceptionHandler(RuntimeException.class)
-    public AuthApiResponse<?> handleException(Exception e) {
+    public ApiResult<?> handleException(Exception e) {
         return null;
     }
 

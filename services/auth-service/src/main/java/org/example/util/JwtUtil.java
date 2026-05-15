@@ -10,7 +10,7 @@ import java.util.UUID;
 public class JwtUtil {
 
     //生成token
-    public  String generateJwtToken(String subject,int expiration) {
+    public String generateJwtToken(String subject,int expiration) {
         return Jwts.builder()
                 //头部
                 .setHeaderParam("typ", "JWT")

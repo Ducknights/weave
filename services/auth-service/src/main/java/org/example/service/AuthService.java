@@ -14,7 +14,6 @@ import org.example.dto.VerifyCodeDto;
 import org.example.constant.CacheKey;
 import org.example.util.JwtUtil;
 import org.example.util.MQUtil;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -30,7 +29,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 @Log4j2
 @Service
@@ -77,12 +75,10 @@ public class AuthService {
                 // 构造返回DTO
                 TokenDto tokenDto = new TokenDto(access_token, refresh_token, 60 * 5, 60 * 60 * 24);
                 // 获取用户信息
-                UserBriefDto userDto = userFeignClient.getUserBriefById(userId);
+                UserBriefDto userBriefDto = userFeignClient.getUserBriefById(userId);
                 // 获取用户角色
-                List<String> roleNames = authentication.getAuthorities().stream()
-                        .map(GrantedAuthority::getAuthority)
-                        .collect(Collectors.toList());
-                userDto.setRoles(roleNames);
+                List<String> roleNames = ((CustomUserDetails) authentication.getPrincipal()).getRoles();
+                UserDto userDto = new UserDto(userId, userBriefDto.getName(), userBriefDto.getAvatar(), roleNames);
                 // 返回结果
                 apiResponseDto = new ApiResponseDto(tokenDto, userDto);
             }
@@ -105,6 +101,7 @@ public class AuthService {
         if (Boolean.TRUE.equals(redisTemplate.hasKey(lock))){
             throw new CodeErrorException("验证码已发送，请等待");
         }
+
         try{
             // 发送验证码到验证码队列
             mqUtil.sendCaptchaEmail(email);
@@ -112,7 +109,6 @@ public class AuthService {
             throw new CodeErrorException("验证码发送失败");
         }
     }
-
 
     @Transactional
     public void verifyCode(VerifyCodeDto dto) {

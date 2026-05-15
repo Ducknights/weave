@@ -59,8 +59,8 @@ spring:
   rabbitmq:
     host: localhost
     port: 5672
-    username: aliez
-    password: aliez
+    username: admin
+    password: admin
     virtual-host: /
     # 消息确认机制
     publisher-confirm-type: correlated # 发送确认
