@@ -32,7 +32,6 @@ public class EmailConsumer {
      */
     @RabbitListener(queues = MQueue.CAPTCHA_QUEUE)
     public Integer sendVerificationEmail(String email) {
-        // 调用服务方法生成验证码并发送邮件
         return emailService.sendVerificationCodeEmail(email);
     }
 
