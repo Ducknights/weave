@@ -4,7 +4,6 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.annotation.Resource;
 import lombok.extern.log4j.Log4j2;
 import org.example.constant.CacheKey;
-import org.example.constant.Operation;
 import org.example.constant.PostOperation;
 import org.example.mapper.PostResourceMapper;
 import org.example.model.dto.PostDto;
@@ -61,7 +60,7 @@ public class PostCommandServiceImpl extends ServiceImpl<PostMapper, Post> implem
             postResourceMapper.insert(postResource);
         }
         // 发送同步消息
-        sendPostSyncMessage(Operation.CREATE, post);
+        sendPostSyncMessage(PostOperation.CREATE, post);
     }
 
     /**
@@ -82,7 +81,7 @@ public class PostCommandServiceImpl extends ServiceImpl<PostMapper, Post> implem
         postMapper.updateById(post);
 
         // 发送同步消息
-        sendPostSyncMessage(Operation.UPDATE, post);
+        sendPostSyncMessage(PostOperation.UPDATE, post);
     }
 
     /**
@@ -100,7 +99,7 @@ public class PostCommandServiceImpl extends ServiceImpl<PostMapper, Post> implem
         }
         if (postMapper.deleteById(id) > 0) {
             // 发送同步消息
-            sendPostSyncMessage(Operation.DELETE, post);
+            sendPostSyncMessage(PostOperation.DELETE, post);
         }
     }
 
