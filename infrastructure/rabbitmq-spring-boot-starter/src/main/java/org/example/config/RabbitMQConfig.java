@@ -28,8 +28,7 @@ public class RabbitMQConfig {
     }
 
     @Bean
-    public SimpleRabbitListenerContainerFactory rabbitListenerContainerFactory(
-            ConnectionFactory connectionFactory) {
+    public SimpleRabbitListenerContainerFactory rabbitListenerContainerFactory(ConnectionFactory connectionFactory) {
         SimpleRabbitListenerContainerFactory factory = new SimpleRabbitListenerContainerFactory();
         factory.setConnectionFactory(connectionFactory);
         factory.setMessageConverter(jsonMessageConverter());
@@ -111,6 +110,20 @@ public class RabbitMQConfig {
     @Bean
     public Binding postActionBinding(Queue postActionQueue, TopicExchange topicExchange) {
         return BindingBuilder.bind(postActionQueue)
+                .to(topicExchange)
+                .with(MQueue.POST_ACTION_ROUTING_KEY);
+    }
+
+    //用户帖子交互队列
+    @Bean
+    public Queue userPostInteractionQueue() {
+        return QueueBuilder.durable(MQueue.USER_POST_INTERACTION_QUEUE)
+                .withArgument("x-message-ttl", 300000)
+                .build();
+    }
+    @Bean
+    public Binding userPostInteractionBinding(Queue userPostInteractionQueue, TopicExchange topicExchange) {
+        return BindingBuilder.bind(userPostInteractionQueue)
                 .to(topicExchange)
                 .with(MQueue.POST_ACTION_ROUTING_KEY);
     }

@@ -4,6 +4,7 @@ import jakarta.annotation.Resource;
 import lombok.extern.log4j.Log4j2;
 import org.example.constant.MQueue;
 import org.example.dto.UserBriefDto;
+import org.example.model.PostActionMessage;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 
@@ -75,6 +76,18 @@ public class MQUtil {
             );
         }catch (Exception e){
             log.error("同步到ES失败");
+        }
+    }
+
+    public void sendToPostAction(PostActionMessage message) {
+        try{
+            rabbitTemplate.convertAndSend(
+                    MQueue.TOPIC_EXCHANGE,
+                    MQueue.POST_ACTION_ROUTING_KEY,
+                    message
+            );
+        }catch (Exception e){
+            log.error("发送帖子行为消息失败");
         }
     }
 }
