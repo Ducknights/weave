@@ -6,9 +6,7 @@ import org.example.util.MinioUtil;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Slf4j
 public class FileServiceImpl implements FileService {
@@ -63,5 +61,20 @@ public class FileServiceImpl implements FileService {
     @Override
     public String getFileUrl(String objectName, int expiry) {
         return minioUtil.getPresignedUrl(objectName, expiry);
+    }
+
+    @Override
+    public Map<String, String> getFileUrls(List<String> objectNames, int expiry) {
+        return objectNames.parallelStream()
+                .filter(objectName -> objectName != null && !objectName.trim().isEmpty())
+                .collect(HashMap::new, (map, objectName) -> {
+                    try {
+                        String url = minioUtil.getPresignedUrl(objectName, expiry);
+                        map.put(objectName, url);
+                    } catch (Exception e) {
+                        log.warn("获取文件URL失败: {}", objectName, e);
+                        map.put(objectName, null);
+                    }
+                }, HashMap::putAll);
     }
 }
