@@ -1,9 +1,12 @@
-package org.example.model;
+package org.example.model.enums;
 
 import com.baomidou.mybatisplus.annotation.EnumValue;
 import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.Getter;
 
+/**
+ * 帖子状态枚举
+ */
 @Getter
 public enum PostStatus {
     DRAFT(1, "草稿"),

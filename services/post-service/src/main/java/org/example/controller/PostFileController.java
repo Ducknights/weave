@@ -1,29 +1,27 @@
 package org.example.controller;
 
-import org.example.util.MinioUtil;
-import org.example.util.MimeTypeUtil;
+import org.example.model.enums.PostApiStatus;
+import org.example.service.FileService;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
-import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/posts/images")
+@RequestMapping("/api/posts/files")
 public class PostFileController {
 
-    private final MinioUtil minioUtil;
+    private final FileService fileService;
 
-    public PostFileController(MinioUtil minioUtil) {
-        this.minioUtil = minioUtil;
+    public PostFileController(FileService fileService) {
+        this.fileService = fileService;
     }
 
     /**
@@ -31,35 +29,37 @@ public class PostFileController {
      * @param files 图片文件列表
      * @return 上传的图片路径列表
      */
-    @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<Map<String, Object>> uploadImages(@RequestParam("files") List<MultipartFile> files) {
-        List<String> paths = files.stream()
-                .map(this::uploadSingleFile)
-                .collect(Collectors.toList());
-        
-        Map<String, Object> result = new HashMap<>();
-        result.put("success", true);
-        result.put("paths", paths);
-        result.put("count", paths.size());
-        
-        return ResponseEntity.ok(result);
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> uploadImages(@RequestParam("files") List<MultipartFile> files) {
+        List<String> paths = fileService.uploadFiles(files, "images/post");
+        return ResponseEntity.ok(PostApiStatus.CREATE_SUCCESS.response(paths));
     }
 
     /**
-     * 上传单个文件
-     * @param file 文件
-     * @return 存储路径
+     * 获取单个文件预签名URL
+     * @param path 文件路径
+     * @param expiry 有效期（秒），默认3600秒
+     * @return 预签名URL
      */
-    private String uploadSingleFile(MultipartFile file) {
-        String originalFilename = file.getOriginalFilename();
-        String extension = "";
-        if (originalFilename != null && originalFilename.contains(".")) {
-            extension = originalFilename.substring(originalFilename.lastIndexOf("."));
-        }
-        String fileName = UUID.randomUUID().toString() + extension;
-        String directory = MimeTypeUtil.getDirectoryByMimeType(file.getContentType());
-        String objectName = directory + "/post/" + fileName;
-        
-        return minioUtil.uploadFile("default", objectName, file);
+    @GetMapping("/url")
+    public ResponseEntity<?> getFileUrl(
+            @RequestParam String path,
+            @RequestParam(defaultValue = "3600") int expiry) {
+        String url = fileService.getFileUrl(path, expiry);
+        return ResponseEntity.ok(PostApiStatus.SUCCESS.response(url));
+    }
+
+    /**
+     * 批量获取文件预签名URL
+     * @param paths 文件路径列表
+     * @param expiry 有效期（秒），默认3600秒
+     * @return 文件路径与预签名URL的映射
+     */
+    @GetMapping("/urls")
+    public ResponseEntity<?> getFileUrls(
+            @RequestParam List<String> paths,
+            @RequestParam(defaultValue = "3600") int expiry) {
+        Map<String, String> urlMap = fileService.getFileUrls(paths, expiry);
+        return ResponseEntity.ok(PostApiStatus.SUCCESS.response(urlMap));
     }
 }
