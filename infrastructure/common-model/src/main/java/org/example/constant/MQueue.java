@@ -1,6 +1,7 @@
 package org.example.constant;
 
 public class MQueue {
+    //交换机
     public static final String TOPIC_EXCHANGE = "topic_exchange";
 
     // 验证码相关队列
@@ -26,4 +27,5 @@ public class MQueue {
     // 帖子同步相关队列
     public static final String POST_SYNC_QUEUE = "post_sync_queue";
     public static final String POST_SYNC_ROUTING_KEY = "post.sync";
+    public static final String USER_POST_INTERACTION_QUEUE = "user_post_interaction_queue";
 }
