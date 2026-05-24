@@ -12,6 +12,6 @@ import lombok.NoArgsConstructor;
 public class PostActionMessage {
     private Long userId;
     private Long postId;
-    private String action; // like, favorite, share
-    private Boolean increment; // true: 增加, false: 减少
+    private String action;
+    private Boolean increment;
 }

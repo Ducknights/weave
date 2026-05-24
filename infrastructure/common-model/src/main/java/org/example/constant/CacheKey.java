@@ -18,10 +18,12 @@ public class CacheKey {
     public static final String POST = "post";
     // 帖子详情缓存区域
     public static final String POST_DETAIL = "post:detail";
+    // 用户查看的帖子缓存区域
+    public static final String USER_VIEWED_POSTS = "user:viewed:posts";
     // 用户点赞的帖子缓存区域
     public static final String USER_LIKED_POSTS = "user:liked:posts";
     // 用户收藏的帖子缓存区域
-    public static final String USER_FAVORITE_POSTS = "user:favorite:posts";
+    public static final String USER_COLLECTED_POSTS = "user:favorite:posts";
     // 用户分享的帖子缓存区域
     public static final String USER_SHARED_POSTS = "user:shared:posts";
     // 用户关注的用户缓存区域
