@@ -1,7 +1,7 @@
 package org.example.service.impl;
 
 import lombok.extern.log4j.Log4j2;
-import org.example.entity.SearchDocument;
+import org.example.model.entity.SearchDocument;
 import org.example.repository.SearchDocumentRepository;
 import org.example.service.SearchService;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
@@ -33,7 +33,23 @@ public class SearchServiceImpl implements SearchService {
     public Map<String, Object> search(String keyword, String type, int page, int size) {
         log.info("执行搜索: keyword={}, type={}, page={}, size={}", keyword, type, page, size);
         
-        // 构建查询
+        List<Map<String, Object>> results = searchForFeign(keyword, type, page, size);
+        
+        Map<String, Object> searchResults = new HashMap<>();
+        searchResults.put("total", results.size());
+        searchResults.put("items", results);
+        searchResults.put("page", page);
+        searchResults.put("size", size);
+        searchResults.put("keyword", keyword);
+        searchResults.put("type", type);
+        
+        return searchResults;
+    }
+
+    @Override
+    public List<Map<String, Object>> searchForFeign(String keyword, String type, int page, int size) {
+        log.info("Feign搜索: keyword={}, type={}, page={}, size={}", keyword, type, page, size);
+        
         StringQuery query = new StringQuery(
                 "{" +
                 "  \"bool\": {" +
@@ -45,7 +61,6 @@ public class SearchServiceImpl implements SearchService {
                 "}"
         );
 
-        // 如果指定了类型，添加类型过滤
         if (type != null && !type.isEmpty()) {
             query = new StringQuery(
                     "{" +
@@ -62,11 +77,9 @@ public class SearchServiceImpl implements SearchService {
             );
         }
 
-        // 执行搜索
         SearchHits<SearchDocument> searchHits = elasticsearchOperations.search(query, SearchDocument.class);
         
-        // 构建结果
-        List<Map<String, Object>> items = new ArrayList<>();
+        List<Map<String, Object>> results = new ArrayList<>();
         searchHits.forEach(hit -> {
             Map<String, Object> item = new HashMap<>();
             item.put("id", hit.getId());
@@ -78,16 +91,8 @@ public class SearchServiceImpl implements SearchService {
             item.put("authorId", hit.getContent().getAuthorId());
             item.put("createdAt", hit.getContent().getCreatedAt());
             item.put("score", hit.getScore());
-            items.add(item);
+            results.add(item);
         });
-        
-        Map<String, Object> results = new HashMap<>();
-        results.put("total", searchHits.getTotalHits());
-        results.put("items", items);
-        results.put("page", page);
-        results.put("size", size);
-        results.put("keyword", keyword);
-        results.put("type", type);
         
         return results;
     }
@@ -98,7 +103,6 @@ public class SearchServiceImpl implements SearchService {
             log.info("索引内容: type={}, targetId={}, title={}", 
                     document.getType(), document.getTargetId(), document.getTitle());
             
-            // 生成文档ID: type_targetId
             String documentId = document.getType() + "_" + document.getTargetId();
             document.setId(documentId);
             
@@ -115,7 +119,6 @@ public class SearchServiceImpl implements SearchService {
         try {
             log.info("更新索引: type={}, targetId={}", document.getType(), document.getTargetId());
             
-            // 生成文档ID: type_targetId
             String documentId = document.getType() + "_" + document.getTargetId();
             document.setId(documentId);
             

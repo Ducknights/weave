@@ -6,7 +6,6 @@ import lombok.extern.log4j.Log4j2;
 import org.example.constant.CacheKey;
 import org.example.dto.AuthUserDto;
 import org.example.dto.UserBriefDto;
-import org.example.feign.UserAvatarFeign;
 import org.example.mapper.UserInfoMapper;
 import org.example.entity.UserInfo;
 import org.example.service.UserInfoService;
@@ -46,6 +45,7 @@ public class UserInfoServiceImpl implements UserInfoService {
         Map<Long, UserBriefDto> result = new HashMap<>();
         Set<Long> idsToQuery = new HashSet<>();
 
+        // 从缓存中获取用户信息
         ids.forEach(id -> {
             // 尝试从redis中获取用户信息
             String key = CacheKey.buildCacheKey(CacheKey.USER_BRIEF_INFO, id);
@@ -65,28 +65,28 @@ public class UserInfoServiceImpl implements UserInfoService {
                 new LambdaQueryWrapper<UserInfo>().in(UserInfo::getId, idsToQuery)
             );
             
-            // 记录已找到的用户ID
-            Set<Long> foundIds = new HashSet<>();
+            // 记录未找到的用户ID
+            Set<Long> notFoundIds = new HashSet<>(idsToQuery);
             
             // 处理查询到的用户
             if (userList != null && !userList.isEmpty()) {
                 for (UserInfo user : userList) {
+                    // 创建用户简要信息对象并缓存
                     UserBriefDto userBriefDto = new UserBriefDto(user.getId(), user.getName(), user.getAvatar());
                     String key = CacheKey.buildCacheKey(CacheKey.USER_BRIEF_INFO, user.getId());
                     redisTemplate.opsForValue().set(key, userBriefDto);
+                    // 将用户信息添加到结果集中
                     result.put(user.getId(), userBriefDto);
-                    foundIds.add(user.getId());
+                    notFoundIds.remove(user.getId());
                 }
             }
             
             // 处理未找到的用户，构建空对象并缓存
-            for (Long id : idsToQuery) {
-                if (!foundIds.contains(id)) {
-                    UserBriefDto emptyUser = UserBriefDto.buildEmpty(id);
-                    String key = CacheKey.buildCacheKey(CacheKey.USER_BRIEF_INFO, id);
-                    redisTemplate.opsForValue().set(key, emptyUser);
-                    result.put(id, emptyUser);
-                }
+            for (Long id : notFoundIds) {
+                UserBriefDto emptyUser = UserBriefDto.buildEmpty(id);
+                String key = CacheKey.buildCacheKey(CacheKey.USER_BRIEF_INFO, id);
+                redisTemplate.opsForValue().set(key, emptyUser);
+                result.put(id, emptyUser);
             }
         }
         return result;

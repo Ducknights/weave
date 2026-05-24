@@ -1,27 +1,23 @@
 package org.example.controller;
 
-import org.example.util.MinioUtil;
-import org.example.util.MimeTypeUtil;
+import org.example.service.FileService;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/users/avatar")
 public class AvatarController {
 
-    private final MinioUtil minioUtil;
+    private final FileService fileService;
 
-    public AvatarController(MinioUtil minioUtil) {
-        this.minioUtil = minioUtil;
+    public AvatarController(FileService fileService) {
+        this.fileService = fileService;
     }
 
     /**
@@ -31,7 +27,7 @@ public class AvatarController {
      */
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Map<String, Object>> uploadAvatar(@RequestParam("file") MultipartFile file) {
-        String path = uploadFile(file);
+        String path = fileService.uploadFile(file, null);
         
         Map<String, Object> result = new HashMap<>();
         result.put("success", true);
@@ -41,20 +37,42 @@ public class AvatarController {
     }
 
     /**
-     * 上传文件到 MinIO
-     * @param file 文件
-     * @return 存储路径
+     * 获取文件预签名URL
+     * @param path 文件路径
+     * @param expiry 有效期（秒），默认3600秒
+     * @return 预签名URL
      */
-    private String uploadFile(MultipartFile file) {
-        String originalFilename = file.getOriginalFilename();
-        String extension = "";
-        if (originalFilename != null && originalFilename.contains(".")) {
-            extension = originalFilename.substring(originalFilename.lastIndexOf("."));
-        }
-        String fileName = UUID.randomUUID().toString() + extension;
-        String directory = MimeTypeUtil.getDirectoryByMimeType(file.getContentType());
-        String objectName = directory + "/avatar/" + fileName;
-        
-        return minioUtil.uploadFile("default", objectName, file);
+    @GetMapping("/url")
+    public ResponseEntity<Map<String, Object>> getFileUrl(
+            @RequestParam String path,
+            @RequestParam(defaultValue = "3600") int expiry) {
+
+        String url = fileService.getFileUrl(path, expiry);
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("success", true);
+        result.put("url", url);
+
+        return ResponseEntity.ok(result);
+    }
+
+    /**
+     * 获取文件预签名URL
+     * @param paths 文件路径列表
+     * @param expiry 有效期（秒），默认3600秒
+     * @return 预签名URL列表
+     */
+    @GetMapping("/urls")
+    public ResponseEntity<Map<String, Object>> getFileUrls(
+            @RequestParam List<String> paths,
+            @RequestParam(defaultValue = "3600") int expiry) {
+
+        Map<String, String> urls = fileService.getFileUrls(paths, expiry);
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("success", true);
+        result.put("urls", urls);
+
+        return ResponseEntity.ok(result);
     }
 }

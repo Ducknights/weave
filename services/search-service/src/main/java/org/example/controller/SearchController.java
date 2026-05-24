@@ -2,10 +2,12 @@ package org.example.controller;
 
 import jakarta.annotation.Resource;
 import lombok.extern.log4j.Log4j2;
-import org.example.entity.SearchDocument;
+import org.example.model.entity.SearchDocument;
 import org.example.service.SearchService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -118,6 +120,26 @@ public class SearchController {
                 "success", document != null,
                 "data", document
         );
+    }
+
+    /**
+     * 内部接口：搜索内容（供其他服务 Feign 调用）
+     * GET /api/search/internal/results
+     *
+     * @param keyword 搜索关键词
+     * @param type 搜索类型（可选）
+     * @param page 页码
+     * @param size 每页大小
+     * @return 搜索结果列表
+     */
+    @GetMapping("/internal/results")
+    public ResponseEntity<List<Map<String, Object>>> searchForFeign(
+            @RequestParam String keyword,
+            @RequestParam(required = false) String type,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        List<Map<String, Object>> results = searchService.searchForFeign(keyword, type, page, size);
+        return ResponseEntity.ok(results);
     }
 
     /**

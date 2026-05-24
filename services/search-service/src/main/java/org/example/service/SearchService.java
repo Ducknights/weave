@@ -1,7 +1,8 @@
 package org.example.service;
 
-import org.example.entity.SearchDocument;
+import org.example.model.entity.SearchDocument;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -20,6 +21,17 @@ public interface SearchService {
      * @return 搜索结果
      */
     Map<String, Object> search(String keyword, String type, int page, int size);
+
+    /**
+     * 搜索内容（返回 Map 列表，用于 Feign 调用）
+     *
+     * @param keyword 搜索关键词
+     * @param type 搜索类型
+     * @param page 页码
+     * @param size 每页大小
+     * @return 搜索结果列表
+     */
+    List<Map<String, Object>> searchForFeign(String keyword, String type, int page, int size);
     
     /**
      * 索引内容（用于将内容添加到搜索索引）

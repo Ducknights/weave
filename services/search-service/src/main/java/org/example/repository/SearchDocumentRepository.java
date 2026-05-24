@@ -1,6 +1,6 @@
 package org.example.repository;
 
-import org.example.entity.SearchDocument;
+import org.example.model.entity.SearchDocument;
 import org.springframework.data.elasticsearch.repository.ElasticsearchRepository;
 import org.springframework.stereotype.Repository;
 

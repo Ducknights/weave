@@ -58,7 +58,7 @@ public class ActionServiceImpl implements ActionService {
     private String buildCacheKey(ActionDto dto) {
         return switch (dto.type()) {
             case LIKE -> CacheKey.buildCacheKey(CacheKey.USER_LIKED_POSTS, dto.userId());
-            case FAVORITE -> CacheKey.buildCacheKey(CacheKey.USER_FAVORITE_POSTS, dto.userId());
+            case FAVORITE -> CacheKey.buildCacheKey(CacheKey.USER_COLLECTED_POSTS, dto.userId());
             case SHARE -> CacheKey.buildCacheKey(CacheKey.USER_SHARED_POSTS, dto.userId());
         };
     }
