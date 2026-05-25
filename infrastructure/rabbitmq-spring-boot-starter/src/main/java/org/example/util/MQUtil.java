@@ -90,4 +90,16 @@ public class MQUtil {
             log.error("发送帖子行为消息失败");
         }
     }
+
+    public void sendUserLoginEvent(Long userId) {
+        try{
+            rabbitTemplate.convertAndSend(
+                    MQueue.TOPIC_EXCHANGE,
+                    MQueue.USER_LOGIN_ROUTING_KEY,
+                    userId
+            );
+        }catch (Exception e){
+            log.error("发送用户登录事件失败");
+        }
+    }
 }
