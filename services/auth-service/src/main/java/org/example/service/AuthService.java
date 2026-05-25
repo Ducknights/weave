@@ -79,8 +79,10 @@ public class AuthService {
                 // 获取用户角色
                 List<String> roleNames = ((CustomUserDetails) authentication.getPrincipal()).getRoles();
                 UserDto userDto = new UserDto(userId, userBriefDto.getName(), userBriefDto.getAvatar(), roleNames);
-                // 返回结果
+                // 构建响应DTO
                 apiResponseDto = new ApiResponseDto(tokenDto, userDto);
+                // 发送用户登录事件
+                mqUtil.sendUserLoginEvent(userId);
             }
         } catch (Exception e) {
             System.out.println("登录失败：" + e.getMessage());
