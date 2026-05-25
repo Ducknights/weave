@@ -8,6 +8,10 @@ public class MQueue {
     public static final String CAPTCHA_ROUTING_KEY = "captcha";
     public static final String CAPTCHA_QUEUE = "captcha_queue";
 
+    // 用户登录相关队列
+    public static final String USER_LOGIN_ROUTING_KEY = "user.login";
+    public static final String USER_LOGIN_QUEUE = "user_login_queue";
+
     // 审核相关队列
     public static final String AUDIT_ROUTING_KEY = "audit";
     public static final String AUDIT_QUEUE = "audit_queue";
