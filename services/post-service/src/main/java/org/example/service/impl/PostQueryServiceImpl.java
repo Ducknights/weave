@@ -73,7 +73,7 @@ public class PostQueryServiceImpl extends ServiceImpl<PostMapper, Post> implemen
         try {
             // 缓存帖子
             cachePost(post);
-            // 增加帖子的浏览次数
+            // 增加帖子的浏览次数( 缓存和数据库同步 )
             postCommandService.incrementViewCount(userId, id);
             // 增加返回提的帖子浏览数
             post.setViewCount(post.getViewCount() + 1);
