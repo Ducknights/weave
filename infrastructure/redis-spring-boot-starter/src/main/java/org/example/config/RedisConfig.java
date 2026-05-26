@@ -116,23 +116,22 @@ public class RedisConfig {
 
         Map<String, RedisCacheConfiguration> configMap = new HashMap<>();
         // 用户认证相关
-        configMap.put(CacheKey.USER_AUTHORITY, defaultConfig.entryTtl(Duration.ofHours(24)));
-        configMap.put(CacheKey.USER_BRIEF_INFO, defaultConfig.entryTtl(Duration.ofHours(1)));
-        configMap.put(CacheKey.USER_ONLINE, defaultConfig.entryTtl(Duration.ofMinutes(5)));
-        configMap.put(CacheKey.CAPTCHA, defaultConfig.entryTtl(Duration.ofMinutes(5)));
+        configMap.put(CacheKey.USER_AUTHORITY, defaultConfig.entryTtl(Duration.ofHours(24)));   // 用户权限
+        configMap.put(CacheKey.USER_BRIEF_INFO, defaultConfig.entryTtl(Duration.ofHours(1)));   // 用户简要信息
+        configMap.put(CacheKey.USER_ONLINE, defaultConfig.entryTtl(Duration.ofMinutes(5))); // 用户在线状态,5分钟
+        configMap.put(CacheKey.CAPTCHA, defaultConfig.entryTtl(Duration.ofMinutes(5))); // 验证码,5分钟
         // 社区相关
-        configMap.put(CacheKey.ACTIVITY, defaultConfig.entryTtl(Duration.ofHours(1)));
-        configMap.put(CacheKey.CLUB, defaultConfig.entryTtl(Duration.ofHours(1)));
-        configMap.put(CacheKey.POST, defaultConfig.entryTtl(Duration.ofHours(1)));
-        configMap.put(CacheKey.POST_DETAIL, defaultConfig.entryTtl(Duration.ofHours(1)));
+        configMap.put(CacheKey.ACTIVITY, defaultConfig.entryTtl(Duration.ofDays(1)));   // 社区动态
+        configMap.put(CacheKey.CLUB, defaultConfig.entryTtl(Duration.ofDays(1)));   // 社区俱乐部
+        configMap.put(CacheKey.POST, defaultConfig.entryTtl(Duration.ofDays(1)));   // 社区帖子
+        configMap.put(CacheKey.POST_DETAIL, defaultConfig.entryTtl(Duration.ofDays(1)));    // 社区帖子详情
         // 用户行为相关
-        configMap.put(CacheKey.USER_LIKED_POSTS, defaultConfig.entryTtl(Duration.ofMinutes(5)));
-        configMap.put(CacheKey.USER_COLLECTED_POSTS, defaultConfig.entryTtl(Duration.ofMinutes(5)));
-        configMap.put(CacheKey.USER_SHARED_POSTS, defaultConfig.entryTtl(Duration.ofMinutes(5)));
-        configMap.put(CacheKey.USER_FOLLOWERS, defaultConfig.entryTtl(Duration.ofMinutes(5)));
-        configMap.put(CacheKey.USER_FANS, defaultConfig.entryTtl(Duration.ofMinutes(5)));
-        configMap.put(CacheKey.USER_MUTED_USERS, defaultConfig.entryTtl(Duration.ofMinutes(5)));
-        configMap.put(CacheKey.USER_BLOCKED_USERS, defaultConfig.entryTtl(Duration.ofMinutes(5)));
+        configMap.put(CacheKey.USER_LIKED_POSTS, defaultConfig.entryTtl(Duration.ofDays(1)));   // 用户点赞
+        configMap.put(CacheKey.USER_COLLECTED_POSTS, defaultConfig.entryTtl(Duration.ofDays(1)));   // 用户收藏
+        configMap.put(CacheKey.USER_SHARED_POSTS, defaultConfig.entryTtl(Duration.ofDays(1)));   // 用户分享
+        configMap.put(CacheKey.USER_FOLLOWERS, defaultConfig.entryTtl(Duration.ofDays(1)));   // 用户关注
+        configMap.put(CacheKey.USER_MUTED_USERS, defaultConfig.entryTtl(Duration.ofDays(1)));   // 用户静音
+        configMap.put(CacheKey.USER_BLOCKED_USERS, defaultConfig.entryTtl(Duration.ofDays(1)));   // 用户封禁
         // 资源相关
         configMap.put(CacheKey.AVATAR_URL, defaultConfig.entryTtl(Duration.ofHours(2)));
 
