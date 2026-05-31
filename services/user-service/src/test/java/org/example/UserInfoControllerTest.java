@@ -1,13 +1,18 @@
 package org.example;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest
 class UserInfoControllerTest {
+
+    int change(int x) {
+        x = 20;
+        return x;
+    }
 
     @Test
     void contextLoads() {
-        // 测试Spring Boot应用上下文加载
+        int a =10;
+        a = change(a);
+        System.out.println(a);
     }
 }

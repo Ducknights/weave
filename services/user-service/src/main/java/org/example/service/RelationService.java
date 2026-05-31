@@ -1,6 +1,6 @@
 package org.example.service;
 
-import org.example.dto.RelationDto;
+import org.example.model.dto.RelationDto;
 
 import java.util.Set;
 

@@ -1,14 +1,13 @@
 package org.example.service;
 
-import org.example.dto.ActionDto;
-import org.example.dto.RelationDto;
+import org.example.model.dto.ActionDto;
 
-import java.util.Set;
+import java.util.List;
 
 public interface ActionService {
     void addRecord(ActionDto dto);
 
     void deleteRecord(ActionDto dto);
 
-    Set<Long> getRecord(ActionDto dto, int page, int size);
+    List<Long> getRecord(ActionDto dto, int page, int size);
 }

@@ -1,12 +1,12 @@
 package org.example.controller;
 
+import org.example.model.eunms.UserApiStatus;
 import org.example.service.FileService;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -26,14 +26,11 @@ public class AvatarController {
      * @return 头像路径
      */
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<Map<String, Object>> uploadAvatar(@RequestParam("file") MultipartFile file) {
+    public ResponseEntity<?> uploadAvatar(
+            @RequestParam("file") MultipartFile file) {
+
         String path = fileService.uploadFile(file, null);
-        
-        Map<String, Object> result = new HashMap<>();
-        result.put("success", true);
-        result.put("path", path);
-        
-        return ResponseEntity.ok(result);
+        return ResponseEntity.ok(UserApiStatus.CREATE_SUCCESS.response(path));
     }
 
     /**
@@ -43,17 +40,12 @@ public class AvatarController {
      * @return 预签名URL
      */
     @GetMapping("/url")
-    public ResponseEntity<Map<String, Object>> getFileUrl(
+    public ResponseEntity<?> getFileUrl(
             @RequestParam String path,
             @RequestParam(defaultValue = "3600") int expiry) {
 
         String url = fileService.getFileUrl(path, expiry);
-
-        Map<String, Object> result = new HashMap<>();
-        result.put("success", true);
-        result.put("url", url);
-
-        return ResponseEntity.ok(result);
+        return ResponseEntity.ok(UserApiStatus.GET_SUCCESS.response(url));
     }
 
     /**
@@ -63,16 +55,12 @@ public class AvatarController {
      * @return 预签名URL列表
      */
     @GetMapping("/urls")
-    public ResponseEntity<Map<String, Object>> getFileUrls(
+    public ResponseEntity<?> getFileUrls(
             @RequestParam List<String> paths,
             @RequestParam(defaultValue = "3600") int expiry) {
 
         Map<String, String> urls = fileService.getFileUrls(paths, expiry);
 
-        Map<String, Object> result = new HashMap<>();
-        result.put("success", true);
-        result.put("urls", urls);
-
-        return ResponseEntity.ok(result);
+        return ResponseEntity.ok(UserApiStatus.GET_SUCCESS.response(urls));
     }
 }

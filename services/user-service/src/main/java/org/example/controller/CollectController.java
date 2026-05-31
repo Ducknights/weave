@@ -1,18 +1,18 @@
 package org.example.controller;
 
 import jakarta.annotation.Resource;
-import org.example.dto.ActionDto;
+import org.example.model.dto.ActionDto;
 import org.example.service.ActionService;
 import org.example.util.SecurityUtils;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Set;
+import java.util.List;
 
-import static org.example.model.ActionEnum.FAVORITE;
+import static org.example.model.eunms.ActionEnum.COLLECT;
 
 @RestController
 @RequestMapping("/api/user/collect")
-public class FavoriteController {
+public class CollectController {
 
     @Resource
     private ActionService actionService;
@@ -23,7 +23,7 @@ public class FavoriteController {
     @PostMapping("/{targetPostId}")
     public void collectPost(@PathVariable Long targetPostId) {
         Long userId = SecurityUtils.getCurrentUserId();
-        ActionDto dto = new ActionDto(userId, targetPostId, FAVORITE);
+        ActionDto dto = new ActionDto(userId, targetPostId, COLLECT);
         actionService.addRecord(dto);
     }
 
@@ -33,7 +33,7 @@ public class FavoriteController {
     @DeleteMapping("/{targetPostId}")
     public void uncollectedPost(@PathVariable Long targetPostId) {
         Long userId = SecurityUtils.getCurrentUserId();
-        ActionDto dto = new ActionDto(userId, targetPostId, FAVORITE);
+        ActionDto dto = new ActionDto(userId, targetPostId, COLLECT);
         actionService.deleteRecord(dto);
     }
 
@@ -41,10 +41,10 @@ public class FavoriteController {
      * 分页获取用户收藏的帖子
      */
     @GetMapping()
-    public Set<Long> getUserCollectedPosts(@RequestParam(defaultValue = "0") Integer page,
-                                           @RequestParam(defaultValue = "20") Integer size) {
+    public List<Long> getUserCollectedPosts(@RequestParam(defaultValue = "0") Integer page,
+                                            @RequestParam(defaultValue = "20") Integer size) {
         Long userId = SecurityUtils.getCurrentUserId();
-        ActionDto dto = new ActionDto(userId, null, FAVORITE);
+        ActionDto dto = new ActionDto(userId, null, COLLECT);
         return actionService.getRecord(dto, page, size);
     }
 }

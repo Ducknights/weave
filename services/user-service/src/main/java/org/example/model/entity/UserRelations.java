@@ -1,4 +1,4 @@
-package org.example.entity;
+package org.example.model.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.OrderBy;
@@ -7,7 +7,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.example.model.RelationEnum;
+import org.example.model.eunms.RelationEnum;
 
 import java.time.LocalDateTime;
 

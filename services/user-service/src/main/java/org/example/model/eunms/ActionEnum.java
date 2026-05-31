@@ -1,4 +1,4 @@
-package org.example.model;
+package org.example.model.eunms;
 
 import com.baomidou.mybatisplus.annotation.EnumValue;
 import com.fasterxml.jackson.annotation.JsonValue;
@@ -12,7 +12,7 @@ import lombok.Getter;
 @Getter
 public enum ActionEnum {
     LIKE(1,"点赞"),
-    FAVORITE(2,"收藏"),
+    COLLECT(2,"收藏"),
     SHARE(3,"分享");
 
     @EnumValue

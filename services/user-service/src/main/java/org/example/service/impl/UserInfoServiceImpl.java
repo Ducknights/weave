@@ -4,10 +4,16 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import jakarta.annotation.Resource;
 import lombok.extern.log4j.Log4j2;
 import org.example.constant.CacheKey;
+import org.example.model.dto.ActionDto;
 import org.example.dto.AuthUserDto;
+import org.example.model.dto.RelationDto;
 import org.example.dto.UserBriefDto;
+import org.example.mapper.ActionMapper;
+import org.example.mapper.RelationMapper;
 import org.example.mapper.UserInfoMapper;
-import org.example.entity.UserInfo;
+import org.example.model.entity.UserInfo;
+import org.example.model.eunms.ActionEnum;
+import org.example.model.eunms.RelationEnum;
 import org.example.service.UserInfoService;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
@@ -21,6 +27,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 @Log4j2
 @Service
@@ -28,6 +35,10 @@ public class UserInfoServiceImpl implements UserInfoService {
 
     @Resource
     private UserInfoMapper userInfoMapper;
+    @Resource
+    private ActionMapper actionMapper;
+    @Resource
+    private RelationMapper relationMapper;
     @Resource
     private RedisTemplate<String, Object> redisTemplate;
 
@@ -158,5 +169,43 @@ public class UserInfoServiceImpl implements UserInfoService {
     public Boolean refresh(Long id) {
         log.info("id:{}的用户维持心跳",id);
         return true;
+    }
+
+    @Override
+    public void cacheUserAction(Long userId) {
+        // 缓存用户操作记录
+        for (ActionEnum action : ActionEnum.values()) {
+            ActionDto actionDto = new ActionDto(userId,null, action);
+            Set<Long> postIds = actionMapper.getAllTargetIdsByUserAndType(actionDto);
+            if (postIds != null && !postIds.isEmpty()) {
+                String key = switch (action) {
+                    case LIKE -> CacheKey.buildCacheKey(CacheKey.USER_LIKED_POSTS, userId);
+                    case COLLECT -> CacheKey.buildCacheKey(CacheKey.USER_COLLECTED_POSTS, userId);
+                    case SHARE -> CacheKey.buildCacheKey(CacheKey.USER_SHARED_POSTS, userId);
+                };
+                try {
+                    redisTemplate.opsForSet().add(key, postIds.toArray(new Long[0]), 1, TimeUnit.DAYS);
+                } catch (Exception e) {
+                    log.error("缓存用户操作记录失败", e);
+                }
+            }
+        }
+        // 缓存用户关系记录
+        for (RelationEnum relation : RelationEnum.values()) {
+            RelationDto relationDto = new RelationDto(userId,null, relation);
+            Set<Long> targetIds = relationMapper.getAllTargetIdsByUserAndType(relationDto);
+            if (targetIds != null && !targetIds.isEmpty()) {
+                String key = switch (relation) {
+                    case FOLLOW -> CacheKey.buildCacheKey(CacheKey.USER_FOLLOWERS, userId);
+                    case MUTE -> CacheKey.buildCacheKey(CacheKey.USER_MUTED_USERS, userId);
+                    case BLOCK -> CacheKey.buildCacheKey(CacheKey.USER_BLOCKED_USERS, userId);
+                };
+                try {
+                    redisTemplate.opsForSet().add(key, targetIds.toArray(new Long[0]), 1, TimeUnit.DAYS);
+                } catch (Exception e) {
+                    log.error("缓存用户关系记录失败", e);
+                }
+            }
+        }
     }
 }

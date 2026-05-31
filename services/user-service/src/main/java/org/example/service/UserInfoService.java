@@ -2,7 +2,7 @@ package org.example.service;
 
 import org.example.dto.AuthUserDto;
 import org.example.dto.UserBriefDto;
-import org.example.entity.UserInfo;
+import org.example.model.entity.UserInfo;
 
 import java.util.Map;
 import java.util.Set;
@@ -20,4 +20,6 @@ public interface UserInfoService {
     UserInfo updateUser(UserInfo user);
 
     UserInfo getSelfInfo(Long id);
+
+    void cacheUserAction(Long id);
 }

@@ -1,15 +1,15 @@
 package org.example.controller;
 
 import jakarta.annotation.Resource;
-import org.example.dto.ActionDto;
+import org.example.model.dto.ActionDto;
 import org.example.service.ActionService;
-import org.example.service.RelationService;
 import org.example.util.SecurityUtils;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Set;
 
-import static org.example.model.ActionEnum.SHARE;
+import static org.example.model.eunms.ActionEnum.SHARE;
 
 @RestController
 @RequestMapping("/api/user/share")
@@ -42,8 +42,8 @@ public class ShareController {
      * 获取用户分享的帖子
      */
     @GetMapping()
-    public Set<Long> getUserSharedPosts(@RequestParam(defaultValue = "0") Integer page,
-                                        @RequestParam(defaultValue = "20") Integer size) {
+    public List<Long> getUserSharedPosts(@RequestParam(defaultValue = "0") Integer page,
+                                         @RequestParam(defaultValue = "20") Integer size) {
         Long userId = SecurityUtils.getCurrentUserId();
         ActionDto dto = new ActionDto(userId, null, SHARE);
         return actionService.getRecord(dto, page, size);

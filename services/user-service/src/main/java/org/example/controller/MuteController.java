@@ -1,14 +1,14 @@
 package org.example.controller;
 
 import jakarta.annotation.Resource;
-import org.example.dto.RelationDto;
+import org.example.model.dto.RelationDto;
 import org.example.service.RelationService;
 import org.example.util.SecurityUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Set;
 
-import static org.example.model.RelationEnum.MUTE;
+import static org.example.model.eunms.RelationEnum.MUTE;
 
 @RestController
 @RequestMapping("/api/user/mute")

@@ -1,4 +1,4 @@
-package org.example.model;
+package org.example.model.eunms;
 
 import com.baomidou.mybatisplus.annotation.EnumValue;
 import com.fasterxml.jackson.annotation.JsonValue;

@@ -1,14 +1,16 @@
 package org.example.controller;
 
 import jakarta.annotation.Resource;
-import org.example.dto.RelationDto;
+import org.example.model.dto.RelationDto;
+import org.example.model.eunms.UserApiStatus;
 import org.example.service.RelationService;
 import org.example.util.SecurityUtils;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Set;
 
-import static org.example.model.RelationEnum.FOLLOW;
+import static org.example.model.eunms.RelationEnum.FOLLOW;
 
 @RestController
 @RequestMapping("/api/user/follow")
@@ -21,10 +23,11 @@ public class FollowController {
      * 关注用户
      */
     @PostMapping("/{targetUserId}")
-    public void followUser(@PathVariable Long targetUserId) {
+    public ResponseEntity<?> followUser(@PathVariable Long targetUserId) {
         Long userId = SecurityUtils.getCurrentUserId();
         RelationDto dto = new RelationDto(userId, targetUserId, FOLLOW);
         relationService.addRecord(dto);
+        return ResponseEntity.ok().body(UserApiStatus.FOLLOW_SUCCESS.response());
     }
 
     /**

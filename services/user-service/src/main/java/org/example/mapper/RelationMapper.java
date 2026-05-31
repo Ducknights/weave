@@ -5,10 +5,11 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.ibatis.annotations.*;
-import org.example.dto.RelationDto;
-import org.example.entity.UserRelations;
+import org.example.model.dto.RelationDto;
+import org.example.model.entity.UserRelations;
 
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -26,8 +27,19 @@ public interface RelationMapper extends BaseMapper<UserRelations> {
         IPage<UserRelations> iPage = selectPage(new Page<>(page, size),
                 new LambdaQueryWrapper<UserRelations>()
                         .eq(UserRelations::getUserId, dto.userId())
-                        .eq(UserRelations::getType, dto.type())
+                        .eq(dto.targetId() != null, UserRelations::getTargetId, dto.targetId())
+                        .eq(dto.type() != null, UserRelations::getType, dto.type())
                         .orderByDesc(UserRelations::getCreatedTime));
         return iPage.getRecords().stream().map(UserRelations::getTargetId).collect(Collectors.toCollection(LinkedHashSet::new));
+    }
+
+    default Set<Long> getAllTargetIdsByUserAndType(RelationDto dto) {
+        List<UserRelations> list = selectList(
+                new LambdaQueryWrapper<UserRelations>()
+                        .eq(UserRelations::getUserId, dto.userId())
+                        .eq(UserRelations::getType, dto.type())
+                        .select(UserRelations::getTargetId)
+        );
+        return list.stream().map(UserRelations::getTargetId).collect(Collectors.toSet());
     }
 }

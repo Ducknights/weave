@@ -1,6 +1,6 @@
-package org.example.dto;
+package org.example.model.dto;
 
-import org.example.model.RelationEnum;
+import org.example.model.eunms.RelationEnum;
 
 public record RelationDto(
         Long userId,
