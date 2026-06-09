@@ -4,14 +4,13 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.example.dto.SearchDocumentDto;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class PostSyncMessage {
-    private Long postId;
     private String operation;
-    private Long userId;
-    private Object data;
+    private SearchDocumentDto data;
 }

@@ -24,8 +24,6 @@ public class CacheKey {
     public static final String USER_LIKED_POSTS = "user:liked:posts";
     // 用户收藏的帖子缓存区域
     public static final String USER_COLLECTED_POSTS = "user:favorite:posts";
-    // 用户分享的帖子缓存区域
-    public static final String USER_SHARED_POSTS = "user:shared:posts";
     // 用户关注的用户缓存区域
     public static final String USER_FOLLOWERS = "user:followers";
     // 用户的粉丝缓存区域
