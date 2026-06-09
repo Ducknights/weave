@@ -10,7 +10,6 @@ import java.util.Set;
 @FeignClient(name = "club-service")
 public interface ClubFeign {
 
-
     @PostMapping("/api/club/batch")
-    Map<Integer, ClubBriefDto> getClubInfosByIds(Set<Integer> clubIds);
+    Map<Long, ClubBriefDto> getClubInfosByIds(Set<Long> clubIds);
 }

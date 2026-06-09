@@ -18,9 +18,6 @@ public interface PostMapper extends BaseMapper<Post> {
     @Update("UPDATE post SET collect_count = GREATEST(0, collect_count + #{delta}) WHERE id = #{id}")
     void updateCollectCount(@Param("id") Long id, @Param("delta") int delta);
 
-    @Update("UPDATE post SET share_count = GREATEST(0, share_count + #{delta}) WHERE id = #{id}")
-    void updateShareCount(@Param("id") Long id, @Param("delta") int delta);
-
     @Update("UPDATE post SET comment_count = GREATEST(0, comment_count + #{delta}) WHERE id = #{id}")
     void updateCommentCount(@Param("id") Long id, @Param("delta") int delta);
 }

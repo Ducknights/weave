@@ -9,9 +9,12 @@ import org.example.constant.PostOperation;
  */
 @Getter
 public enum PostActionType {
+
+    VIEW(PostOperation.VIEW_COUNT, PostOperation.VIEW, CacheKey.USER_VIEWED_POSTS),
     
     LIKE(PostOperation.LIKE_COUNT, PostOperation.LIKE, CacheKey.USER_LIKED_POSTS),
     UNLIKE(PostOperation.LIKE_COUNT, PostOperation.UNLIKE, CacheKey.USER_LIKED_POSTS),
+
     COLLECT(PostOperation.COLLECT_COUNT, PostOperation.COLLECT, CacheKey.USER_COLLECTED_POSTS),
     UNCOLLECT(PostOperation.COLLECT_COUNT, PostOperation.UNCOLLECT, CacheKey.USER_COLLECTED_POSTS);
 

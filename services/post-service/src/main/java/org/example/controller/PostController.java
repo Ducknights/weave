@@ -4,10 +4,10 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import jakarta.annotation.Resource;
 import lombok.extern.log4j.Log4j2;
 import org.example.constant.MQueue;
-import org.example.model.dto.PostDto;
 import org.example.model.PostActionMessage;
+import org.example.model.dto.PostDto;
 import org.example.model.enums.PostApiStatus;
-import org.example.model.vo.PostDetailVo;
+import org.example.dto.PostDetailVo;
 import org.example.service.PostCommandService;
 import org.example.service.PostQueryService;
 import org.example.util.SecurityUtils;
@@ -16,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @Log4j2
 @RestController
@@ -49,11 +50,9 @@ public class PostController {
      */
     @GetMapping("/recommend")
     public ResponseEntity<?> getRecommendPosts() {
-        List<PostDetailVo> postVos = postQueryService.getRecommendPosts();
-        if (postVos == null) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(postVos);
+        Long userId = SecurityUtils.getCurrentUserId();
+        List<PostDetailVo> postVos = postQueryService.getRecommendPosts(userId);
+        return ResponseEntity.ok().body(PostApiStatus.SUCCESS.response(postVos));
     }
 
     /**
@@ -67,10 +66,7 @@ public class PostController {
     @GetMapping("/hot")
     public ResponseEntity<?> getHotPosts(@RequestParam int pageNum, @RequestParam int pageSize) {
         Page<PostDetailVo> postVos = postQueryService.getHotPosts(pageNum, pageSize);
-        if (postVos == null) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(postVos);
+        return ResponseEntity.ok().body(PostApiStatus.SUCCESS.response(postVos));
     }
 
     /**
@@ -82,9 +78,9 @@ public class PostController {
      * @return 返回最新的帖子对象列表
      */
     @GetMapping("/new")
-    public ResponseEntity<Page<PostDetailVo>> getNewPosts(@RequestParam int pageNum, @RequestParam int pageSize) {
+    public ResponseEntity<?> getNewPosts(@RequestParam int pageNum, @RequestParam int pageSize) {
         Page<PostDetailVo> postVos = postQueryService.getNewPosts(pageNum, pageSize);
-        return ResponseEntity.ok(postVos);
+        return ResponseEntity.ok().body(PostApiStatus.SUCCESS.response(postVos));
     }
 
     /**
@@ -98,7 +94,19 @@ public class PostController {
     public ResponseEntity<?> getPost(@PathVariable Long id) {
         Long userId = SecurityUtils.getCurrentUserId();
         PostDetailVo post = postQueryService.getPostById(id,userId);
-        return ResponseEntity.ok(post);
+        return ResponseEntity.ok().body(PostApiStatus.SUCCESS.response(post));
+    }
+
+    /**
+     * 根据ID列表批量获取帖子
+     * POST /api/post/batch
+     *
+     * @param ids 帖子ID列表
+     * @return 返回帖子ID到帖子详情的映射
+     */
+    @PostMapping("/batch")
+    public List<PostDetailVo> getPostsByIds(@RequestBody List<Long> ids) {
+        return postQueryService.getPostsByIds(ids);
     }
 
     /**
@@ -115,7 +123,7 @@ public class PostController {
             @RequestBody PostDto postDto) {
         Long userId = SecurityUtils.getCurrentUserId();
         postCommandService.updatePost(id, userId, postDto);
-        return ResponseEntity.ok(PostApiStatus.UPDATE_SUCCESS.response());
+        return ResponseEntity.ok().body(PostApiStatus.UPDATE_SUCCESS.response());
     }
 
     /**
@@ -129,21 +137,6 @@ public class PostController {
     public ResponseEntity<?> deletePost(@PathVariable Long id) {
         Long userId = SecurityUtils.getCurrentUserId();
         postCommandService.deletePost(id, userId);
-        return ResponseEntity.ok(PostApiStatus.DELETE_SUCCESS.response());
-    }
-
-    /**
-     * 监听帖子行为消息，异步更新统计数据
-     */
-    @RabbitListener(queues = MQueue.POST_ACTION_QUEUE)
-    public void handlePostAction(PostActionMessage message) {
-        try {
-            log.info("收到帖子行为消息: userId={}, postId={}, action={}, increment={}", 
-                    message.getUserId(), message.getPostId(), message.getAction(), message.getIncrement());
-            // 更新帖子统计信息
-            postCommandService.updateStats(message.getPostId(), message.getAction(), message.getIncrement());
-        } catch (Exception e) {
-            log.error("处理帖子行为消息失败", e);
-        }
+        return ResponseEntity.ok().body(PostApiStatus.DELETE_SUCCESS.response());
     }
 }

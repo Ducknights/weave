@@ -11,7 +11,7 @@ public interface PostCommandService extends IService<Post> {
 
     void deletePost(Long id, Long userId);
 
-    void incrementViewCount(Long id, Long userId);
+    void addToHistory(Long id, Long userId);
 
     void like(Long userId, Long postId);
 
@@ -21,7 +21,5 @@ public interface PostCommandService extends IService<Post> {
 
     void uncollect(Long userId, Long postId);
 
-    void sharePost(Long userId, Long postId);
-
-    void updateStats(Long postId, String action, boolean increment);
+    void updateStats(Long postId, String action);
 }
