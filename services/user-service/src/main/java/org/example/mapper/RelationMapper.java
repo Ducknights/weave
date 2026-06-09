@@ -23,14 +23,14 @@ public interface RelationMapper extends BaseMapper<UserRelations> {
                 .eq(UserRelations::getType, dto.type()));
     }
 
-    default Set<Long> getRecord(RelationDto dto, int page, int size){
+    default List<Long> getRecord(RelationDto dto, int page, int size){
         IPage<UserRelations> iPage = selectPage(new Page<>(page, size),
                 new LambdaQueryWrapper<UserRelations>()
                         .eq(UserRelations::getUserId, dto.userId())
                         .eq(dto.targetId() != null, UserRelations::getTargetId, dto.targetId())
                         .eq(dto.type() != null, UserRelations::getType, dto.type())
                         .orderByDesc(UserRelations::getCreatedTime));
-        return iPage.getRecords().stream().map(UserRelations::getTargetId).collect(Collectors.toCollection(LinkedHashSet::new));
+        return iPage.getRecords().stream().map(UserRelations::getTargetId).collect(Collectors.toList());
     }
 
     default Set<Long> getAllTargetIdsByUserAndType(RelationDto dto) {

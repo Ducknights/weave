@@ -6,14 +6,14 @@ import lombok.Getter;
 
 
 /**
- * 动作枚举类，表示用户可能执行的动作，如点赞、收藏、分享等。
+ * 动作枚举类，表示用户可能执行的动作，如点赞、收藏等。
  */
 
 @Getter
 public enum ActionEnum {
     LIKE(1,"点赞"),
     COLLECT(2,"收藏"),
-    SHARE(3,"分享");
+    VIEW(3,"浏览");
 
     @EnumValue
     private final int code;

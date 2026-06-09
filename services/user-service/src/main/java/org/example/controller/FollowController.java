@@ -8,6 +8,7 @@ import org.example.util.SecurityUtils;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Set;
 
 import static org.example.model.eunms.RelationEnum.FOLLOW;
@@ -44,8 +45,8 @@ public class FollowController {
      * 分页查询用户关注列表
      */
     @GetMapping()
-    public Set<Long> getUserFollowers(@RequestParam(defaultValue = "0") Integer page,
-                                      @RequestParam(defaultValue = "20") Integer size) {
+    public List<Long> getUserFollowers(@RequestParam(defaultValue = "0") Integer page,
+                                       @RequestParam(defaultValue = "20") Integer size) {
         Long userId = SecurityUtils.getCurrentUserId();
         RelationDto dto = new RelationDto(userId, null, FOLLOW);
         return relationService.getRecord(dto, page, size);

@@ -1,6 +1,6 @@
 package org.example.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.annotation.Resource;
 import lombok.extern.log4j.Log4j2;
 import org.example.constant.CacheKey;
@@ -31,7 +31,7 @@ import java.util.concurrent.TimeUnit;
 
 @Log4j2
 @Service
-public class UserInfoServiceImpl implements UserInfoService {
+public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> implements UserInfoService {
 
     @Resource
     private UserInfoMapper userInfoMapper;
@@ -54,7 +54,7 @@ public class UserInfoServiceImpl implements UserInfoService {
         }
 
         Map<Long, UserBriefDto> result = new HashMap<>();
-        Set<Long> idsToQuery = new HashSet<>();
+        Set<Long> needQueryIds = new HashSet<>();
 
         // 从缓存中获取用户信息
         ids.forEach(id -> {
@@ -66,18 +66,16 @@ public class UserInfoServiceImpl implements UserInfoService {
                 result.put(id, cachedUser);
             } else {
                 // 缓存未命中，需要从数据库中查询的id
-                idsToQuery.add(id);
+                needQueryIds.add(id);
             }
         });
 
-        if (!idsToQuery.isEmpty()) {
+        if (!needQueryIds.isEmpty()) {
             // 从数据库中查询
-            List<UserInfo> userList = userInfoMapper.selectList(
-                new LambdaQueryWrapper<UserInfo>().in(UserInfo::getId, idsToQuery)
-            );
+            List<UserInfo> userList = this.listByIds(needQueryIds);
             
             // 记录未找到的用户ID
-            Set<Long> notFoundIds = new HashSet<>(idsToQuery);
+            Set<Long> notFoundIds = new HashSet<>(needQueryIds);
             
             // 处理查询到的用户
             if (userList != null && !userList.isEmpty()) {
@@ -181,7 +179,7 @@ public class UserInfoServiceImpl implements UserInfoService {
                 String key = switch (action) {
                     case LIKE -> CacheKey.buildCacheKey(CacheKey.USER_LIKED_POSTS, userId);
                     case COLLECT -> CacheKey.buildCacheKey(CacheKey.USER_COLLECTED_POSTS, userId);
-                    case SHARE -> CacheKey.buildCacheKey(CacheKey.USER_SHARED_POSTS, userId);
+                    case VIEW -> CacheKey.buildCacheKey(CacheKey.USER_VIEWED_POSTS, userId);
                 };
                 try {
                     redisTemplate.opsForSet().add(key, postIds.toArray(new Long[0]), 1, TimeUnit.DAYS);

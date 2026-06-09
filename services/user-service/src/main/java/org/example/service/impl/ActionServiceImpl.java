@@ -7,6 +7,7 @@ import org.example.model.dto.ActionDto;
 import org.example.model.entity.UserActions;
 import org.example.mapper.ActionMapper;
 import org.example.service.ActionService;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -27,7 +28,9 @@ public class ActionServiceImpl implements ActionService {
     public void addRecord(ActionDto dto) {
         UserActions userActions = new UserActions(null, dto.userId(), dto.targetId(), dto.type(), LocalDateTime.now());
         try {
+            // 添加记录
             actionMapper.insert(userActions);
+            // 删除缓存
             redisTemplate.delete(buildCacheKey(dto));
         } catch (DuplicateKeyException e) {
             log.error("重复添加记录", e);
@@ -39,7 +42,9 @@ public class ActionServiceImpl implements ActionService {
     @Override
     public void deleteRecord(ActionDto dto) {
         try {
+            // 删除记录
             actionMapper.deleteRecord(dto);
+            // 删除缓存
             redisTemplate.delete(buildCacheKey(dto));
         } catch (Exception e) {
             log.error("删除记录时发生错误", e);
@@ -59,7 +64,7 @@ public class ActionServiceImpl implements ActionService {
         return switch (dto.type()) {
             case LIKE -> CacheKey.buildCacheKey(CacheKey.USER_LIKED_POSTS, dto.userId());
             case COLLECT -> CacheKey.buildCacheKey(CacheKey.USER_COLLECTED_POSTS, dto.userId());
-            case SHARE -> CacheKey.buildCacheKey(CacheKey.USER_SHARED_POSTS, dto.userId());
+            case VIEW -> CacheKey.buildCacheKey(CacheKey.USER_VIEWED_POSTS, dto.userId());
         };
     }
 }

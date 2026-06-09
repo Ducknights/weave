@@ -13,7 +13,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.Set;
+import java.util.List;
 
 @Log4j2
 @Service
@@ -44,8 +44,8 @@ public class RelationServiceImpl implements RelationService {
     }
 
     @Override
-    public Set<Long> getRecord(RelationDto dto, int page, int size) {
-        Set<Long> result = relationMapper.getRecord(dto, page, size);
+    public List<Long> getRecord(RelationDto dto, int page, int size) {
+        List<Long> result = relationMapper.getRecord(dto, page, size);
         if (!result.isEmpty()) {
             redisTemplate.opsForSet().add(buildCacheKey(dto), result.toArray(new Long[0]));
         }

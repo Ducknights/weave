@@ -16,7 +16,7 @@ import java.util.Set;
 
 @Log4j2
 @RestController
-@RequestMapping("/api/user")
+@RequestMapping("/api/user/info")
 public class UserInfoController {
 
     @Resource
