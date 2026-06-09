@@ -1,19 +1,27 @@
 package org.example.service.impl;
 
 import lombok.extern.log4j.Log4j2;
+import org.example.model.dto.SearchResultDto;
 import org.example.model.entity.SearchDocument;
 import org.example.repository.SearchDocumentRepository;
 import org.example.service.SearchService;
+import org.jetbrains.annotations.NotNull;
+import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
+import co.elastic.clients.elasticsearch._types.query_dsl.MatchQuery;
+import co.elastic.clients.elasticsearch._types.query_dsl.Query;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.elasticsearch.client.elc.NativeQuery;
+import org.springframework.data.elasticsearch.client.elc.NativeQueryBuilder;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.elasticsearch.core.SearchHits;
-import org.springframework.data.elasticsearch.core.query.StringQuery;
-import org.springframework.stereotype.Service;
 
 import jakarta.annotation.Resource;
+import org.springframework.stereotype.Service;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 搜索服务实现
@@ -22,89 +30,61 @@ import java.util.Map;
 @Log4j2
 @Service
 public class SearchServiceImpl implements SearchService {
-    
+
     @Resource
     private SearchDocumentRepository searchDocumentRepository;
-    
+
     @Resource
     private ElasticsearchOperations elasticsearchOperations;
 
     @Override
-    public Map<String, Object> search(String keyword, String type, int page, int size) {
-        log.info("执行搜索: keyword={}, type={}, page={}, size={}", keyword, type, page, size);
-        
-        List<Map<String, Object>> results = searchForFeign(keyword, type, page, size);
-        
-        Map<String, Object> searchResults = new HashMap<>();
-        searchResults.put("total", results.size());
-        searchResults.put("items", results);
-        searchResults.put("page", page);
-        searchResults.put("size", size);
-        searchResults.put("keyword", keyword);
-        searchResults.put("type", type);
-        
-        return searchResults;
+    public List<SearchResultDto> search(String keyword, int page, int size) {
+        log.info("执行搜索: keyword={}, page={}, size={}", keyword, page, size);
+
+        NativeQuery query = buildSearchQuery(keyword, page, size);
+        SearchHits<SearchDocument> searchHits = elasticsearchOperations.search(query, SearchDocument.class);
+
+        List<SearchResultDto> results = new ArrayList<>();
+        searchHits.forEach(hit -> {
+            SearchResultDto result = SearchResultDto.builder()
+                    .id(Long.valueOf(hit.getId()))
+                    .score(hit.getScore())
+                    .build();
+            results.add(result);
+        });
+
+        return results;
     }
 
-    @Override
-    public List<Map<String, Object>> searchForFeign(String keyword, String type, int page, int size) {
-        log.info("Feign搜索: keyword={}, type={}, page={}, size={}", keyword, type, page, size);
-        
-        StringQuery query = new StringQuery(
-                "{" +
-                "  \"bool\": {" +
-                "    \"should\": [" +
-                "      {\"match\": {\"content\": {\"query\": \"" + keyword + "\", \"fuzziness\": \"AUTO\"}}}," +
-                "      {\"match\": {\"title\": {\"query\": \"" + keyword + "\"}}}" +
-                "    ]" +
-                "  }" +
-                "}"
-        );
+    private @NotNull NativeQuery buildSearchQuery(String keyword, int page, int size) {
+        BoolQuery.Builder boolQueryBuilder = new BoolQuery.Builder();
 
-        if (type != null && !type.isEmpty()) {
-            query = new StringQuery(
-                    "{" +
-                    "  \"bool\": {" +
-                    "    \"should\": [" +
-                    "      {\"match\": {\"content\": {\"query\": \"" + keyword + "\", \"fuzziness\": \"AUTO\"}}}," +
-                    "      {\"match\": {\"title\": {\"query\": \"" + keyword + "\"}}}" +
-                    "    ]," +
-                    "    \"must\": [" +
-                    "      {\"match\": {\"type\": \"" + type + "\"}}" +
-                    "    ]" +
-                    "  }" +
-                    "}"
-            );
-        }
+        boolQueryBuilder.should(MatchQuery.of(m -> m
+                .field("content")
+                .query(keyword)
+                .fuzziness("AUTO"))._toQuery());
 
-        SearchHits<SearchDocument> searchHits = elasticsearchOperations.search(query, SearchDocument.class);
+        boolQueryBuilder.should(MatchQuery.of(m -> m
+                .field("title")
+                .query(keyword))._toQuery());
+
+        boolQueryBuilder.minimumShouldMatch("1");
         
-        List<Map<String, Object>> results = new ArrayList<>();
-        searchHits.forEach(hit -> {
-            Map<String, Object> item = new HashMap<>();
-            item.put("id", hit.getId());
-            item.put("type", hit.getContent().getType());
-            item.put("targetId", hit.getContent().getTargetId());
-            item.put("title", hit.getContent().getTitle());
-            item.put("content", hit.getContent().getContent());
-            item.put("author", hit.getContent().getAuthor());
-            item.put("authorId", hit.getContent().getAuthorId());
-            item.put("createdAt", hit.getContent().getCreatedAt());
-            item.put("score", hit.getScore());
-            results.add(item);
-        });
+        Query query = Query.of(q -> q.bool(boolQueryBuilder.build()));
         
-        return results;
+        Pageable pageable = PageRequest.of(page - 1, size);
+        
+        return new NativeQueryBuilder()
+                .withQuery(query)
+                .withPageable(pageable)
+                .build();
     }
 
     @Override
     public boolean indexContent(SearchDocument document) {
         try {
-            log.info("索引内容: type={}, targetId={}, title={}", 
-                    document.getType(), document.getTargetId(), document.getTitle());
-            
-            String documentId = document.getType() + "_" + document.getTargetId();
-            document.setId(documentId);
+            log.info("索引内容: id={}, title={}", 
+                    document.getId(), document.getTitle());
             
             searchDocumentRepository.save(document);
             return true;
@@ -117,10 +97,7 @@ public class SearchServiceImpl implements SearchService {
     @Override
     public boolean updateIndex(SearchDocument document) {
         try {
-            log.info("更新索引: type={}, targetId={}", document.getType(), document.getTargetId());
-            
-            String documentId = document.getType() + "_" + document.getTargetId();
-            document.setId(documentId);
+            log.info("更新索引: id={}", document.getId());
             
             searchDocumentRepository.save(document);
             return true;
@@ -129,13 +106,13 @@ public class SearchServiceImpl implements SearchService {
             return false;
         }
     }
-    
+
+    // TODO: 实现逻辑删除
     @Override
-    public boolean deleteIndex(String type, Long id) {
+    public boolean deleteIndex(Long id) {
         try {
-            log.info("删除索引: type={}, id={}", type, id);
-            String documentId = type + "_" + id;
-            searchDocumentRepository.deleteById(documentId);
+            log.info("删除索引: id={}", id);
+            searchDocumentRepository.deleteById(id);
             return true;
         } catch (Exception e) {
             log.error("删除索引失败: {}", e.getMessage(), e);
@@ -144,10 +121,9 @@ public class SearchServiceImpl implements SearchService {
     }
     
     @Override
-    public SearchDocument getIndex(String type, Long id) {
+    public SearchDocument getIndex(Long id) {
         try {
-            String documentId = type + "_" + id;
-            return searchDocumentRepository.findById(documentId).orElse(null);
+            return searchDocumentRepository.findById(id).orElse(null);
         } catch (Exception e) {
             log.error("获取索引失败: {}", e.getMessage(), e);
             return null;

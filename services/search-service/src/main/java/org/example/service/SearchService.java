@@ -1,9 +1,9 @@
 package org.example.service;
 
+import org.example.model.dto.SearchResultDto;
 import org.example.model.entity.SearchDocument;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * 搜索服务接口
@@ -15,24 +15,12 @@ public interface SearchService {
      * 搜索内容
      *
      * @param keyword 搜索关键词
-     * @param type 搜索类型
      * @param page 页码
      * @param size 每页大小
-     * @return 搜索结果
+     * @return 搜索结果（仅包含ID和分数，以及总数）
      */
-    Map<String, Object> search(String keyword, String type, int page, int size);
+    List<SearchResultDto> search(String keyword, int page, int size);
 
-    /**
-     * 搜索内容（返回 Map 列表，用于 Feign 调用）
-     *
-     * @param keyword 搜索关键词
-     * @param type 搜索类型
-     * @param page 页码
-     * @param size 每页大小
-     * @return 搜索结果列表
-     */
-    List<Map<String, Object>> searchForFeign(String keyword, String type, int page, int size);
-    
     /**
      * 索引内容（用于将内容添加到搜索索引）
      *
@@ -52,20 +40,18 @@ public interface SearchService {
     /**
      * 删除索引
      *
-     * @param type 内容类型
      * @param id 内容ID
      * @return 是否删除成功
      */
-    boolean deleteIndex(String type, Long id);
+    boolean deleteIndex(Long id);
     
     /**
-     * 根据类型和ID获取索引文档
+     * 根据ID获取索引文档
      *
-     * @param type 内容类型
      * @param id 内容ID
      * @return 搜索文档
      */
-    SearchDocument getIndex(String type, Long id);
+    SearchDocument getIndex(Long id);
     
     /**
      * 批量索引内容
