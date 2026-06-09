@@ -1,0 +1,27 @@
+package org.example.controller;
+
+import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
+import org.example.model.enums.RecommendApiStatus;
+import org.example.service.RecommendService;
+import org.example.util.SecurityUtils;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@Slf4j
+@RestController
+@RequestMapping("/api/recommend")
+public class RecommendController {
+
+    @Resource
+    private RecommendService recommendService;
+
+    @GetMapping("/post")
+    public List<Long> getRecommendations(@RequestParam(defaultValue = "10") int limit) {
+        Long userId = SecurityUtils.getCurrentUserId();
+        log.info("用户 {} 请求推荐，限制数量: {}", userId, limit);
+        return recommendService.recommend(userId, limit);
+    }
+}
