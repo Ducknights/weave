@@ -21,7 +21,7 @@ spring:
         - id: post-service
           uri: lb://post-service
           predicates:
-            - Path=/api/post/**
+            - Path=/api/post/**,/api/posts/**
 
         - id: club-service
           uri: lb://club-service
@@ -31,4 +31,19 @@ spring:
         - id: user-service
           uri: lb://user-service
           predicates:
-            - Path=/api/user/**
+            - Path=/api/user/**,/api/users/**
+
+        - id: comment-service
+          uri: lb://comment-service
+          predicates:
+            - Path=/api/comments/**
+
+        - id: recommend-service
+          uri: lb://recommend-service
+          predicates:
+            - Path=/api/recommend/**
+
+        - id: search-service
+          uri: lb://search-service
+          predicates:
+            - Path=/api/search/**

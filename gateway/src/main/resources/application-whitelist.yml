@@ -2,9 +2,10 @@ spring:
   whitelist:
     paths:
       - /api/auth/login
-      - /api/auth/register
-      - /api/auth/logout
-      - /api/resources
-      - /api/clubs/**
-      - /api/resources/presign
-      - /api/posts
+      - /api/auth/register/**
+      - /api/club/**
+      - /api/post/**
+      - /api/posts/files/**
+      - /api/user/info/**
+      - /api/users/avatar/**
+      - /api/search/**
