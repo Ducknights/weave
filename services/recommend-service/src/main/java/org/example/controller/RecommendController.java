@@ -2,10 +2,8 @@ package org.example.controller;
 
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.example.model.enums.RecommendApiStatus;
 import org.example.service.RecommendService;
 import org.example.util.SecurityUtils;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;

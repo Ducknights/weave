@@ -126,9 +126,9 @@ public class RedisConfig {
         configMap.put(CacheKey.POST, defaultConfig.entryTtl(Duration.ofDays(1)));   // 社区帖子
         configMap.put(CacheKey.POST_DETAIL, defaultConfig.entryTtl(Duration.ofDays(1)));    // 社区帖子详情
         // 用户行为相关
+        configMap.put(CacheKey.USER_VIEWED_POSTS, defaultConfig.entryTtl(Duration.ofDays(1)));  // 用户查看
         configMap.put(CacheKey.USER_LIKED_POSTS, defaultConfig.entryTtl(Duration.ofDays(1)));   // 用户点赞
         configMap.put(CacheKey.USER_COLLECTED_POSTS, defaultConfig.entryTtl(Duration.ofDays(1)));   // 用户收藏
-        configMap.put(CacheKey.USER_SHARED_POSTS, defaultConfig.entryTtl(Duration.ofDays(1)));   // 用户分享
         configMap.put(CacheKey.USER_FOLLOWERS, defaultConfig.entryTtl(Duration.ofDays(1)));   // 用户关注
         configMap.put(CacheKey.USER_MUTED_USERS, defaultConfig.entryTtl(Duration.ofDays(1)));   // 用户静音
         configMap.put(CacheKey.USER_BLOCKED_USERS, defaultConfig.entryTtl(Duration.ofDays(1)));   // 用户封禁

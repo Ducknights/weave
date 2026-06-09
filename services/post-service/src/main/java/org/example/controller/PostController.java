@@ -3,20 +3,16 @@ package org.example.controller;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import jakarta.annotation.Resource;
 import lombok.extern.log4j.Log4j2;
-import org.example.constant.MQueue;
-import org.example.model.PostActionMessage;
 import org.example.model.dto.PostDto;
 import org.example.model.enums.PostApiStatus;
 import org.example.dto.PostDetailVo;
 import org.example.service.PostCommandService;
 import org.example.service.PostQueryService;
 import org.example.util.SecurityUtils;
-import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 @Log4j2
 @RestController

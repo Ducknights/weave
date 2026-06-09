@@ -4,7 +4,6 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.example.dto.PostDetailVo;
 
 import java.util.List;
-import java.util.Map;
 
 public interface PostQueryService {
     List<PostDetailVo> getRecommendPosts(Long userId);
