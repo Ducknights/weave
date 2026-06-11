@@ -21,8 +21,6 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-
 @Log4j2
 @Service
 @Transactional
@@ -57,12 +55,14 @@ public class PostCommandServiceImpl extends ServiceImpl<PostMapper, Post> implem
         // 获取帖子ID
         Long postId = post.getPostId();
         // 插入帖子图片
-        for (String coverImage : postDto.getCoverImage()) {
-            PostResource postResource = PostResource.builder()
-                    .postId(postId)
-                    .resourcePath(coverImage)
-                    .build();
-            postResourceMapper.insert(postResource);
+        if (postDto.getCoverImage() != null) {
+            for (String coverImage : postDto.getCoverImage()) {
+                PostResource postResource = PostResource.builder()
+                        .postId(postId)
+                        .resourcePath(coverImage)
+                        .build();
+                postResourceMapper.insert(postResource);
+            }
         }
         // 发送同步消息
         sendPostSyncMessage(PostOperation.CREATE, post);
@@ -173,6 +173,7 @@ public class PostCommandServiceImpl extends ServiceImpl<PostMapper, Post> implem
         }
 
         // 发送消息到 MQ（异步处理）
+        log.info("发送帖子行为消息: userId={}, postId={}, operation={}", userId, postId, actionType.getOperation());
         sendPostActionMessage(userId, postId, actionType.getOperation());
     }
 

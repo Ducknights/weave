@@ -9,7 +9,6 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 @SpringBootApplication
 @EnableDiscoveryClient
 @EnableFeignClients
-@MapperScan("org.example.mapper")
 public class PostMainApplication {
     public static void main(String[] args) {
         SpringApplication.run(PostMainApplication.class, args);

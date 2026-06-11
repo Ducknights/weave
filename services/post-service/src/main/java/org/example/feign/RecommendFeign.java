@@ -9,6 +9,6 @@ import java.util.List;
 @FeignClient(name = "recommend-service")
 public interface RecommendFeign {
 
-    @GetMapping("/api/recommend")
+    @GetMapping("/api/recommend/post")
     List<Long> getRecommendations(@RequestParam(defaultValue = "10") int limit);
 }

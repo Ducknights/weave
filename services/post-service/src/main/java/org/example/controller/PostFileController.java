@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/posts/files")
+@RequestMapping("/api/post/files")
 public class PostFileController {
 
     private final FileService fileService;
@@ -51,7 +51,7 @@ public class PostFileController {
      * @param expiry 有效期（秒），默认3600秒
      * @return 文件路径与预签名URL的映射
      */
-    @GetMapping("/urls")
+    @GetMapping("/url/batch")
     public ResponseEntity<?> getFileUrls(
             @RequestParam List<String> paths,
             @RequestParam(defaultValue = "3600") int expiry) {

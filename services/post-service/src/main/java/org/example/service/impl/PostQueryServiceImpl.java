@@ -66,6 +66,7 @@ public class PostQueryServiceImpl extends ServiceImpl<PostMapper, Post> implemen
             log.error("Redis挂了？Post ID: {}", id, e);
         }
         // 从数据库获取帖子
+        log.info("从数据库获取帖子");
         Post post = postMapper.selectById(id);
         if (post == null) {
             throw new RuntimeException("内容不存在");

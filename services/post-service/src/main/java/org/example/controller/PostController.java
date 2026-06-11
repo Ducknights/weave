@@ -100,7 +100,7 @@ public class PostController {
      * @param ids 帖子ID列表
      * @return 返回帖子ID到帖子详情的映射
      */
-    @PostMapping("/batch")
+    @GetMapping("/batch")
     public List<PostDetailVo> getPostsByIds(@RequestBody List<Long> ids) {
         return postQueryService.getPostsByIds(ids);
     }

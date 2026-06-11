@@ -21,7 +21,7 @@ public class PostActionMessageConsumer {
     /**
      * 监听帖子行为消息，异步更新统计数据
      */
-    @RabbitListener(queues = MQueue.POST_ACTION_QUEUE)
+    @RabbitListener(queues = MQueue.POST_ACTION_QUEUE_1)
     public void handlePostAction(PostActionMessage message) {
         try {
             log.info("收到帖子行为消息: userId={}, postId={}, action={}",
