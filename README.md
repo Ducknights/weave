@@ -1,4 +1,4 @@
-# Graduation-Design
+# weave (纹理)
 
 基于 Spring Cloud 微服务架构的校园社交平台，提供用户认证、帖子发布、评论互动、社团管理、实时聊天、全文搜索与个性化推荐等功能。
 
@@ -25,7 +25,7 @@
 ## 项目结构
 
 ```
-Graduation-Design-java/
+weave-java/
 ├── gateway/                          # API 网关
 │   └── src/main/java/org/example/
 │       ├── filter/JwtFilter.java     # JWT 认证过滤器
@@ -162,8 +162,8 @@ Graduation-Design-java/
 
 按照各服务配置创建对应的 MySQL 数据库：
 
-- `graduation-design-user`
-- `graduation-design-recommend`
+- `weave-user`
+- `weave-recommend`
 
 ### 3. 启动服务
 
@@ -178,22 +178,22 @@ mvn spring-boot:run
 
 各服务默认端口：
 
-| 服务              | 端口 |
-| ----------------- | ---- |
-| gateway           | 8080 |
-| auth-service      | 4000 |
-| user-service      | 4100 |
-| post-service      | 4102 |
-| comment-service   | 4103 |
-| club-service      | 4104 |
-| search-service    | 4040 |
-| recommend-service | 4105 |
-| chat-service      | 4106 |
-| captcha-service   | 4107 |
+| 服务                    | 端口   |
+|:----------------------|:-----|
+| gateway               | 80   |
+| auth-service          | 4000 |
+| captcha-service       | 4200 |
+| post-service          | 4700 |
+| comment-service       | 4400 |
+| club-service          | 4500 |
+| search-service        | 4600 |
+| recommend-service     | 4800 |
+| chat-service          | 4300 |
+| user-service          | 4100 |
 
 ### 4. 访问
 
-所有 API 通过网关统一入口访问：`http://localhost:8080/api/{service}/**`
+所有 API 通过网关统一入口访问：`http://localhost/api/**`
 
 ## API 响应规范
 

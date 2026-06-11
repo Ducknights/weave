@@ -9,13 +9,13 @@
         <relativePath/>
     </parent>
     <groupId>org.example</groupId>
-    <artifactId>Graduation-Design-java</artifactId>
+    <artifactId>weave</artifactId>
     <version>0.0.1-SNAPSHOT</version>
 
     <packaging>pom</packaging>
 
-    <name>Graduation-Design</name>
-    <description>Graduation-Design</description>
+    <name>weave</name>
+    <description>weave</description>
     <modules>
         <module>gateway</module>
         <module>infrastructure</module>
