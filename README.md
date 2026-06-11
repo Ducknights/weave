@@ -76,11 +76,11 @@ weave-java/
 
 #### auth-service（认证服务）
 
-- POST `/api/auth/login` — 账号密码登录
-- POST `/api/auth/register/sendCode` — 发送注册验证码
-- POST `/api/auth/register/verifyCode` — 验证码校验并注册
-- POST `/api/auth/logout` — 退出登录
-- POST `/api/auth/access` — 刷新 Token
+- 账号密码登录
+- 发送注册验证码
+- 验证码校验并注册
+- 退出登录
+- 刷新 Token
 
 #### user-service（用户服务）
 
@@ -163,6 +163,10 @@ weave-java/
 按照各服务配置创建对应的 MySQL 数据库：
 
 - `weave-user`
+- `weave-auth`
+- `weave-post`
+- `weave-club`
+- `weave-chat`
 - `weave-recommend`
 
 ### 3. 启动服务
