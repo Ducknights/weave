@@ -86,44 +86,40 @@ public class RabbitMQConfig {
                 .with(MQueue.CAPTCHA_ROUTING_KEY);
     }
 
-    // 认证队列
-    @Bean
-    public Queue authQueue() {
-        return QueueBuilder.durable(MQueue.AUTH_QUEUE)
-                .withArgument("x-message-ttl", 300000)
-                .build();
-    }
-    @Bean
-    public Binding authBinding(Queue authQueue, TopicExchange topicExchange) {
-        return BindingBuilder.bind(authQueue)
-                .to(topicExchange)
-                .with(MQueue.AUTH_QUEUE_KEY);
-    }
-
     // 帖子行为队列
     @Bean
-    public Queue postActionQueue() {
-        return QueueBuilder.durable(MQueue.POST_ACTION_QUEUE)
+    public Queue postActionQueue1() {
+        return QueueBuilder.durable(MQueue.POST_ACTION_QUEUE_1)
                 .withArgument("x-message-ttl", 300000)
                 .build();
     }
     @Bean
-    public Binding postActionBinding(Queue postActionQueue, TopicExchange topicExchange) {
-        return BindingBuilder.bind(postActionQueue)
+    public Binding postActionBinding(Queue postActionQueue1, TopicExchange topicExchange) {
+        return BindingBuilder.bind(postActionQueue1)
                 .to(topicExchange)
                 .with(MQueue.POST_ACTION_ROUTING_KEY);
     }
-
-    //用户帖子交互队列
     @Bean
-    public Queue userPostInteractionQueue() {
-        return QueueBuilder.durable(MQueue.USER_POST_INTERACTION_QUEUE)
+    public Queue postActionQueue2() {
+        return QueueBuilder.durable(MQueue.POST_ACTION_QUEUE_2)
                 .withArgument("x-message-ttl", 300000)
                 .build();
     }
     @Bean
-    public Binding userPostInteractionBinding(Queue userPostInteractionQueue, TopicExchange topicExchange) {
-        return BindingBuilder.bind(userPostInteractionQueue)
+    public Binding postActionBinding2(Queue postActionQueue2, TopicExchange topicExchange) {
+        return BindingBuilder.bind(postActionQueue2)
+                .to(topicExchange)
+                .with(MQueue.POST_ACTION_ROUTING_KEY);
+    }
+    @Bean
+    public Queue postActionQueue3() {
+        return QueueBuilder.durable(MQueue.POST_ACTION_QUEUE_3)
+                .withArgument("x-message-ttl", 300000)
+                .build();
+    }
+    @Bean
+    public Binding postActionBinding3(Queue postActionQueue3, TopicExchange topicExchange) {
+        return BindingBuilder.bind(postActionQueue3)
                 .to(topicExchange)
                 .with(MQueue.POST_ACTION_ROUTING_KEY);
     }

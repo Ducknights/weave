@@ -16,21 +16,6 @@ public class MQUtil {
     private RabbitTemplate rabbitTemplate;
 
     /**
-     * 发送消息到指定路由键
-     */
-    public void send(String routingKey, Object message) {
-        try {
-            rabbitTemplate.convertAndSend(
-                    MQueue.TOPIC_EXCHANGE,
-                    routingKey,
-                    message
-            );
-        } catch (Exception e) {
-            log.error("发送消息失败，routingKey={}", routingKey, e);
-        }
-    }
-
-    /**
      * 发送验证码邮件的方法
      * 使用RabbitMQ消息队列发送验证码邮件
      * @param email 接收验证码的邮箱地址
@@ -48,30 +33,13 @@ public class MQUtil {
     }
 
     /**
-     * 用户修改信息
-     *
-     */
-    // TODO:未来可期
-    public void sendAuthUpdate(UserBriefDto dto){
-        try{
-            rabbitTemplate.convertAndSend(
-                    MQueue.TOPIC_EXCHANGE,
-                    MQueue.AUTH_QUEUE_KEY,
-                    dto
-            );
-        }catch (Exception e){
-            log.error("{}登录时的基本信息更新失败",dto.getId(),e);
-        }
-    }
-
-    /**
      * 同步 mySQL中的数据到 ES
      */
     public void sendSyncToES(Object object){
         try{
             rabbitTemplate.convertAndSend(
                     MQueue.TOPIC_EXCHANGE,
-                    MQueue.AUDIT_ROUTING_KEY,
+                    MQueue.POST_SYNC_ROUTING_KEY,
                     object
             );
         }catch (Exception e){
@@ -79,6 +47,9 @@ public class MQUtil {
         }
     }
 
+    /**
+     * 发送帖子行为消息
+     */
     public void sendToPostAction(PostActionMessage message) {
         try{
             rabbitTemplate.convertAndSend(
@@ -91,6 +62,9 @@ public class MQUtil {
         }
     }
 
+    /**
+     * 发送用户登录事件
+     */
     public void sendUserLoginEvent(Long userId) {
         try{
             rabbitTemplate.convertAndSend(
