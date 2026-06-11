@@ -15,6 +15,6 @@ public interface UserInfoFeign {
      * @param userIds 用户ID集合
      * @return 用户信息Map，key为用户ID，value为用户信息
      */
-    @PostMapping("/batch")
+    @PostMapping("/api/user/info/batch")
     Map<Long, UserBriefDto> getUserInfosByIds(@RequestBody Set<Long> userIds);
 }
