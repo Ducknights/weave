@@ -1,11 +1,16 @@
 spring:
   whitelist:
     paths:
-      - /api/auth/login
-      - /api/auth/register/**
-      - /api/club/**
-      - /api/post/**
-      - /api/posts/files/**
-      - /api/user/info/**
-      - /api/users/avatar/**
-      - /api/search/**
+      # CLUB
+      - GET:/api/club/**
+      # POST
+      - GET:/api/post/**
+      # USER
+      - GET:/api/user/info
+      - GET:/api/user/info/{id}
+      - GET:/api/users/avatar/**
+      # SEARCH
+      - GET:/api/search/**
+      # AUTH
+      - POST:/api/auth/login
+      - POST:/api/auth/register/**

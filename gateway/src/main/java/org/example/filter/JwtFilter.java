@@ -8,12 +8,15 @@ import org.example.exception.TokenVerifyException;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpMethod;
 import org.example.util.JwtUtil;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
+
+import java.util.List;
 
 @Order(2)
 @Slf4j
@@ -22,6 +25,7 @@ public class JwtFilter implements GlobalFilter {
 
     private final GatewayWhitelistProperties whitelistProperties;
     private final AntPathMatcher pathMatcher = new AntPathMatcher();
+    private List<GatewayWhitelistProperties.WhitelistEntry> whitelistEntries;
 
     public JwtFilter(GatewayWhitelistProperties whitelistProperties) {
         this.whitelistProperties = whitelistProperties;
@@ -31,9 +35,10 @@ public class JwtFilter implements GlobalFilter {
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
 
         String path = exchange.getRequest().getPath().value();
-        log.info("请求路径: {}", path);
+        HttpMethod httpMethod = exchange.getRequest().getMethod();
+        log.info("请求路径: {}, 方法: {}", path, httpMethod);
 
-        if (isWhitelist(path)) {
+        if (isWhitelist(path, httpMethod)) {
             log.info("白名单，放行");
             return chain.filter(exchange);
         }
@@ -49,8 +54,8 @@ public class JwtFilter implements GlobalFilter {
         String JWT = token.substring(RequestHeader.BEARER.length());
 
         // 3. 验证并解析 JWT
-        String subject; //RedisKey
-        String userId; //用户ID
+        String subject;
+        String userId;
         try {
             subject = JwtUtil.getJwtSubject(JWT);
             log.info("用户标识信息: {}", subject);
@@ -72,8 +77,15 @@ public class JwtFilter implements GlobalFilter {
         return chain.filter(mutatedExchange);
     }
 
-    private boolean isWhitelist(String path) {
-        return whitelistProperties.getPaths().stream()
-                .anyMatch(pattern -> pathMatcher.match(pattern, path));
+    private boolean isWhitelist(String path, HttpMethod httpMethod) {
+        if (whitelistEntries == null) {
+            whitelistEntries = whitelistProperties.parseEntries();
+        }
+        return whitelistEntries.stream()
+                .anyMatch(entry -> {
+                    boolean methodMatch = entry.method() == null || entry.method() == httpMethod;
+                    boolean pathMatch = pathMatcher.match(entry.pathPattern(), path);
+                    return methodMatch && pathMatch;
+                });
     }
 }
