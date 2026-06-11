@@ -6,7 +6,7 @@ import org.example.service.RelationService;
 import org.example.util.SecurityUtils;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Set;
+import java.util.List;
 
 import static org.example.model.eunms.RelationEnum.MUTE;
 
@@ -41,8 +41,8 @@ public class MuteController {
      * 分页获取被屏蔽的用户
      */
     @GetMapping()
-    public Set<Long> getMutedUsers(@RequestParam(defaultValue = "0") Integer page,
-                                   @RequestParam(defaultValue = "20") Integer size) {
+    public List<Long> getMutedUsers(@RequestParam(defaultValue = "0") Integer page,
+                                    @RequestParam(defaultValue = "20") Integer size) {
         Long userId = SecurityUtils.getCurrentUserId();
         RelationDto dto = new RelationDto(userId, null, MUTE);
         return relationService.getRecord(dto, page, size);

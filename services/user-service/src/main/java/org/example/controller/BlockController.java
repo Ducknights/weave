@@ -6,7 +6,7 @@ import org.example.util.SecurityUtils;
 import org.example.service.RelationService;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Set;
+import java.util.List;
 
 import static org.example.model.eunms.RelationEnum.BLOCK;
 
@@ -49,8 +49,8 @@ public class BlockController {
      * @return List<Long> 返回被屏蔽用户的ID列表
      */
     @GetMapping()
-    public Set<Long> getBlockedUsers(@RequestParam(defaultValue = "0") Integer page,
-                                     @RequestParam(defaultValue = "20") Integer size) {
+    public List<Long> getBlockedUsers(@RequestParam(defaultValue = "0") Integer page,
+                                      @RequestParam(defaultValue = "20") Integer size) {
         Long userId = SecurityUtils.getCurrentUserId();
         RelationDto dto = new RelationDto(userId, null, BLOCK);
         return relationService.getRecord(dto, page, size);

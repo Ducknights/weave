@@ -38,8 +38,9 @@ public class PostActionMessageConsumer {
     );
 
     /** 监听帖子操作队列 */
-    @RabbitListener(queues = MQueue.POST_ACTION_QUEUE)
+    @RabbitListener(queues = MQueue.POST_ACTION_QUEUE_3)
     public void handlePostAction(PostActionMessage message) {
+        log.info("接收到消息: {}", message);
         String action = message.getAction();
         ActionEnum type = ACTION_TYPE_MAP.get(action);
 

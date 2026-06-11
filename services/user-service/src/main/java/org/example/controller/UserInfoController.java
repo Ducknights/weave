@@ -2,13 +2,11 @@ package org.example.controller;
 
 import jakarta.annotation.Resource;
 import lombok.extern.log4j.Log4j2;
-import org.example.constant.MQueue;
 import org.example.dto.AuthUserDto;
 import org.example.dto.UserBriefDto;
 import org.example.model.entity.UserInfo;
 import org.example.service.UserInfoService;
 import org.example.util.SecurityUtils;
-import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -86,11 +84,5 @@ public class UserInfoController {
     public Boolean heartBeat () {
         Long userId = SecurityUtils.getCurrentUserId();
         return userInfoService.refresh(userId);
-    }
-
-    @RabbitListener(queues = MQueue.USER_LOGIN_QUEUE)
-    public void handleUserLogin(Long userId) {
-        log.info("收到用户登录请求{}", userId);
-        userInfoService.cacheUserAction(userId);
     }
 }
