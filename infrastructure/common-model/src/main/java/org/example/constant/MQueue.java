@@ -20,16 +20,13 @@ public class MQueue {
     public static final String RESULT_ROUTING_KEY = "result";
     public static final String RESULT_QUEUE = "result_queue";
 
-    // 认证相关队列
-    public static final String AUTH_QUEUE = "auth_queue";
-    public static final String AUTH_QUEUE_KEY = "auth";
-
     // 帖子行为相关队列
-    public static final String POST_ACTION_QUEUE = "post_action_queue";
     public static final String POST_ACTION_ROUTING_KEY = "post.action";
+    public static final String POST_ACTION_QUEUE_1 = "post_action_queue_1";
+    public static final String POST_ACTION_QUEUE_2 = "post_action_queue_2";
+    public static final String POST_ACTION_QUEUE_3 = "post_action_queue_3";
 
     // 帖子同步相关队列
-    public static final String POST_SYNC_QUEUE = "post_sync_queue";
     public static final String POST_SYNC_ROUTING_KEY = "post.sync";
-    public static final String USER_POST_INTERACTION_QUEUE = "user_post_interaction_queue";
+    public static final String POST_SYNC_QUEUE = "post_sync_queue";
 }
