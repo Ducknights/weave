@@ -38,7 +38,7 @@ public class UserActionMessageConsumer {
     );
 
     /** 监听帖子操作队列 */
-    @RabbitListener(queues = MQueue.POST_ACTION_QUEUE)
+    @RabbitListener(queues = MQueue.POST_ACTION_QUEUE_2)
     public void handlePostAction(PostActionMessage message) {
         String action = message.getAction();
         ActionEnum type = ACTION_TYPE_MAP.get(action);

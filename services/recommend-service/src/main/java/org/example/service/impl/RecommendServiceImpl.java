@@ -46,8 +46,12 @@ public class RecommendServiceImpl implements RecommendService {
      */
     @Override
     public List<Long> recommend(Long userId, int limit) {
+        // 0. 参数校验
+        if (userId == null) {
+            return getHotPostIds(limit);
+        }
         // 1. 获取用户最近的交互帖子（带权重，SQL聚合）
-        Map<Long, Double> recentInteractions = getRecentUserInteractions(userId, RECENT_POST_LIMIT);
+        Map<Long, Double> recentInteractions = getRecentUserInteractions(userId);
 
         // 2. 如果用户没有交互记录，返回热门帖子ID（冷启动处理）
         if (recentInteractions.isEmpty()) {
@@ -203,8 +207,8 @@ public class RecommendServiceImpl implements RecommendService {
     /**
      * 获取用户最近的交互帖子及加权权重
      */
-    private Map<Long, Double> getRecentUserInteractions(Long userId, int limit) {
-        List<Map<Long, Long>> rows = userActionMapper.selectRecentUserInteractions(userId, limit);
+    private Map<Long, Double> getRecentUserInteractions(Long userId) {
+        List<Map<Long, Long>> rows = userActionMapper.selectRecentUserInteractions(userId, RecommendServiceImpl.RECENT_POST_LIMIT);
         Map<Long, Double> result = new HashMap<>();
         for (Map<Long, Long> row : rows) {
             result.put(row.get("targetId"), row.get("weightSum").doubleValue());
