@@ -1,13 +1,16 @@
 package org.example.consumer;
 
 import lombok.extern.log4j.Log4j2;
+import org.example.constant.CacheKey;
 import org.example.constant.MQueue;
 import org.example.constant.PostOperation;
 import org.example.model.PostActionMessage;
 import org.example.model.dto.ActionDto;
 import org.example.model.eunms.ActionEnum;
 import org.example.service.ActionService;
+import org.example.service.UserInfoService;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
@@ -18,16 +21,25 @@ import java.util.Set;
 public class PostActionMessageConsumer {
 
     private final ActionService actionService;
+    private final UserInfoService userInfoService;
+    private final RedisTemplate<String, Object> redisTemplate;
 
-    public PostActionMessageConsumer(ActionService actionService) {
+    public PostActionMessageConsumer(ActionService actionService,
+                                     UserInfoService userInfoService,
+                                     RedisTemplate<String, Object> redisTemplate) {
         this.actionService = actionService;
+        this.userInfoService = userInfoService;
+        this.redisTemplate = redisTemplate;
     }
 
-    /** 操作类型 → ActionEnum 映射（执行添加） */
+    /** 操作类型 → ActionEnum + 缓存Key 联合映射 */
     private static final Map<String, ActionEnum> ACTION_TYPE_MAP = Map.of(
             PostOperation.LIKE, ActionEnum.LIKE,
             PostOperation.COLLECT, ActionEnum.COLLECT,
-            PostOperation.VIEW, ActionEnum.VIEW
+            PostOperation.VIEW, ActionEnum.VIEW,
+            PostOperation.UNLIKE, ActionEnum.LIKE,
+            PostOperation.UNCOLLECT, ActionEnum.COLLECT,
+            PostOperation.DELETE_VIEW, ActionEnum.VIEW
     );
 
     /** 需要执行删除的操作 */
@@ -44,7 +56,7 @@ public class PostActionMessageConsumer {
         String action = message.getAction();
         ActionEnum type = ACTION_TYPE_MAP.get(action);
 
-        if (type == null && !DELETE_ACTIONS.contains(action)) {
+        if (type == null) {
             log.warn("未知的操作类型: {}", action);
             return;
         }
@@ -55,10 +67,30 @@ public class PostActionMessageConsumer {
                 .type(type)
                 .build();
 
-        if (type != null) {
+        String cacheKey = buildCacheKey(type, actionDto);
+
+        if (!DELETE_ACTIONS.contains(action)) {
             actionService.addRecord(actionDto);
+            try {
+                redisTemplate.opsForSet().add(cacheKey, actionDto.targetId());
+            } catch (Exception e) {
+                userInfoService.cacheUserAction(actionDto.userId());
+            }
         } else {
             actionService.deleteRecord(actionDto);
+            try {
+                redisTemplate.opsForSet().remove(cacheKey, actionDto.targetId());
+            } catch (Exception e) {
+                userInfoService.cacheUserAction(actionDto.userId());
+            }
         }
+    }
+
+    private String buildCacheKey(ActionEnum type, ActionDto dto) {
+        return switch (type) {
+            case LIKE -> CacheKey.buildCacheKey(CacheKey.USER_LIKED_POSTS, dto.userId());
+            case COLLECT -> CacheKey.buildCacheKey(CacheKey.USER_COLLECTED_POSTS, dto.userId());
+            case VIEW -> CacheKey.buildCacheKey(CacheKey.USER_VIEWED_POSTS, dto.userId());
+        };
     }
 }
