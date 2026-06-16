@@ -1,6 +1,7 @@
 package org.example.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -21,12 +22,14 @@ public class CustomUserDetails implements UserDetails {
     private Long userId;
     private String username;
     private List<String> roles;
-    private List<String> authorities;
+
+    @JsonProperty("authorities")
+    private List<String> permissions;
 
     @Override
     @JsonIgnore
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        if (roles == null && authorities == null) {
+        if (roles == null && permissions == null) {
             return Collections.emptyList();
         }
         List<GrantedAuthority> roleAuthorities = roles != null
@@ -34,8 +37,8 @@ public class CustomUserDetails implements UserDetails {
                         .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
                         .collect(Collectors.toList())
                 : Collections.emptyList();
-        List<GrantedAuthority> permissionAuthorities = authorities != null
-                ? authorities.stream()
+        List<GrantedAuthority> permissionAuthorities = permissions != null
+                ? permissions.stream()
                         .map(SimpleGrantedAuthority::new)
                         .collect(Collectors.toList())
                 : Collections.emptyList();
