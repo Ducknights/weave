@@ -10,7 +10,12 @@ import org.example.service.PostCommandService;
 import org.example.service.PostQueryService;
 import org.example.util.SecurityUtils;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+
+
 
 import java.util.List;
 
@@ -32,7 +37,11 @@ public class PostController {
      * @return 返回创建成功的帖子对象，包含系统生成的ID等信息
      */
     @PostMapping
+    @PreAuthorize("hasRole('User')")
     public ResponseEntity<?> createPost(@RequestBody PostDto postDto) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        System.out.println("当前认证用户: " + auth.getName());
+        System.out.println("权限列表: " + auth.getAuthorities());
         Long userId = SecurityUtils.getCurrentUserId();
         postCommandService.createPost(userId, postDto);
         return ResponseEntity.ok(PostApiStatus.CREATE_SUCCESS.response());
@@ -114,9 +123,7 @@ public class PostController {
      * @return 返回更新成功的帖子对象，如果帖子不存在则返回404
      */
     @PutMapping("/{id}")
-    public ResponseEntity<?> updatePost(
-            @PathVariable Long id,
-            @RequestBody PostDto postDto) {
+    public ResponseEntity<?> updatePost(@PathVariable Long id, @RequestBody PostDto postDto) {
         Long userId = SecurityUtils.getCurrentUserId();
         postCommandService.updatePost(id, userId, postDto);
         return ResponseEntity.ok().body(PostApiStatus.UPDATE_SUCCESS.response());
@@ -134,5 +141,45 @@ public class PostController {
         Long userId = SecurityUtils.getCurrentUserId();
         postCommandService.deletePost(id, userId);
         return ResponseEntity.ok().body(PostApiStatus.DELETE_SUCCESS.response());
+    }
+
+    /**
+     * 审核通过帖子: PENDING -> PUBLISHED
+     */
+    @PostMapping("/{id}/approve")
+    @PreAuthorize("hasRole('Officer')")
+    public ResponseEntity<?> approvePost(@PathVariable Long id) {
+        postCommandService.approvePost(id);
+        return ResponseEntity.ok(PostApiStatus.SUCCESS.response("审核通过"));
+    }
+
+    /**
+     * 审核拒绝帖子: PENDING -> HIDDEN
+     */
+    @PostMapping("/{id}/reject")
+    @PreAuthorize("hasRole('Officer')")
+    public ResponseEntity<?> rejectPost(@PathVariable Long id) {
+        postCommandService.rejectPost(id);
+        return ResponseEntity.ok(PostApiStatus.SUCCESS.response("审核已拒绝"));
+    }
+
+    /**
+     * 隐藏帖子: PUBLISHED -> HIDDEN
+     */
+    @PostMapping("/{id}/hide")
+    public ResponseEntity<?> hidePost(@PathVariable Long id) {
+        Long userId = SecurityUtils.getCurrentUserId();
+        postCommandService.hidePost(id, userId);
+        return ResponseEntity.ok(PostApiStatus.SUCCESS.response("已隐藏"));
+    }
+
+    /**
+     * 恢复帖子: HIDDEN -> PUBLISHED
+     */
+    @PostMapping("/{id}/restore")
+    public ResponseEntity<?> restorePost(@PathVariable Long id) {
+        Long userId = SecurityUtils.getCurrentUserId();
+        postCommandService.restorePost(id, userId);
+        return ResponseEntity.ok(PostApiStatus.SUCCESS.response("已恢复"));
     }
 }

@@ -27,10 +27,8 @@ public class Post {
     private Integer commentCount;  // 评论次数
     private LocalDateTime createdTime;  // 创建时间
     private LocalDateTime updatedTime;  // 更新时间
-    @TableLogic
-    private Boolean isDeleted;
 
     public static Post buildEmpty (Long postId) {
-        return new Post(postId, null, null, null, null, null, null, null, null, null, null, null, null);
+        return new Post(postId, null, null, null, null, null, null, null, null, null, null, null);
     }
 }

@@ -3,11 +3,15 @@ package org.example.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 import org.example.model.entity.Post;
 
 @Mapper
 public interface PostMapper extends BaseMapper<Post> {
+
+    @Select("SELECT * FROM post WHERE post_id = #{id} AND status = 2")
+    Post selectPublishedPostById(Long id);
 
     @Update("UPDATE post SET view_count = view_count + 1 WHERE post_id = #{id}")
     void increaseViewCount(Long id);

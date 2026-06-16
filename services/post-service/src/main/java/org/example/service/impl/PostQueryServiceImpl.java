@@ -67,7 +67,7 @@ public class PostQueryServiceImpl extends ServiceImpl<PostMapper, Post> implemen
         }
         // 从数据库获取帖子
         log.info("从数据库获取帖子");
-        Post post = postMapper.selectById(id);
+        Post post = postMapper.selectPublishedPostById(id);
         if (post == null) {
             throw new RuntimeException("内容不存在");
         }
@@ -300,6 +300,7 @@ public class PostQueryServiceImpl extends ServiceImpl<PostMapper, Post> implemen
      * 加载缓存（用户点赞和收藏的帖子）
      */
     public void loadCache() {
-        // TODO: 加载缓存（用户点赞和收藏的帖子）
+        Long currentUserId = SecurityUtils.getCurrentUserId();
+        userFeign.loadCacheLikeAndCollect(currentUserId);
     }
 }

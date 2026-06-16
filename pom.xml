@@ -51,6 +51,7 @@
         
         <!-- 其他组件 -->
         <minio.version>8.6.0</minio.version>
+        <spring-statemachine.version>4.0.0</spring-statemachine.version>
     </properties>
 
     <dependencyManagement>
@@ -181,6 +182,13 @@
                 <version>${micrometer.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+
+            <!-- Spring State Machine -->
+            <dependency>
+                <groupId>org.springframework.statemachine</groupId>
+                <artifactId>spring-statemachine-core</artifactId>
+                <version>${spring-statemachine.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

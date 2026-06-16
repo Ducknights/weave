@@ -14,7 +14,10 @@ import org.example.model.dto.PostDto;
 import org.example.model.entity.Post;
 import org.example.model.entity.PostResource;
 import org.example.model.enums.PostActionType;
+import org.example.model.enums.PostStateEvent;
+import org.example.model.enums.PostStatus;
 import org.example.service.PostCommandService;
+import org.example.service.PostStateMachineService;
 import org.example.util.MQUtil;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -34,26 +37,29 @@ public class PostCommandServiceImpl extends ServiceImpl<PostMapper, Post> implem
     private RedisTemplate<String, Object> redisTemplate;
     @Resource
     private MQUtil mqUtil;
+    @Resource
+    private PostStateMachineService stateMachineService;
 
     /**
-     * 创建帖子
+     * 创建帖子（初始状态: PENDING 待审核）
      */
     @Override
     public void createPost(Long userId, PostDto postDto) {
-        // 插入帖子
+        // 构建帖子，初始状态为待审核
         Post post = Post.builder()
                 .userId(userId)
                 .clubId(postDto.getClubId())
                 .title(postDto.getTitle())
                 .content(postDto.getContent())
-                .viewCount(0)       //浏览
-                .likeCount(0)       //点赞
-                .collectCount(0)    //收藏
-                .commentCount(0)   //评论
+                .status(PostStatus.PENDING)
                 .build();
+
+        // 状态机校验: 新帖子触发 SUBMIT 事件
+        stateMachineService.sendEvent(post, PostStateEvent.SUBMIT);
+
         postMapper.insert(post);
-        // 获取帖子ID
         Long postId = post.getPostId();
+
         // 插入帖子图片
         if (postDto.getCoverImage() != null) {
             for (String coverImage : postDto.getCoverImage()) {
@@ -90,7 +96,7 @@ public class PostCommandServiceImpl extends ServiceImpl<PostMapper, Post> implem
     }
 
     /**
-     * 删除帖子
+     * 删除帖子（状态机驱动: 任意状态 -> DELETED，逻辑删除）
      */
     @Override
     @CacheEvict(value = CacheKey.POST, key = "#id")
@@ -102,20 +108,96 @@ public class PostCommandServiceImpl extends ServiceImpl<PostMapper, Post> implem
         if (!post.getUserId().equals(userId)) {
             throw new RuntimeException("没有权限删除");
         }
-        if (postMapper.deleteById(id) > 0) {
-            // 发送同步消息
-            sendPostSyncMessage(PostOperation.DELETE, post);
-        }
+        // 状态机驱动: 转为 DELETED 状态
+        PostStatus newStatus = stateMachineService.sendEvent(post, PostStateEvent.DELETE);
+        post.setStatus(newStatus);
+        postMapper.updateById(post);
+
+        // 发送同步消息
+        sendPostSyncMessage(PostOperation.DELETE, post);
     }
+
+    /**
+     * 审核通过: PENDING -> PUBLISHED
+     */
+    @Override
+    @CacheEvict(value = CacheKey.POST, key = "#id")
+    public void approvePost(Long id) {
+        Post post = postMapper.selectById(id);
+        if (post == null) {
+            throw new RuntimeException("内容不存在");
+        }
+        PostStatus newStatus = stateMachineService.sendEvent(post, PostStateEvent.APPROVE);
+        post.setStatus(newStatus);
+        postMapper.updateById(post);
+
+        // 同步到 ES
+        sendPostSyncMessage(PostOperation.UPDATE, post);
+    }
+
+    /**
+     * 审核拒绝: PENDING -> HIDDEN
+     */
+    @Override
+    @CacheEvict(value = CacheKey.POST, key = "#id")
+    public void rejectPost(Long id) {
+        Post post = postMapper.selectById(id);
+        if (post == null) {
+            throw new RuntimeException("内容不存在");
+        }
+        PostStatus newStatus = stateMachineService.sendEvent(post, PostStateEvent.REJECT);
+        post.setStatus(newStatus);
+        postMapper.updateById(post);
+
+        sendPostSyncMessage(PostOperation.UPDATE, post);
+    }
+
+    /**
+     * 隐藏帖子: PUBLISHED -> HIDDEN
+     */
+    @Override
+    @CacheEvict(value = CacheKey.POST, key = "#id")
+    public void hidePost(Long id, Long userId) {
+        Post post = postMapper.selectById(id);
+        if (post == null) {
+            throw new RuntimeException("内容不存在");
+        }
+        if (!post.getUserId().equals(userId)) {
+            throw new RuntimeException("没有权限操作");
+        }
+        PostStatus newStatus = stateMachineService.sendEvent(post, PostStateEvent.HIDE);
+        post.setStatus(newStatus);
+        postMapper.updateById(post);
+    }
+
+    /**
+     * 恢复帖子: HIDDEN -> PUBLISHED
+     */
+    @Override
+    @CacheEvict(value = CacheKey.POST, key = "#id")
+    public void restorePost(Long id, Long userId) {
+        Post post = postMapper.selectById(id);
+        if (post == null) {
+            throw new RuntimeException("内容不存在");
+        }
+        if (!post.getUserId().equals(userId)) {
+            throw new RuntimeException("没有权限操作");
+        }
+        PostStatus newStatus = stateMachineService.sendEvent(post, PostStateEvent.RESTORE);
+        post.setStatus(newStatus);
+        postMapper.updateById(post);
+    }
+
 
     /**
      * 添加到历史记录
      */
     @Override
     public void addToHistory(Long userId, Long postId) {
+        // 参数检查
+        if (userId == null || postId == null) return;
         // 增加帖子的浏览次数
         handlePostAction(userId, postId, PostActionType.VIEW);
-
         // 添加用户最近浏览（最近浏览功能用）- 使用ZSet按时间排序
         String userCacheKey = CacheKey.buildCacheKey(CacheKey.USER_VIEWED_POSTS, userId);
         redisTemplate.opsForZSet().add(userCacheKey, postId, System.currentTimeMillis());

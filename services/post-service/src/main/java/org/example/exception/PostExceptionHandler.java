@@ -5,6 +5,7 @@ import org.example.model.ApiResult;
 import org.example.model.enums.PostApiStatus;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.statemachine.StateMachineException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -35,6 +36,15 @@ public class PostExceptionHandler {
         
         HttpStatus status = HttpStatus.valueOf(e.getCode());
         return ResponseEntity.status(status).body(result);
+    }
+
+    /**
+     * 处理状态机异常（非法状态转换）
+     */
+    @ExceptionHandler(StateMachineException.class)
+    public ResponseEntity<?> handleStateMachineException(StateMachineException e) {
+        log.warn("状态机异常: {}", e.getMessage());
+        return ResponseEntity.badRequest().body(PostApiStatus.INVALID_PARAM.response(e.getMessage()));
     }
     
     /**
