@@ -28,11 +28,11 @@ public class EmailConsumer {
      * 并将生成的验证码缓存到指定区域
      *
      * @param email 接收验证码的邮箱地址
-     * @return 返回生成的6位验证码
      */
     @RabbitListener(queues = MQueue.CAPTCHA_QUEUE)
-    public Integer sendVerificationEmail(String email) {
-        return emailService.sendVerificationCodeEmail(email);
+    public void sendVerificationEmail(String email) {
+        log.info("发送验证码邮件给：{}", email);
+        emailService.sendVerificationCodeEmail(email);
     }
 
     /**

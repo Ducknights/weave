@@ -6,6 +6,7 @@ import org.example.constant.CacheKey;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CachePut;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -29,6 +30,9 @@ public class EmailService {
 
     @Autowired
     private TemplateEngine templateEngine;
+
+    @Autowired
+    private RedisTemplate<String, Object> redisTemplate;
 
     @Value("${app.email.from-name}")
     private String fromName;
@@ -91,6 +95,11 @@ public class EmailService {
      */
     @CachePut(value = CacheKey.CAPTCHA, key = "#email")
     public Integer sendVerificationCodeEmail(String email) {
+        String lockKey = CacheKey.buildCacheKey(CacheKey.CAPTCHA, email);
+        if (Boolean.TRUE.equals(redisTemplate.hasKey(lockKey))) {
+            throw new RuntimeException("验证码已发送，请勿重复发送");
+        }
+
         // 生成6位验证码
         int verificationCode = ThreadLocalRandom.current().nextInt(100000, 1000000);
 
@@ -103,5 +112,4 @@ public class EmailService {
 
         return verificationCode;
     }
-
 }
