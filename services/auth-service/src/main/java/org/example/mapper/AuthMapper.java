@@ -33,4 +33,19 @@ public interface AuthMapper extends BaseMapper<UserAuth> {
             "WHERE u.email = #{email} " +
             "GROUP BY u.id, u.email, u.password")
     CustomUserDetails selectUserDetailsByEmail(String email);
+
+    @Select("SELECT " +
+            "    u.id as userId, " +
+            "    u.email as username, " +
+            "    u.password, " +
+            "    GROUP_CONCAT(DISTINCT r.name) as rolesStr, " +
+            "    GROUP_CONCAT(DISTINCT p.name) as authoritiesStr " +
+            "FROM users u " +
+            "LEFT JOIN user_roles ur ON u.id = ur.user_id " +
+            "LEFT JOIN roles r ON ur.role_id = r.id " +
+            "LEFT JOIN role_permissions rp ON r.id = rp.role_id " +
+            "LEFT JOIN permissions p ON rp.permission_id = p.id " +
+            "WHERE u.id = #{userId} " +
+            "GROUP BY u.id, u.email, u.password")
+    CustomUserDetails selectUserDetailsById(Long userId);
 }

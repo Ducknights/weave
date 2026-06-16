@@ -1,13 +1,11 @@
 package org.example;
 
-import org.example.service.AuthService;
 import org.example.constant.CacheKey;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.core.RedisTemplate;
 
-import java.util.concurrent.TimeUnit;
 
 @SpringBootTest
 public class LoginTest {

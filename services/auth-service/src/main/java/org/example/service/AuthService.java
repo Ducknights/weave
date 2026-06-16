@@ -68,12 +68,12 @@ public class AuthService {
                 // 生成Redis键
                 String permissionsKey = CacheKey.buildCacheKey(CacheKey.USER_AUTHORITY, userId);
                 // 生成JWT令牌
-                String access_token = jwtUtil.generateJwtToken(permissionsKey, 1000 * 60 * 5); // 5分钟
+                String access_token = jwtUtil.generateJwtToken(permissionsKey, 1000 * 60 * 60); // 60分钟
                 String refresh_token = jwtUtil.generateJwtToken(permissionsKey, 1000 * 60 * 60 * 24);  // 24小时
                 // 写入用户标识信息到redis
                 redisTemplate.opsForValue().set(permissionsKey, authentication.getPrincipal(),1, TimeUnit.HOURS); // 1小时
                 // 构造返回DTO
-                TokenDto tokenDto = new TokenDto(access_token, refresh_token, 60 * 5, 60 * 60 * 24);
+                TokenDto tokenDto = new TokenDto(access_token, refresh_token, 60 * 24 * 60, 60 * 60 * 24);
                 // 获取用户信息
                 UserBriefDto userBriefDto = userFeignClient.getUserBriefById(userId);
                 // 获取用户角色
@@ -152,9 +152,11 @@ public class AuthService {
         try {
             // 1. 生成JWT令牌
             String subject = "UserId:" + userId;
-            String access_token = jwtUtil.generateJwtToken(subject, 1000 * 60 * 5);  // 5分钟
-            // 2. 构造返回DTO
-            return new TokenDto(access_token, null, 60 * 5, 0);
+            String access_token = jwtUtil.generateJwtToken(subject, 1000 * 60 * 60);  // 60分钟
+            // 2. 缓存用户权限
+            cacheUserAuthorities(userId);
+            // 3. 构造返回DTO
+            return new TokenDto(access_token, null, 60 * 60, 0);
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }
@@ -165,10 +167,24 @@ public class AuthService {
             // 1. 生成JWT令牌
             String subject = "UserId:" + userId;
             String refresh_token = jwtUtil.generateJwtToken(subject, 1000 * 60 * 60 * 24);    // 24小时
-            // 2. 构造返回DTO
+            // 2. 重新缓存用户权限信息
+            cacheUserAuthorities(userId);
+            // 3. 构造返回DTO
             return new TokenDto(null, refresh_token,0, 60 * 60 * 24);
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }
+    }
+
+    private void cacheUserAuthorities(Long userId) {
+        // 1. 从数据库重新加载用户角色和权限
+        CustomUserDetails userDetails = authMapper.selectUserDetailsById(userId);
+        if (userDetails == null) {
+            throw new RuntimeException("用户不存在: " + userId);
+        }
+        // 2. 缓存到 Redis
+        String cacheKey = CacheKey.buildCacheKey(CacheKey.USER_AUTHORITY, userId);
+        redisTemplate.opsForValue().set(cacheKey, userDetails, 1, TimeUnit.HOURS);
+        log.info("已刷新用户权限缓存: userId={}", userId);
     }
 }
