@@ -58,6 +58,20 @@ public class RabbitMQConfig {
                 .with(MQueue.AUDIT_ROUTING_KEY);
     }
 
+    // 登录事件队列
+    @Bean
+    public Queue loginEventQueue() {
+        return QueueBuilder.durable(MQueue.USER_LOGIN_QUEUE)
+                .withArgument("x-message-ttl", 300000)
+                .build();
+    }
+    @Bean
+    public Binding loginEventBinding(Queue loginEventQueue, TopicExchange topicExchange) {
+        return BindingBuilder.bind(loginEventQueue)
+                .to(topicExchange)
+                .with(MQueue.USER_LOGIN_ROUTING_KEY);
+    }
+
     // 结果队列
     @Bean
     public Queue resultQueue() {
