@@ -1,12 +1,14 @@
 package org.example.feign;
 
 import org.example.dto.UserBriefDto;
-import org.example.model.UserAuth;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.example.feign.fallback.UserFeignClientFallback;
+
+import org.example.dto.AuthUserDto;
+import org.springframework.web.bind.annotation.RequestBody;
 
 @FeignClient(name = "user-service", fallback = UserFeignClientFallback.class)
 public interface UserFeignClient {
@@ -15,8 +17,8 @@ public interface UserFeignClient {
      *
      * @param user 用户信息
      */
-    @PostMapping("/user/register")
-    void createUser(UserAuth user);
+    @PostMapping("/api/user/info")
+    void createUser(@RequestBody AuthUserDto user);
 
     /**
      * 根据用户ID获取用户信息

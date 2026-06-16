@@ -1,8 +1,8 @@
 package org.example.feign.fallback;
 
 import lombok.extern.slf4j.Slf4j;
+import org.example.dto.AuthUserDto;
 import org.example.dto.UserDto;
-import org.example.model.UserAuth;
 import org.example.feign.UserFeignClient;
 import org.springframework.stereotype.Component;
 
@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 public class UserFeignClientFallback implements UserFeignClient {
 
     @Override
-    public void createUser(UserAuth user) {
+    public void createUser(AuthUserDto user) {
         log.error("调用user-service创建用户失败，已熔断");
         // 可以记录到数据库或消息队列，稍后重试
     }

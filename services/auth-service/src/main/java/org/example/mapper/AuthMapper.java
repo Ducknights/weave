@@ -1,5 +1,6 @@
 package org.example.mapper;
 
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
@@ -7,17 +8,15 @@ import org.example.model.CustomUserDetails;
 import org.example.model.UserAuth;
 
 @Mapper
-public interface AuthMapper {
+public interface AuthMapper extends BaseMapper<UserAuth> {
 
     @Select("SELECT id,email,password FROM users WHERE email = #{email}")
     // 根据邮箱查询用户信息
     UserAuth selectUserByEmail(String email);
 
-    @Insert("INSERT INTO users(email,password) VALUES(#{email},#{password}) " +
-            "AND " +
-            "INSERT INTO user_roles(user_id,role_id) VALUES(#{id},2)")
-    // 插入一个用户信息，包括邮箱、密码和创建时间，默认角色为普通用户
-    UserAuth insertUser(UserAuth userAuth);
+    @Insert("INSERT INTO user_roles(user_id,role_id) VALUES(#{id},2)")
+    // 默认角色为普通用户
+    void insertUserRole(Long id);
 
     // 一次查询获取所有信息，使用 GROUP_CONCAT 避免 N+1 问题
     @Select("SELECT " +

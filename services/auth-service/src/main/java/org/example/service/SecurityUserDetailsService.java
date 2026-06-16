@@ -1,6 +1,7 @@
 package org.example.service;
 
 import jakarta.annotation.Resource;
+import org.example.dto.AuthUserDto;
 import org.example.model.CustomUserDetails;
 import org.example.model.UserAuth;
 import org.example.feign.UserFeignClient;
@@ -34,8 +35,12 @@ public class SecurityUserDetailsService implements UserDetailsManager {
         UserAuth userAuth = new UserAuth();
         userAuth.setEmail(user.getUsername());
         userAuth.setPassword(user.getPassword());
-        UserAuth newUser = authMapper.insertUser(userAuth);
-        userFeignClient.createUser(newUser);
+        // 插入用户信息
+        authMapper.insert(userAuth);
+        // 插入用户角色
+        authMapper.insertUserRole(userAuth.getId());
+        // 调用用户服务插入用户信息
+        userFeignClient.createUser(new AuthUserDto(userAuth.getId(), userAuth.getEmail()));
     }
 
     @Override

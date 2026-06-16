@@ -8,6 +8,5 @@ public record VerifyCodeDto(
         String email,
         @Size(min = 6, message = "密码长度不能小于6")
         String password,
-        @Size(min = 6, message = "验证码长度不能小于6")
-        String code) {
+        Integer code) {
 }

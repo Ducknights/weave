@@ -2,7 +2,7 @@ package org.example.service;
 
 
 import jakarta.annotation.Resource;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.example.exception.CodeErrorException;
 import org.example.exception.EmailExistedException;
 import org.example.feign.UserFeignClient;
@@ -30,7 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-@Log4j2
+@Slf4j
 @Service
 public class AuthService {
     @Resource
@@ -85,8 +85,8 @@ public class AuthService {
                 mqUtil.sendUserLoginEvent(userId);
             }
         } catch (Exception e) {
-            System.out.println("登录失败：" + e.getMessage());
-            throw new RuntimeException("登录失败", e);
+            log.error("登录失败: {}", e.getMessage(), e);
+            throw new RuntimeException("登录失败: " + e.getMessage(), e);
         }
         return apiResponseDto;
     }
@@ -99,7 +99,8 @@ public class AuthService {
             throw new EmailExistedException("邮箱已被注册");
         }
         // 发送验证码
-        String lock = "lock:" + email;
+        String lock = CacheKey.buildCacheKey(CacheKey.CAPTCHA, email);
+        log.info("发送验证码到: {}", email);
         if (Boolean.TRUE.equals(redisTemplate.hasKey(lock))){
             throw new CodeErrorException("验证码已发送，请等待");
         }
@@ -116,7 +117,10 @@ public class AuthService {
     public void verifyCode(VerifyCodeDto dto) {
         // 1. 验证验证码
         String key = CacheKey.buildCacheKey(CacheKey.CAPTCHA, dto.email());
-        String code = (String) redisTemplate.opsForValue().get(key);
+        if (Boolean.FALSE.equals(redisTemplate.hasKey(key))){
+            throw new CodeErrorException("验证码已过期");
+        }
+        Integer code = (Integer) redisTemplate.opsForValue().get(key);
         if (!dto.code().equals(code)){
             throw new CodeErrorException("验证码错误");
         }

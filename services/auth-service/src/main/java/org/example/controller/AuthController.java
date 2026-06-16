@@ -3,7 +3,7 @@ package org.example.controller;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.example.dto.ApiRequestDto;
 import org.example.model.ApiResult;
 import org.example.dto.VerifyCodeDto;
@@ -13,7 +13,7 @@ import org.example.util.SecurityUtils;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@Log4j2
+@Slf4j
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
@@ -38,6 +38,7 @@ public class AuthController {
 
     @PostMapping("/register/verifyCode")
     public ResponseEntity<ApiResult<?>> verify(@Valid @NotNull @RequestBody VerifyCodeDto dto) {
+        log.info("verify: {}", dto);
         authService.verifyCode(dto);
         return ResponseEntity.status(201)
                 .body(AuthApiStatus.REGISTER_SUCCESS.response());
