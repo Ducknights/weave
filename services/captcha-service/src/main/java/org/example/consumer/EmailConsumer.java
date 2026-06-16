@@ -2,11 +2,9 @@ package org.example.consumer;
 
 import lombok.extern.log4j.Log4j2;
 import org.example.service.EmailService;
-import org.example.constant.CacheKey;
 import org.example.constant.MQueue;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CachePut;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
