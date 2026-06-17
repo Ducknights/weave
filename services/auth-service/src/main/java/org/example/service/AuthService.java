@@ -32,6 +32,7 @@ import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Service
+@Transactional
 public class AuthService {
     @Resource
     private AuthenticationManager authenticationManager;
@@ -91,7 +92,6 @@ public class AuthService {
         return apiResponseDto;
     }
 
-    @Transactional
     public void sendCode(ApiRequestDto apiRequestDto) {
         String email = apiRequestDto.email();
         // 验证邮箱是否已存在
@@ -113,7 +113,6 @@ public class AuthService {
         }
     }
 
-    @Transactional
     public void verifyCode(VerifyCodeDto dto) {
         // 1. 验证验证码
         String key = CacheKey.buildCacheKey(CacheKey.CAPTCHA, dto.email());
@@ -124,6 +123,10 @@ public class AuthService {
         if (!dto.code().equals(code)){
             throw new CodeErrorException("验证码错误");
         }
+        register(dto);
+    }
+
+    public void register(VerifyCodeDto dto) {
         try {
             UserDetails user = User.builder()
                     .username(dto.email())
@@ -137,8 +140,7 @@ public class AuthService {
 
     @Caching(evict = {
             @CacheEvict(value = CacheKey.USER_AUTHORITY, key = "#userId"),
-            @CacheEvict(value = CacheKey.USER_ONLINE,key = "#userId")
-    })
+            @CacheEvict(value = CacheKey.USER_ONLINE,key = "#userId")})
     public void logout(Long userId){
         try {
             SecurityContextHolder.clearContext();
