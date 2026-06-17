@@ -19,7 +19,7 @@ import java.util.Map;
  */
 @Log4j2
 @RestController
-@RequestMapping("/api/comments")
+@RequestMapping("/api/comment")
 public class CommentController {
 
     @Resource
