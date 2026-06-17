@@ -12,6 +12,7 @@ import org.example.model.ClubApiResponse;
 import org.example.model.ClubApiStatus;
 import org.example.service.ClubService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -30,6 +31,7 @@ public class ClubController {
      * @return 创建成功的俱乐部信息
      */
     @PostMapping()
+    @PreAuthorize("hasAnyRole('OFFICER', 'USER')")
     public ResponseEntity<ClubApiResponse<?>> createClub(@Nonnull @RequestBody Club club) {
         final Club newClub = clubService.createClub(club);
         return ResponseEntity.status(ClubApiStatus.POST_SUCCESS.getCode())
@@ -43,6 +45,7 @@ public class ClubController {
      * @return 删除成功
      */
     @DeleteMapping()
+    @PreAuthorize("hasAnyRole('PRESIDENT')")
     public ResponseEntity<ClubApiResponse<?>> deleteClub(@Nonnull @RequestBody Integer clubId) {
         clubService.deleteClub(clubId);
         return ResponseEntity.status(ClubApiStatus.DELETE_SUCCESS.getCode())
@@ -56,6 +59,7 @@ public class ClubController {
      * @return 更新成功的俱乐部信息
      */
     @PutMapping()
+    @PreAuthorize("hasAnyRole('OFFICER', 'PRESIDENT')")
     public ResponseEntity<ClubApiResponse<?>> updateClub(@Nonnull @RequestBody Club club) {
         final Club newClub = clubService.updateClub(club);
         return ResponseEntity.status(ClubApiStatus.PUT_SUCCESS.getCode())
