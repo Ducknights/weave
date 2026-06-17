@@ -1,16 +1,19 @@
+# 白名单配置(不需要认证的请求)
 spring:
   whitelist:
     paths:
-      # CLUB
+      # CLUB (社团)
       - GET:/api/club/**
-      # POST
+      # POST (帖子)
       - GET:/api/post/**
-      # USER
+      # USER (用户)
       - GET:/api/user/info
       - GET:/api/user/info/{id}
       - GET:/api/users/avatar/**
-      # SEARCH
+      # SEARCH (搜索)
       - GET:/api/search/**
-      # AUTH
+      # AUTH (认证)
       - POST:/api/auth/login
       - POST:/api/auth/register/**
+      # COMMENT (评论)
+      - GET:/api/comment/**
