@@ -9,14 +9,14 @@ import java.util.Map;
 public interface FileService {
 
     /**
-     * 上传单个文件
+     * 上传头像
      */
-    String uploadFile(MultipartFile file, String objectName);
+    String uploadAvatar(MultipartFile file);
 
     /**
      * 上传多个文件
      */
-    List<String> uploadFiles(List<MultipartFile> files, String directory);
+    List<String> uploadFiles(List<MultipartFile> files);
 
     /**
      * 下载文件

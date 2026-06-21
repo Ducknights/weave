@@ -5,27 +5,21 @@ public class MimeTypeUtil {
     private static final String IMAGE_PREFIX = "image/";
     private static final String VIDEO_PREFIX = "video/";
 
-    public static final String IMAGE = "images";
-    public static final String VIDEO = "videos";
+    /**
+     * 判断 MIME 类型是否为图片
+     * @param mimeType 文件的 MIME 类型，例如"image/jpeg"
+     * @return true 表示是图片类型
+     */
+    public static boolean isImage(String mimeType) {
+        return mimeType != null && mimeType.startsWith(IMAGE_PREFIX);
+    }
 
     /**
-     * 根据 MIME 类型获取对应的目录名称
-     * @param mimeType 文件的 MIME 类型，例如"image/jpeg"、"video/mp4"等
-     * @return 对应的目录名称，如果是图片类型则返回 IMAGE，如果是视频类型则返回 VIDEO
-     * @throws IllegalArgumentException 当 MIME 类型为空或不支持时抛出此异常
+     * 判断 MIME 类型是否为视频
+     * @param mimeType 文件的 MIME 类型，例如"video/mp4"
+     * @return true 表示是视频类型
      */
-    public static String getDirectoryByMimeType(String mimeType) {
-        // 检查 MIME 类型是否为空
-        if (mimeType == null) {
-            throw new IllegalArgumentException("文件类型不能为空");
-        }
-        // 判断是否为图片类型
-        if (mimeType.startsWith(IMAGE_PREFIX)) {
-            return IMAGE;
-        } else if (mimeType.startsWith(VIDEO_PREFIX)) {
-            return VIDEO;
-        } else {
-            throw new IllegalArgumentException("不支持的文件类型：" + mimeType);
-        }
+    public static boolean isVideo(String mimeType) {
+        return mimeType != null && mimeType.startsWith(VIDEO_PREFIX);
     }
 }

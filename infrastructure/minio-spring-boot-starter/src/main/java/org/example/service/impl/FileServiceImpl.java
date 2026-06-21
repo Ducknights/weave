@@ -2,6 +2,8 @@ package org.example.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import org.example.service.FileService;
+import org.example.util.ImageCompressUtil;
+import org.example.util.MimeTypeUtil;
 import org.example.util.MinioUtil;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -28,21 +30,42 @@ public class FileServiceImpl implements FileService {
         return UUID.randomUUID() + extension;
     }
 
+    /**
+     * 上传头像，尺寸限制为512x512，质量压缩
+     */
     @Override
-    public String uploadFile(MultipartFile file, String objectName) {
-        if (objectName == null || objectName.isEmpty()) {
-            objectName = generateFileName(file.getOriginalFilename());
+    public String uploadAvatar(MultipartFile file) {
+        // 生成文件名，确保文件名唯一
+        String objectName = generateFileName(file.getOriginalFilename());
+        // 如果是图片，执行压缩操作
+        if (MimeTypeUtil.isImage(file.getContentType())) {
+            // 压缩图片(限制大小为512x512，质量压缩)
+            byte[] compressed = ImageCompressUtil.compressBySize(file, 512, 512, 0.6f);
+            return minioUtil.uploadBytes(objectName, compressed, file.getContentType());
+        }else {
+            throw new IllegalArgumentException("上传的文件不是图片，请上传图片格式");
         }
-        return minioUtil.uploadFile(objectName, file);
     }
 
+    /**
+     * 上传文件，支持图片和视频，图片质量压缩，视频直接上传
+     */
     @Override
-    public List<String> uploadFiles(List<MultipartFile> files, String directory) {
+    public List<String> uploadFiles(List<MultipartFile> files) {
         List<String> objectNames = new ArrayList<>();
         for (MultipartFile file : files) {
-            String fileName = generateFileName(file.getOriginalFilename());
-            String objectName = (directory != null && !directory.isEmpty() ? directory + "/" : "") + fileName;
-            minioUtil.uploadFile(objectName, file);
+            String objectName = generateFileName(file.getOriginalFilename());
+            if (MimeTypeUtil.isImage(file.getContentType())){
+                // 压缩图片(大小不变，质量压缩)
+                byte[] compressed = ImageCompressUtil.compressByScale(file, 1.0f, 0.6f);
+                // 上传压缩后的图片到MinIO
+                minioUtil.uploadBytes(objectName, compressed, file.getContentType());
+            }else if (MimeTypeUtil.isVideo(file.getContentType())){
+                // 视频直接上传
+                minioUtil.uploadFile(objectName, file);
+            }else {
+                throw new IllegalArgumentException("上传的文件类型不支持");
+            }
             objectNames.add(objectName);
         }
         return objectNames;

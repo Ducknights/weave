@@ -24,7 +24,9 @@ public class MinioUtil {
      * 上传文件
      */
     public String uploadFile(String bucketName, String objectName, MultipartFile file) {
-        try (InputStream inputStream = file.getInputStream()) {
+        try (
+                InputStream inputStream = file.getInputStream()
+        ) {
             minioClient.putObject(
                     PutObjectArgs.builder()
                             .bucket(bucketName)
@@ -45,6 +47,27 @@ public class MinioUtil {
      */
     public String uploadFile(String objectName, MultipartFile file) {
         return uploadFile(minioConfig.getBucket(), objectName, file);
+    }
+
+    /**
+     * 上传字节数组（用于压缩后的图片等场景）
+     */
+    public String uploadBytes(String objectName, byte[] data, String contentType) {
+        String bucketName = minioConfig.getBucket();
+        try (InputStream inputStream = new java.io.ByteArrayInputStream(data)) {
+            minioClient.putObject(
+                    PutObjectArgs.builder()
+                            .bucket(bucketName)
+                            .object(objectName)
+                            .stream(inputStream, data.length, -1)
+                            .contentType(contentType)
+                            .build());
+            log.info("文件上传成功：[{}] -> [{}]", bucketName, objectName);
+            return objectName;
+        } catch (Exception e) {
+            log.error("文件上传失败：[{}] -> [{}]", bucketName, objectName, e);
+            throw new RuntimeException("文件上传失败：" + e.getMessage(), e);
+        }
     }
 
     /**

@@ -59,6 +59,13 @@
             <artifactId>common-model</artifactId>
             <optional>true</optional>
         </dependency>
+
+        <!-- Thumbnailator 图片压缩 -->
+        <dependency>
+            <groupId>net.coobird</groupId>
+            <artifactId>thumbnailator</artifactId>
+            <version>0.4.20</version>
+        </dependency>
     </dependencies>
 
     <build>
