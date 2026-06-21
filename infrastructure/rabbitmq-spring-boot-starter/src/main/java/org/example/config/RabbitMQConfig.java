@@ -151,4 +151,18 @@ public class RabbitMQConfig {
                 .to(topicExchange)
                 .with(MQueue.POST_SYNC_ROUTING_KEY);
     }
+
+    // 帖子缓存队列
+    @Bean
+    public Queue postCacheQueue() {
+        return QueueBuilder.durable(MQueue.POST_CACHE_QUEUE)
+                .withArgument("x-message-ttl", 300000)
+                .build();
+    }
+    @Bean
+    public Binding postCacheBinding(Queue postCacheQueue, TopicExchange topicExchange) {
+        return BindingBuilder.bind(postCacheQueue)
+                .to(topicExchange)
+                .with(MQueue.POST_CACHE_ROUTING_KEY);
+    }
 }
