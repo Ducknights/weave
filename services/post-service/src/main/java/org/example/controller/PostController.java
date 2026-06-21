@@ -9,6 +9,7 @@ import org.example.dto.PostDetailVo;
 import org.example.service.PostCommandService;
 import org.example.service.PostQueryService;
 import org.example.util.SecurityUtils;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -37,11 +38,8 @@ public class PostController {
      * @return 返回创建成功的帖子对象，包含系统生成的ID等信息
      */
     @PostMapping
-    @PreAuthorize("hasRole('User')")
+    @PreAuthorize("hasAnyRole('USER', 'OFFICER')")
     public ResponseEntity<?> createPost(@RequestBody PostDto postDto) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        System.out.println("当前认证用户: " + auth.getName());
-        System.out.println("权限列表: " + auth.getAuthorities());
         Long userId = SecurityUtils.getCurrentUserId();
         postCommandService.createPost(userId, postDto);
         return ResponseEntity.ok(PostApiStatus.CREATE_SUCCESS.response());
@@ -89,22 +87,22 @@ public class PostController {
     }
 
     /**
-     * 获取指定ID的帖子的请求处理方法
-     * 通过GET请求获取指定ID的帖子信息
+     * 根据ID获取帖子详情
+     * GET /api/post/{id}
      *
-     * @param id 帖子的ID
-     * @return 返回指定ID的帖子对象，如果帖子不存在则返回404
+     * @param id 帖子ID
+     * @return 返回帖子详情
      */
     @GetMapping("/{id}")
-    public ResponseEntity<?> getPost(@PathVariable Long id) {
+    public ResponseEntity<?> clickForDetails(@PathVariable Long id) {
         Long userId = SecurityUtils.getCurrentUserId();
-        PostDetailVo post = postQueryService.getPostById(id,userId);
+        PostDetailVo post = postQueryService.clickForDetails(id,userId);
         return ResponseEntity.ok().body(PostApiStatus.SUCCESS.response(post));
     }
 
     /**
      * 根据ID列表批量获取帖子
-     * POST /api/post/batch
+     * POST_HASH /api/post/batch
      *
      * @param ids 帖子ID列表
      * @return 返回帖子ID到帖子详情的映射
@@ -144,33 +142,23 @@ public class PostController {
     }
 
     /**
-     * 审核通过帖子: PENDING -> PUBLISHED
-     */
-    @PostMapping("/{id}/approve")
-    @PreAuthorize("hasRole('Officer')")
-    public ResponseEntity<?> approvePost(@PathVariable Long id) {
-        postCommandService.approvePost(id);
-        return ResponseEntity.ok(PostApiStatus.SUCCESS.response("审核通过"));
-    }
-
-    /**
-     * 审核拒绝帖子: PENDING -> HIDDEN
-     */
-    @PostMapping("/{id}/reject")
-    @PreAuthorize("hasRole('Officer')")
-    public ResponseEntity<?> rejectPost(@PathVariable Long id) {
-        postCommandService.rejectPost(id);
-        return ResponseEntity.ok(PostApiStatus.SUCCESS.response("审核已拒绝"));
-    }
-
-    /**
      * 隐藏帖子: PUBLISHED -> HIDDEN
      */
     @PostMapping("/{id}/hide")
     public ResponseEntity<?> hidePost(@PathVariable Long id) {
         Long userId = SecurityUtils.getCurrentUserId();
         postCommandService.hidePost(id, userId);
-        return ResponseEntity.ok(PostApiStatus.SUCCESS.response("已隐藏"));
+        return ResponseEntity.ok(PostApiStatus.SUCCESS.response());
+    }
+
+    /**
+     * 获取当前用户隐藏的帖子
+     */
+    @GetMapping("/hidden")
+    public ResponseEntity<?> getHiddenPosts() {
+        Long userId = SecurityUtils.getCurrentUserId();
+        List<PostDetailVo> postVos = postQueryService.getHiddenPostsByUserId(userId);
+        return ResponseEntity.ok().body(PostApiStatus.SUCCESS.response(postVos));
     }
 
     /**
@@ -180,6 +168,6 @@ public class PostController {
     public ResponseEntity<?> restorePost(@PathVariable Long id) {
         Long userId = SecurityUtils.getCurrentUserId();
         postCommandService.restorePost(id, userId);
-        return ResponseEntity.ok(PostApiStatus.SUCCESS.response("已恢复"));
+        return ResponseEntity.ok(PostApiStatus.SUCCESS.response());
     }
 }

@@ -3,9 +3,6 @@ package org.example.model.enums;
 import lombok.Getter;
 import org.example.model.ApiResult;
 
-import java.util.Collections;
-import java.util.Map;
-
 /**
  * 帖子操作类型枚举 - 封装所有帖子操作的配置信息
  */
@@ -20,7 +17,6 @@ public enum PostApiStatus {
     UNLIKE_SUCCESS(200, "取消点赞成功"),
     FAVORITE_SUCCESS(200, "收藏成功"),
     UNFAVORITE_SUCCESS(200, "取消收藏成功"),
-    SHARE_SUCCESS(200, "转发成功"),
     
     // 参数错误
     INVALID_PARAM(400, "参数无效"),
@@ -34,8 +30,6 @@ public enum PostApiStatus {
     // 权限错误
     UNAUTHORIZED(401, "未授权"),
     PERMISSION_DENIED(403, "无权操作"),
-    NOT_POST_AUTHOR(403, "无权编辑他人帖子"),
-    NOT_POST_AUTHOR_OR_ADMIN(403, "无权删除此帖子"),
     
     // 资源不存在
     POST_NOT_FOUND(404, "帖子不存在"),
@@ -66,8 +60,8 @@ public enum PostApiStatus {
         this.msg = msg;
     }
 
-    public ApiResult<Map<String, Object>> response() {
-        return response(Collections.emptyMap());
+    public ApiResult<?> response() {
+        return response(null);
     }
 
     public <T> ApiResult<T> response(T data) {

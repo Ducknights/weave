@@ -12,7 +12,9 @@ public interface PostQueryService {
 
     Page<PostDetailVo> getHotPosts(int page, int size);
 
-    PostDetailVo getPostById(Long id, Long userId);
+    PostDetailVo clickForDetails(Long id, Long userId);
 
     List<PostDetailVo> getPostsByIds(List<Long> ids);
+
+    List<PostDetailVo> getHiddenPostsByUserId(Long userId);
 }

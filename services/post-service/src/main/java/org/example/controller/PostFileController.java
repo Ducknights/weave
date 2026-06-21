@@ -1,7 +1,11 @@
 package org.example.controller;
 
+import lombok.NonNull;
+import org.example.constant.CacheKey;
 import org.example.model.enums.PostApiStatus;
 import org.example.service.FileService;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -27,7 +31,7 @@ public class PostFileController {
      */
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> uploadImages(@RequestParam("files") List<MultipartFile> files) {
-        List<String> paths = fileService.uploadFiles(files, "images/post");
+        List<String> paths = fileService.uploadFiles(files);
         return ResponseEntity.ok(PostApiStatus.CREATE_SUCCESS.response(paths));
     }
 
@@ -38,8 +42,9 @@ public class PostFileController {
      * @return 预签名URL
      */
     @GetMapping("/url")
+    @Cacheable(value = CacheKey.FILE_URL, key = "#path")
     public ResponseEntity<?> getFileUrl(
-            @RequestParam String path,
+            @NonNull @RequestParam String path,
             @RequestParam(defaultValue = "3600") int expiry) {
         String url = fileService.getFileUrl(path, expiry);
         return ResponseEntity.ok(PostApiStatus.SUCCESS.response(url));

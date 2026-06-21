@@ -1,20 +1,23 @@
 package org.example.feign;
 
 import org.example.dto.UserBriefDto;
+import org.example.feign.fallback.UserFeignClientFallback;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.Map;
 import java.util.Set;
 
-@FeignClient(name = "user-service")
-public interface UserFeign {
+@FeignClient(name = "user-service", fallback = UserFeignClientFallback.class)
+public interface UserFeignClient {
 
-    @PostMapping("/api/user/batch")
+    @PostMapping("/api/user/info/batch")
     Map<Long, UserBriefDto> getUserInfosByIds(@RequestBody Set<Long> ids);
 
-    @GetMapping("/api/user/actions/loadCache")
-    void loadCacheLikeAndCollect(Long currentUserId);
+
+    @GetMapping("/api/user/cache/{id}")
+    void loadCacheLikeAndCollect(@PathVariable Long id);
 }

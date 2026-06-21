@@ -6,6 +6,8 @@ import lombok.extern.log4j.Log4j2;
 import org.example.constant.CacheKey;
 import org.example.constant.PostOperation;
 import org.example.dto.SearchDocumentDto;
+import org.example.exception.AuthorizationException;
+import org.example.exception.ResourceNotFoundException;
 import org.example.mapper.PostMapper;
 import org.example.mapper.PostResourceMapper;
 import org.example.model.PostActionMessage;
@@ -41,25 +43,24 @@ public class PostCommandServiceImpl extends ServiceImpl<PostMapper, Post> implem
     private PostStateMachineService stateMachineService;
 
     /**
-     * 创建帖子（初始状态: PENDING 待审核）
+     * 创建帖子（初始状态: PUBLISHED 已发布）
      */
     @Override
     public void createPost(Long userId, PostDto postDto) {
-        // 构建帖子，初始状态为待审核
         Post post = Post.builder()
                 .userId(userId)
                 .clubId(postDto.getClubId())
                 .title(postDto.getTitle())
                 .content(postDto.getContent())
-                .status(PostStatus.PENDING)
+                .status(PostStatus.PUBLISHED)
+                .viewCount(0)
+                .likeCount(0)
+                .collectCount(0)
+                .commentCount(0)
                 .build();
-
-        // 状态机校验: 新帖子触发 SUBMIT 事件
-        stateMachineService.sendEvent(post, PostStateEvent.SUBMIT);
 
         postMapper.insert(post);
         Long postId = post.getPostId();
-
         // 插入帖子图片
         if (postDto.getCoverImage() != null) {
             for (String coverImage : postDto.getCoverImage()) {
@@ -78,14 +79,14 @@ public class PostCommandServiceImpl extends ServiceImpl<PostMapper, Post> implem
      * 更新帖子
      */
     @Override
-    @CacheEvict(value = CacheKey.POST, key = "#id")
+    @CacheEvict(value = CacheKey.POST_HASH, key = "#id")
     public void updatePost(Long id, Long userId, PostDto postDto) {
         Post post = postMapper.selectById(id);
         if (post == null) {
-            throw new RuntimeException("内容不存在");
+            throw new ResourceNotFoundException("内容不存在");
         }
         if (!post.getUserId().equals(userId)) {
-            throw new RuntimeException("没有权限修改");
+            throw new AuthorizationException("没有权限修改");
         }
         post.setTitle(postDto.getTitle());
         post.setContent(postDto.getContent());
@@ -99,14 +100,14 @@ public class PostCommandServiceImpl extends ServiceImpl<PostMapper, Post> implem
      * 删除帖子（状态机驱动: 任意状态 -> DELETED，逻辑删除）
      */
     @Override
-    @CacheEvict(value = CacheKey.POST, key = "#id")
+    @CacheEvict(value = CacheKey.POST_HASH, key = "#id")
     public void deletePost(Long id, Long userId) {
         Post post = postMapper.selectById(id);
         if (post == null) {
-            throw new RuntimeException("内容不存在");
+            throw new ResourceNotFoundException("内容不存在");
         }
         if (!post.getUserId().equals(userId)) {
-            throw new RuntimeException("没有权限删除");
+            throw new AuthorizationException("没有权限删除");
         }
         // 状态机驱动: 转为 DELETED 状态
         PostStatus newStatus = stateMachineService.sendEvent(post, PostStateEvent.DELETE);
@@ -118,52 +119,17 @@ public class PostCommandServiceImpl extends ServiceImpl<PostMapper, Post> implem
     }
 
     /**
-     * 审核通过: PENDING -> PUBLISHED
-     */
-    @Override
-    @CacheEvict(value = CacheKey.POST, key = "#id")
-    public void approvePost(Long id) {
-        Post post = postMapper.selectById(id);
-        if (post == null) {
-            throw new RuntimeException("内容不存在");
-        }
-        PostStatus newStatus = stateMachineService.sendEvent(post, PostStateEvent.APPROVE);
-        post.setStatus(newStatus);
-        postMapper.updateById(post);
-
-        // 同步到 ES
-        sendPostSyncMessage(PostOperation.UPDATE, post);
-    }
-
-    /**
-     * 审核拒绝: PENDING -> HIDDEN
-     */
-    @Override
-    @CacheEvict(value = CacheKey.POST, key = "#id")
-    public void rejectPost(Long id) {
-        Post post = postMapper.selectById(id);
-        if (post == null) {
-            throw new RuntimeException("内容不存在");
-        }
-        PostStatus newStatus = stateMachineService.sendEvent(post, PostStateEvent.REJECT);
-        post.setStatus(newStatus);
-        postMapper.updateById(post);
-
-        sendPostSyncMessage(PostOperation.UPDATE, post);
-    }
-
-    /**
      * 隐藏帖子: PUBLISHED -> HIDDEN
      */
     @Override
-    @CacheEvict(value = CacheKey.POST, key = "#id")
+    @CacheEvict(value = CacheKey.POST_HASH, key = "#id")
     public void hidePost(Long id, Long userId) {
         Post post = postMapper.selectById(id);
         if (post == null) {
-            throw new RuntimeException("内容不存在");
+            throw new ResourceNotFoundException("内容不存在");
         }
         if (!post.getUserId().equals(userId)) {
-            throw new RuntimeException("没有权限操作");
+            throw new AuthorizationException("没有权限操作");
         }
         PostStatus newStatus = stateMachineService.sendEvent(post, PostStateEvent.HIDE);
         post.setStatus(newStatus);
@@ -174,20 +140,19 @@ public class PostCommandServiceImpl extends ServiceImpl<PostMapper, Post> implem
      * 恢复帖子: HIDDEN -> PUBLISHED
      */
     @Override
-    @CacheEvict(value = CacheKey.POST, key = "#id")
+    @CacheEvict(value = CacheKey.POST_HASH, key = "#id")
     public void restorePost(Long id, Long userId) {
         Post post = postMapper.selectById(id);
         if (post == null) {
-            throw new RuntimeException("内容不存在");
+            throw new ResourceNotFoundException("内容不存在");
         }
         if (!post.getUserId().equals(userId)) {
-            throw new RuntimeException("没有权限操作");
+            throw new AuthorizationException("没有权限操作");
         }
         PostStatus newStatus = stateMachineService.sendEvent(post, PostStateEvent.RESTORE);
         post.setStatus(newStatus);
         postMapper.updateById(post);
     }
-
 
     /**
      * 添加到历史记录
@@ -243,7 +208,7 @@ public class PostCommandServiceImpl extends ServiceImpl<PostMapper, Post> implem
      */
     private void handlePostAction(Long userId, Long postId, PostActionType actionType) {
         // 更新帖子缓存
-        String postCacheKey = CacheKey.buildCacheKey(CacheKey.POST, postId);
+        String postCacheKey = CacheKey.buildCacheKey(CacheKey.POST_HASH, postId);
         redisTemplate.opsForHash().increment(postCacheKey, actionType.getCacheField(), actionType.isIncrement() ? 1 : -1);
         
         // 更新用户缓存

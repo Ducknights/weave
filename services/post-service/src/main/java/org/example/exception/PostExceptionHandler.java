@@ -20,22 +20,25 @@ import java.util.Map;
 @Log4j2
 @RestControllerAdvice
 public class PostExceptionHandler {
-    
+
     /**
-     * 处理业务异常
+     * 处理资源未找到异常
      */
-    @ExceptionHandler(PostServiceException.class)
-    public ResponseEntity<ApiResult<Map<String, Object>>> handlePostServiceException(PostServiceException e) {
-        log.warn("业务异常: code={}, message={}", e.getCode(), e.getMessage());
-        
-        ApiResult<Map<String, Object>> result = new ApiResult<>(
-                e.getCode(),
-                e.getMessage(),
-                null
-        );
-        
-        HttpStatus status = HttpStatus.valueOf(e.getCode());
-        return ResponseEntity.status(status).body(result);
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<?> handleResourceNotFoundException(ResourceNotFoundException e) {
+        log.warn("资源未找到: {}", e.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(PostApiStatus.POST_NOT_FOUND.response());
+    }
+
+    /**
+     * 处理授权异常
+     */
+    @ExceptionHandler(AuthorizationException.class)
+    public ResponseEntity<?> handleAuthorizationException(AuthorizationException e) {
+        log.warn("授权失败: {}", e.getMessage());
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(PostApiStatus.PERMISSION_DENIED.response());
     }
 
     /**
@@ -70,25 +73,22 @@ public class PostExceptionHandler {
      * 处理运行时异常
      */
     @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<ApiResult<Map<String, Object>>> handleRuntimeException(RuntimeException e) {
+    public ResponseEntity<?> handleRuntimeException(RuntimeException e) {
         log.error("运行时异常:", e);
-        
-        ApiResult<Map<String, Object>> result = PostApiStatus.SYSTEM_ERROR.response();
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(result);
+                .body(PostApiStatus.SYSTEM_ERROR.response());
     }
     
     /**
      * 处理所有未捕获的异常
      */
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiResult<Map<String, Object>>> handleException(Exception e) {
+    public ResponseEntity<?> handleException(Exception e) {
         log.error("系统异常:", e);
-        
-        ApiResult<Map<String, Object>> result = PostApiStatus.SYSTEM_ERROR.response();
+
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(result);
+                .body(PostApiStatus.SYSTEM_ERROR.response());
     }
 }

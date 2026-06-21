@@ -11,10 +11,6 @@ public interface PostCommandService extends IService<Post> {
 
     void deletePost(Long id, Long userId);
 
-    void approvePost(Long id);
-
-    void rejectPost(Long id);
-
     void hidePost(Long id, Long userId);
 
     void restorePost(Long id, Long userId);

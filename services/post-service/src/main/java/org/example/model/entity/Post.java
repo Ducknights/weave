@@ -1,16 +1,19 @@
 package org.example.model.entity;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.example.model.enums.PostStatus;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @TableName("post")
 public class Post {
     @TableId(type = IdType.ASSIGN_ID)
@@ -26,8 +29,11 @@ public class Post {
     private Integer commentCount;  // 评论次数
     private LocalDateTime createdTime;  // 创建时间
     private LocalDateTime updatedTime;  // 更新时间
+    @TableField(exist = false)
+    private List<String> resources; // 资源列表
 
+    // 构建空对象
     public static Post buildEmpty (Long postId) {
-        return new Post(postId, null, null, null, null, null, null, null, null, null, null, null);
+        return new Post(postId, null, null, null, null, null, null, null, null, null, null, null, null);
     }
 }
