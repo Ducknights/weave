@@ -5,7 +5,6 @@ import lombok.Getter;
 @Getter
 public enum GatewayStatus {
 
-    UNAUTHORIZED(401, "未授权"),
     NO_TOKEN(401, "用户未登录，请登录后重试"),
     TOKEN_VERIFY_FAILED(401, "登录信息过期，请重新登录");
 
@@ -15,5 +14,9 @@ public enum GatewayStatus {
     GatewayStatus(int code, String msg) {
         this.code = code;
         this.msg = msg;
+    }
+
+    public ApiResult<?> response() {
+        return new ApiResult<>(code, msg, null);
     }
 }

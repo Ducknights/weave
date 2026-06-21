@@ -3,8 +3,8 @@ package org.example.filter;
 import lombok.extern.slf4j.Slf4j;
 import org.example.config.GatewayWhitelistProperties;
 import org.example.constant.RequestHeader;
-import org.example.exception.NoTokenException;
-import org.example.exception.TokenVerifyException;
+import org.example.exception.BusinessException;
+import org.example.model.GatewayStatus;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.annotation.Order;
@@ -47,7 +47,7 @@ public class JwtFilter implements GlobalFilter {
 
         // 1. 检查 Token 是否存在
         if (token == null || !token.startsWith(RequestHeader.BEARER)) {
-            throw new NoTokenException("用户未登录，请登录后重试");
+            throw new BusinessException(GatewayStatus.NO_TOKEN);
         }
 
         // 2. 去掉 "Bearer " 前缀
@@ -61,7 +61,7 @@ public class JwtFilter implements GlobalFilter {
             log.info("用户标识信息: {}", subject);
             userId = subject.substring(subject.indexOf("::") + 2);
         } catch (Exception e) {
-            throw new TokenVerifyException("登录信息过期，请重新登录");
+            throw new BusinessException(GatewayStatus.TOKEN_VERIFY_FAILED);
         }
 
         // 4. 将用户信息添加到下游请求头中

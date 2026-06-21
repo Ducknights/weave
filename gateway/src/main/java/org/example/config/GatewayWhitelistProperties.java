@@ -17,7 +17,7 @@ public class GatewayWhitelistProperties {
      * 解析白名单配置，返回 (HttpMethod, pathPattern) 列表。
      * 支持格式：
      * - "GET:/api/user/**"
-     * - "POST:/api/auth/login"
+     * - "POST_HASH:/api/auth/login"
      * - "/api/search/**"（默认允许所有方法）
      */
     public List<WhitelistEntry> parseEntries() {
