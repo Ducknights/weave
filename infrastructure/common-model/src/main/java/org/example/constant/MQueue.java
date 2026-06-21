@@ -25,8 +25,10 @@ public class MQueue {
     public static final String POST_ACTION_QUEUE_1 = "post_action_queue_1";
     public static final String POST_ACTION_QUEUE_2 = "post_action_queue_2";
     public static final String POST_ACTION_QUEUE_3 = "post_action_queue_3";
-
     // 帖子同步相关队列
     public static final String POST_SYNC_ROUTING_KEY = "post.sync";
     public static final String POST_SYNC_QUEUE = "post_sync_queue";
+    // 帖子缓存相关队列
+    public static final String POST_CACHE_ROUTING_KEY = "post.cache";
+    public static final String POST_CACHE_QUEUE = "post_cache_queue";
 }
