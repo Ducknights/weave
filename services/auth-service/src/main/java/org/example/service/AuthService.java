@@ -51,6 +51,11 @@ public class AuthService {
     @Resource
     private JwtUtil jwtUtil;
 
+    private static final int ACCESS_TOKEN_EXPIRE_TIME = 1000 * 60 * 60 * 2; // 2小时 = 1000 * 60 * 60 * 2 毫秒
+    private static final int REFRESH_TOKEN_EXPIRE_TIME = 1000 * 60 * 60 * 24 * 7; // 7天 = 1000 * 60 * 60 * 24 * 7 毫秒
+    private static final int CACHE_USER_AUTHORITY_EXPIRE_TIME = 130; // 缓存用户权限过期时间: 130分钟
+
+
     public ApiResponseDto login(ApiRequestDto apiRequestDto) {
         ApiResponseDto apiResponseDto = null;
         try {
@@ -69,12 +74,12 @@ public class AuthService {
                 // 生成Redis键
                 String permissionsKey = CacheKey.buildCacheKey(CacheKey.USER_AUTHORITY, userId);
                 // 生成JWT令牌
-                String access_token = jwtUtil.generateJwtToken(permissionsKey, 1000 * 60 * 60); // 60分钟
-                String refresh_token = jwtUtil.generateJwtToken(permissionsKey, 1000 * 60 * 60 * 24);  // 24小时
+                String access_token = jwtUtil.generateJwtToken(permissionsKey, ACCESS_TOKEN_EXPIRE_TIME);
+                String refresh_token = jwtUtil.generateJwtToken(permissionsKey, REFRESH_TOKEN_EXPIRE_TIME);
                 // 写入用户标识信息到redis
-                redisTemplate.opsForValue().set(permissionsKey, authentication.getPrincipal(),1, TimeUnit.HOURS); // 1小时
+                redisTemplate.opsForValue().set(permissionsKey, authentication.getPrincipal(), CACHE_USER_AUTHORITY_EXPIRE_TIME, TimeUnit.MINUTES);
                 // 构造返回DTO
-                TokenDto tokenDto = new TokenDto(access_token, refresh_token, 60 * 24 * 60, 60 * 60 * 24);
+                TokenDto tokenDto = new TokenDto(access_token, ACCESS_TOKEN_EXPIRE_TIME, refresh_token, REFRESH_TOKEN_EXPIRE_TIME);
                 // 获取用户信息
                 UserBriefDto userBriefDto = userFeignClient.getUserBriefById(userId);
                 // 获取用户角色
@@ -154,11 +159,11 @@ public class AuthService {
         try {
             // 1. 生成JWT令牌
             String subject = "UserId:" + userId;
-            String access_token = jwtUtil.generateJwtToken(subject, 1000 * 60 * 60);  // 60分钟
+            String access_token = jwtUtil.generateJwtToken(subject, ACCESS_TOKEN_EXPIRE_TIME);
             // 2. 缓存用户权限
             cacheUserAuthorities(userId);
             // 3. 构造返回DTO
-            return new TokenDto(access_token, null, 60 * 60, 0);
+            return new TokenDto(access_token, ACCESS_TOKEN_EXPIRE_TIME,null , 0);
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }
@@ -168,11 +173,11 @@ public class AuthService {
         try {
             // 1. 生成JWT令牌
             String subject = "UserId:" + userId;
-            String refresh_token = jwtUtil.generateJwtToken(subject, 1000 * 60 * 60 * 24);    // 24小时
+            String refresh_token = jwtUtil.generateJwtToken(subject, REFRESH_TOKEN_EXPIRE_TIME);
             // 2. 重新缓存用户权限信息
             cacheUserAuthorities(userId);
             // 3. 构造返回DTO
-            return new TokenDto(null, refresh_token,0, 60 * 60 * 24);
+            return new TokenDto(null,0 , refresh_token, REFRESH_TOKEN_EXPIRE_TIME);
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }
@@ -186,7 +191,7 @@ public class AuthService {
         }
         // 2. 缓存到 Redis
         String cacheKey = CacheKey.buildCacheKey(CacheKey.USER_AUTHORITY, userId);
-        redisTemplate.opsForValue().set(cacheKey, userDetails, 1, TimeUnit.HOURS);
+        redisTemplate.opsForValue().set(cacheKey, userDetails, CACHE_USER_AUTHORITY_EXPIRE_TIME, TimeUnit.MINUTES);
         log.info("已刷新用户权限缓存: userId={}", userId);
     }
 }

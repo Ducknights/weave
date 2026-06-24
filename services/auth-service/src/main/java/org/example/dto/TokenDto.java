@@ -1,6 +1,5 @@
 package org.example.dto;
 
-
 public record TokenDto(
         String token_type,
         String access_token,
@@ -9,7 +8,7 @@ public record TokenDto(
         int refresh_token_expires_in
 ) {
 
-    public TokenDto(String access, String refresh, int accessExpire, int refreshExpire) {
+    public TokenDto(String access, int accessExpire, String refresh ,int refreshExpire) {
         this("Bearer", access, accessExpire, refresh, refreshExpire);
     }
 }
