@@ -6,8 +6,6 @@ import lombok.extern.log4j.Log4j2;
 import org.example.constant.CacheKey;
 import org.example.dto.AuthUserDto;
 import org.example.dto.UserBriefDto;
-import org.example.mapper.ActionMapper;
-import org.example.mapper.RelationMapper;
 import org.example.mapper.UserInfoMapper;
 import org.example.model.entity.UserInfo;
 import org.example.service.UserInfoService;
@@ -30,10 +28,6 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
 
     @Resource
     private UserInfoMapper userInfoMapper;
-    @Resource
-    private ActionMapper actionMapper;
-    @Resource
-    private RelationMapper relationMapper;
     @Resource
     private RedisTemplate<String, Object> redisTemplate;
 

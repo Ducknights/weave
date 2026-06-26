@@ -165,4 +165,19 @@ public class RabbitMQConfig {
                 .to(topicExchange)
                 .with(MQueue.POST_CACHE_ROUTING_KEY);
     }
+
+    // 消息推送队列
+    @Bean
+    public Queue messagePushQueue() {
+        return QueueBuilder.durable(MQueue.CHAT_PUSH_QUEUE)
+                .withArgument("x-message-ttl", 300000)
+                .build();
+    }
+    @Bean
+    public Binding messagePushBinding(Queue messagePushQueue, TopicExchange topicExchange) {
+        return BindingBuilder.bind(messagePushQueue)
+                .to(topicExchange)
+                .with(MQueue.CHAT_PUSH_ROUTING_KEY);
+    }
+
 }

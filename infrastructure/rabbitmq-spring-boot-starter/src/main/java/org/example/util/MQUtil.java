@@ -14,6 +14,10 @@ public class MQUtil {
     @Resource
     private RabbitTemplate rabbitTemplate;
 
+    /**
+     * 发送帖子缓存消息
+     * @param postsForCache 帖子缓存数据
+     */
     public void sendToPostCacheQueue(Object postsForCache) {
         try {
             rabbitTemplate.convertAndSend(
@@ -85,6 +89,21 @@ public class MQUtil {
             );
         }catch (Exception e){
             log.error("发送用户登录事件失败");
+        }
+    }
+
+    /**
+     * 推送聊天消息
+     */
+    public void pushChatMessage(Object message) {
+        try{
+            rabbitTemplate.convertAndSend(
+                    MQueue.TOPIC_EXCHANGE,
+                    MQueue.CHAT_PUSH_ROUTING_KEY,
+                    message
+            );
+        }catch (Exception e){
+            log.error("推送聊天消息失败");
         }
     }
 }
