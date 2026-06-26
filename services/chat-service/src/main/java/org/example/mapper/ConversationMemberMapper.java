@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Update;
+import org.example.model.dto.ConversationMemberParam;
 import org.example.model.entity.ConversationMember;
 
 import java.util.List;
@@ -11,15 +12,12 @@ import java.util.List;
 @Mapper
 public interface ConversationMemberMapper extends BaseMapper<ConversationMember> {
 
-    // 更新用户会话的未读消息计数
-    @Update("UPDATE conversation_member SET unread_count = unread_count + 1 WHERE conversation_id = #{conversationId} AND user_id = #{userId}")
-    void incrementUnreadCount(Long conversationId, Long userId);
+    @Update("UPDATE conversation_member SET unread_count = unread_count + 1 WHERE conversation_id = #{param.conversationId} AND user_id = #{param.userId}")
+    void incrementUnreadCount(ConversationMemberParam param);
 
-    // 重置用户会话的未读消息计数
-    @Update("UPDATE conversation_member SET unread_count = 0 WHERE conversation_id = #{conversationId} AND user_id = #{userId}")
-    void resetUnreadCount(Long conversationId, Long userId);
+    @Update("UPDATE conversation_member SET unread_count = 0 WHERE conversation_id = #{param.conversationId} AND user_id = #{param.userId}")
+    void resetUnreadCount(ConversationMemberParam param);
 
-    // 根据会话ID和用户ID查询会话成员
     default List<ConversationMember> selectByConversationIdsAndUserId(List<Long> conversationIds, Long userId) {
         LambdaQueryWrapper<ConversationMember> queryWrapper = new LambdaQueryWrapper<ConversationMember>()
                 .eq(ConversationMember::getUserId, userId)
@@ -27,30 +25,28 @@ public interface ConversationMemberMapper extends BaseMapper<ConversationMember>
         return this.selectList(queryWrapper);
     }
 
-    // 添加会话成员
-    default void addConversationMember(Long conversationId, Long userId){
-        ConversationMember conversationMember = ConversationMember.builder()
-                .conversationId(conversationId)
-                .userId(userId)
+    default void addConversationMember(ConversationMemberParam param) {
+        ConversationMember member = ConversationMember.builder()
+                .conversationId(param.getConversationId())
+                .userId(param.getUserId())
                 .build();
-        this.insert(conversationMember);
+        this.insert(member);
     }
 
-    // 根据用户ID和会话ID获取最后阅读消息ID
-    default Long getLastReadMessageId(Long userId, Long conversationId){
+    default Long getLastReadMessageId(ConversationMemberParam param) {
         return this.selectOne(new LambdaQueryWrapper<ConversationMember>()
-                .eq(ConversationMember::getUserId, userId)
-                .eq(ConversationMember::getConversationId, conversationId)).getLastReadMessageId();
+                .eq(ConversationMember::getUserId, param.getUserId())
+                .eq(ConversationMember::getConversationId, param.getConversationId()))
+                .getLastReadMessageId();
     }
 
-    // 更新用户会话的最后阅读消息ID
-    default void updateUserLastReadMessageId(Long conversationId, Long userId, Long messageId){
+    default void updateUserLastReadMessageId(ConversationMemberParam param, Long messageId) {
         this.update(ConversationMember.builder()
-                .conversationId(conversationId)
-                .userId(userId)
+                .conversationId(param.getConversationId())
+                .userId(param.getUserId())
                 .lastReadMessageId(messageId)
                 .build(), new LambdaQueryWrapper<ConversationMember>()
-                .eq(ConversationMember::getConversationId, conversationId)
-                .eq(ConversationMember::getUserId, userId));
+                .eq(ConversationMember::getConversationId, param.getConversationId())
+                .eq(ConversationMember::getUserId, param.getUserId()));
     }
 }

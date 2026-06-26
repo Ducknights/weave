@@ -22,6 +22,23 @@ spring:
       host: 127.0.0.1
       port: 6379
       database: 0
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: admin
+    password: admin
+    virtual-host: /
+    # 消息确认机制
+    publisher-confirm-type: correlated # 发送确认
+    publisher-returns: true # 发送返回
+    template:
+      mandatory: true # 消息路由失败时返回给生产者
+    listener:
+      simple:
+        acknowledge-mode: manual # 手动确认
+        retry:
+          enabled: true # 开启重试
+          max-attempts: 3 # 最大重试次数
 
 server:
   port: 4300

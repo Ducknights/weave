@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.ibatis.annotations.Mapper;
+import org.example.model.dto.ConversationMemberParam;
 import org.example.model.entity.Message;
 
 import java.util.List;
@@ -26,5 +27,12 @@ public interface MessageMapper extends BaseMapper<Message> {
                 .eq(Message::getConversationId, conversationId)
                 .gt(Message::getId, lastReadMessageId)
                 .orderByDesc(Message::getCreateTime));
+    }
+
+    default Long selectNewMessageId(Long conversationId){
+        Message message = selectOne(new LambdaQueryWrapper<Message>()
+                .eq(Message::getConversationId, conversationId)
+                .orderByDesc(Message::getId));
+        return message == null ? null : message.getId();
     }
 }

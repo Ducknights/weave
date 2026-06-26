@@ -2,6 +2,7 @@ package org.example.service.impl;
 
 import jakarta.annotation.Resource;
 import org.example.mapper.MessageMapper;
+import org.example.model.dto.ConversationMemberParam;
 import org.example.model.entity.Message;
 import org.example.model.enums.MessageType;
 import org.example.service.ConversationMemberService;
@@ -26,48 +27,54 @@ public class MessageServiceImpl implements MessageService {
 
     @Override
     public Message saveMessage(Long fromId, Long toId, String content) {
-        // 获取会话ID,没有则创建
         Long conversationId = conversationService.getOrCreatePrivateConversation(fromId, toId);
-        // 构造消息
+
         Message message = Message.builder()
                 .conversationId(conversationId)
                 .fromUserId(fromId)
                 .toUserId(toId)
                 .content(content)
-                // TODO: 希望支持不同类型消息
                 .type(MessageType.TEXT)
                 .createTime(LocalDateTime.now())
                 .build();
-        // 保存消息到数据库
         messageMapper.insert(message);
-        // 更新会话表(最新消息内容)
+
         conversationService.updateConversation(conversationId, message.getContent());
-        // 更新会话成员表(最新消息内容和时间)
-        conversationMemberService.updateUserLastReadMessageId(conversationId, fromId, message.getId());
-        // 更新会话成员表(给其他成员的未读数+1)
-        conversationMemberService.updatePrivateConversationUser(conversationId,toId);
+
+        conversationMemberService.updateUserLastReadMessageId(
+                ConversationMemberParam.builder().conversationId(conversationId).userId(fromId).build(),
+                message.getId());
+
+        conversationMemberService.incrementUnreadCount(
+                ConversationMemberParam.builder().conversationId(conversationId).userId(toId).build());
+
         return message;
     }
 
-    /**
-     * 按照会话ID和用户ID获取消息
-     */
     @Override
     public List<Message> getMessages(Long userId, Long conversationId, int page, int size) {
         return messageMapper.selectLastN(userId, conversationId, page, size);
     }
 
-    /**
-     * 获取未读消息
-     */
     @Override
     public List<Message> getNewMessages(Long userId, Long conversationId) {
-        Long lastReadMessageId = conversationMemberService.getLastReadMessageId(userId, conversationId);
+        ConversationMemberParam param = ConversationMemberParam.builder()
+                .conversationId(conversationId).userId(userId).build();
+        // 获取上次已读的消息ID
+        Long lastReadMessageId = conversationMemberService.getLastReadMessageId(param);
+        // 获取新消息
         List<Message> newMessages = messageMapper.selectNewMessages(userId, conversationId, lastReadMessageId);
         if (!newMessages.isEmpty()) {
-            conversationMemberService.updateUserLastReadMessageId(conversationId, userId, newMessages.get(0).getId());
+            // 更新已读消息ID
+            conversationMemberService.updateUserLastReadMessageId(param, newMessages.get(0).getId());
         }
-        conversationMemberService.resetUnreadCount(conversationId, userId);
+        // 重置未读消息计数
+        conversationMemberService.resetUnreadCount(param);
         return newMessages;
+    }
+
+    @Override
+    public Long getNewMessageId(Long conversationId) {
+        return messageMapper.selectNewMessageId(conversationId);
     }
 }

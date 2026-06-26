@@ -6,7 +6,7 @@ import org.example.dto.UserBriefDto;
 import org.example.feign.UserInfoFeign;
 import org.example.mapper.ConversationMapper;
 import org.example.mapper.ConversationMemberMapper;
-import org.example.mapper.MessageMapper;
+import org.example.model.dto.ConversationMemberParam;
 import org.example.model.entity.Conversation;
 import org.example.model.entity.ConversationMember;
 import org.example.model.vo.ConversationVo;
@@ -20,10 +20,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Service
-@Transactional
 public class ConversationServiceImpl implements ConversationService {
 
     @Resource
@@ -44,6 +44,7 @@ public class ConversationServiceImpl implements ConversationService {
      * @return 会话ID
      */
     @Override
+    @Transactional
     public Long getOrCreatePrivateConversation(Long userId1, Long userId2) {
         // 排序
         Long smallId = Math.min(userId1, userId2);
@@ -55,9 +56,10 @@ public class ConversationServiceImpl implements ConversationService {
         if (conversationId == null){
             conversationId = conversationMapper.createConversation(smallId, bigId);
             // 添加会话成员
-            conversationMemberMapper.addConversationMember(conversationId, userId1);
-            // 添加会话成员
-            conversationMemberMapper.addConversationMember(conversationId, userId2);
+            conversationMemberMapper.addConversationMember(
+                    ConversationMemberParam.builder().conversationId(conversationId).userId(userId1).build());
+            conversationMemberMapper.addConversationMember(
+                    ConversationMemberParam.builder().conversationId(conversationId).userId(userId2).build());
         }
         return conversationId;
     }
@@ -82,7 +84,9 @@ public class ConversationServiceImpl implements ConversationService {
         if (conversations == null || conversations.isEmpty()) {
             return Collections.emptyList();
         }
-        return convertToConversationVo(userId, conversations);
+        List<ConversationVo> conversationVos = convertToConversationVo(userId, conversations);
+        CacheConversationVo(conversationVos);
+        return conversationVos;
     }
 
     /**
@@ -131,5 +135,12 @@ public class ConversationServiceImpl implements ConversationService {
                 .otherUserAvatar(userDto.getAvatar())
                 .online(redisTemplate.hasKey(CacheKey.buildCacheKey(CacheKey.USER_ONLINE, otherUserId)))
                 .build();
+    }
+
+    private void CacheConversationVo(List<ConversationVo> conversationVos) {
+        for (ConversationVo conversationVo : conversationVos){
+            String cacheKey = CacheKey.buildCacheKey(CacheKey.CONVERSATION, conversationVo.getUserId() + ":" + conversationVo.getOtherUserId());
+            redisTemplate.opsForValue().set(cacheKey, conversationVo, 5, TimeUnit.MINUTES); // 5分钟
+        }
     }
 }

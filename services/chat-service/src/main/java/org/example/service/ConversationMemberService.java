@@ -1,11 +1,18 @@
 package org.example.service;
 
+import org.example.model.dto.ConversationMemberParam;
+
 public interface ConversationMemberService {
-    void updatePrivateConversationUser(Long conversationId,Long toId);
 
-    Long getLastReadMessageId(Long userId, Long conversationId);
+    // 增加未读数
+    void incrementUnreadCount(ConversationMemberParam param);
 
-    void updateUserLastReadMessageId(Long conversationId, Long userId, Long messageId);
+    // 获取最后阅读的消息id
+    Long getLastReadMessageId(ConversationMemberParam param);
 
-    void resetUnreadCount(Long userId, Long conversationId);
+    // 更新用户最后阅读消息id
+    void updateUserLastReadMessageId(ConversationMemberParam param, Long messageId);
+
+    // 重置未读数
+    void resetUnreadCount(ConversationMemberParam param);
 }
