@@ -33,7 +33,7 @@ public class CacheKey {
     // 文件URL缓存区域
     public static final String FILE_URL = "file:url";
     // 会话列表缓存区域
-    public static final String CONVERSATION_LIST = "conversation:list";
+    public static final String CONVERSATION = "conversation";
 
     public static String buildCacheKey(String area, Object identifier) {
         return area + KEY_SEPARATOR + identifier;
