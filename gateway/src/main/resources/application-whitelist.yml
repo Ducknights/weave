@@ -17,3 +17,6 @@ spring:
       - POST:/api/auth/register/**
       # COMMENT (评论)
       - GET:/api/comment/**
+      # CHAT (WebSocket握手)
+      - GET:/socket.io/**
+      - POST:/socket.io/**

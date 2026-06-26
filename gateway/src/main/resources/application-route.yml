@@ -36,7 +36,7 @@ spring:
         - id: comment-service
           uri: lb://comment-service
           predicates:
-            - Path=/api/comments/**
+            - Path=/api/comment/**
 
         - id: recommend-service
           uri: lb://recommend-service
@@ -47,3 +47,13 @@ spring:
           uri: lb://search-service
           predicates:
             - Path=/api/search/**
+
+        - id: chat-websocket
+          uri: http://localhost:4302
+          predicates:
+            - Path=/socket.io/**
+
+        - id: chat-service
+          uri: lb://chat-service
+          predicates:
+            - Path=/api/chat/**
