@@ -19,4 +19,12 @@ public interface MessageMapper extends BaseMapper<Message> {
         Page<Message> resultPage = selectPage(messagePage, wrapper);
         return resultPage.getRecords();
     }
+
+    default List<Message> selectNewMessages(Long userId, Long conversationId, Long lastReadMessageId){
+        return selectList(new LambdaQueryWrapper<Message>()
+                .eq(Message::getFromUserId, userId).or().eq(Message::getToUserId, userId)
+                .eq(Message::getConversationId, conversationId)
+                .gt(Message::getId, lastReadMessageId)
+                .orderByDesc(Message::getCreateTime));
+    }
 }

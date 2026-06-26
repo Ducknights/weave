@@ -7,7 +7,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.example.model.enums.MessageStatus;
 import org.example.model.enums.MessageType;
 
 import java.time.LocalDateTime;
@@ -30,8 +29,6 @@ public class Message {
     private String content;
     // 消息类型
     private MessageType type;
-    // 消息状态
-    private MessageStatus status;
     // 创建时间
     private LocalDateTime createTime;
 }

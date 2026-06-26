@@ -11,21 +11,19 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
 @Data
-@TableName("conversation_user")
+@TableName("conversation_member")
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ConversationUser {
+public class ConversationMember {
     @TableId(type = IdType.AUTO)
     private Long id;
     // 用户ID
     private Long userId;
     // 会话ID
     private Long conversationId;
-    //最后消息
-    private String lastMessage;
-    // 最后消息时间
-    private LocalDateTime lastMessageTime;
+    // 最后阅读消息ID
+    private Long lastReadMessageId;
     // 未读消息数
     private int unreadCount;
     // 创建时间

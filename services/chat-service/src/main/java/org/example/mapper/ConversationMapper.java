@@ -12,14 +12,6 @@ import java.util.List;
 @Mapper
 public interface ConversationMapper extends BaseMapper<Conversation> {
 
-    // 根据两个用户ID查找会话
-    default Conversation findByUsers(Long small, Long big) {
-        LambdaQueryWrapper<Conversation> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(Conversation::getUserSmallId, small)
-                .eq(Conversation::getUserBigId, big);
-        return selectOne(wrapper);
-    }
-
     // 查找某个用户ID的全部会话
     default List<Conversation> findByUserId(Long userId){
         return selectList(new LambdaQueryWrapper<Conversation>()
@@ -29,19 +21,31 @@ public interface ConversationMapper extends BaseMapper<Conversation> {
     }
 
     // 创建初始会话
-    default Conversation createConversation(Long userA, Long userB){
+    default Long createConversation(Long userA, Long userB){
         Conversation conversation = Conversation.builder()
                 .userSmallId(Math.min(userA, userB))
                 .userBigId(Math.max(userA, userB))
                 .createTime(LocalDateTime.now())
                 .build();
-        return insert(conversation) > 0 ? conversation : null;
+        return insert(conversation) > 0 ? conversation.getId() : null;
     }
 
-    @Insert("INSERT INTO conversation (user_small_id, user_big_id, last_message) " +
-            "VALUES (#{userSmallId}, #{userBigId}, #{lastMessage}) " +
-            "ON DUPLICATE KEY UPDATE " +
-            "last_message = VALUES(last_message)")
-    void upsertConversation(Long userSmallId, Long userBigId,String lastMessage);
+    // 根据双方用户ID获取私聊会话ID
+    default Long getConversationIdByUsers(Long smallId, Long bigId) {
+        LambdaQueryWrapper<Conversation> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Conversation::getUserSmallId, smallId)
+                .eq(Conversation::getUserBigId, bigId);
+        Conversation conversation = selectOne(wrapper);
+        return conversation != null ? conversation.getId() : null;
+    }
+
+    // 更新会话内容
+    default void updateConversation(Long conversationId, String content){
+        Conversation conversation = Conversation.builder()
+                .id(conversationId)
+                .lastMessage(content)
+                .build();
+        updateById(conversation);
+    }
 }
 

@@ -10,6 +10,7 @@ import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import jakarta.annotation.Resource;
 import lombok.extern.log4j.Log4j2;
+import org.example.mapper.ConversationMemberMapper;
 import org.springframework.data.redis.connection.RedisKeyCommands;
 import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -41,17 +42,18 @@ public class SocketIOEventHandler {
     @Resource
     private SocketIOServer socketIOServer;
     @Resource
-    private MessageMapper messageMapper;
-    @Resource
-    private ConversationMapper conversationMapper;
+    private MessageService messageService;
     @Resource
     private RedisTemplate<String, Object> redisTemplate;
+    @Resource
+    private ConversationService conversationService;
     // 用户ID -> SocketIOClient 映射
     private final Map<Long, SocketIOClient> onlineClients = new ConcurrentHashMap<>();
 
     private final String USER_ID = "userId";
     private final String CHAT_SEND = "chat:send";
     private final String CHAT_RECEIVE = "chat:receive";
+
 
     @PostConstruct
     public void start() {
@@ -117,18 +119,6 @@ public class SocketIOEventHandler {
         });
     }
 
-    @OnEvent("heartbeat")
-    public void heartbeat(SocketIOClient client) {
-
-        Long userId = client.get(USER_ID);
-
-        redisTemplate.expire(
-                CacheKey.buildCacheKey(CacheKey.USER_ONLINE, userId),
-                90,
-                TimeUnit.SECONDS
-        );
-    }
-
     /**
      * 处理客户端通过 WebSocket发送的消息
      */
@@ -139,31 +129,13 @@ public class SocketIOEventHandler {
             @CacheEvict(value = CacheKey.CONVERSATION, key = "#dto.toUserId + ':' + #dto.fromUserId")
     })
     public void onSendMessage(SocketIOClient client, SendMessageDTO dto, AckRequest ackRequest) {
-        Long fromId = client.get(USER_ID);
-        Long toId = dto.getToUserId();
-        // 排序
-        Long userSmallId = Math.min(fromId, toId);
-        Long userBigId = Math.max(fromId, toId);
-
+        Long fromId = client.get(USER_ID);  // 获取用户ID
+        Long toId = dto.getToUserId();  // 获取接收者ID
+        String content = dto.getContent();  // 获取消息内容
+        // 保存消息
+        Message message = messageService.saveMessage(fromId, toId, content);
+        log.info("保存的消息: {}", message);
         try {
-            // 更新或插入会话
-            conversationMapper.upsertConversation(userSmallId, userBigId, dto.getContent());
-            // 获取会话
-            Conversation conversation = conversationMapper.findByUsers(userSmallId, userBigId);
-            // 构造消息
-            Message message = Message.builder()
-                    .conversationId(conversation.getId())
-                    .fromUserId(fromId)
-                    .toUserId(toId)
-                    .content(dto.getContent())
-                    // TODO: 希望支持不同类型消息
-                    .type(MessageType.TEXT)
-                    .createTime(LocalDateTime.now())
-                    .build();
-            // 保存消息到数据库
-            messageMapper.insert(message);
-            log.info("保存的消息: {}", message);
-            // 推送消息给接收者
             // TODO: 使用 RabbitMQ进行异步推送
             pushMessage(toId, message);
             // 发送回执(消息发送成功)
@@ -188,7 +160,7 @@ public class SocketIOEventHandler {
     }
 
     /**
-     * 从握手URL参数获取token，解析JWT得到userId
+     * 从握手URL参数获取 token，解析JWT得到 userId
      */
     private Long getUserIdFromToken(SocketIOClient client) {
         String token = client.getHandshakeData().getSingleUrlParam("token");

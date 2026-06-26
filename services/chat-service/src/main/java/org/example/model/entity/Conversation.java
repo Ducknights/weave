@@ -22,6 +22,10 @@ public class Conversation {
     private Long userSmallId;
     // 大ID
     private Long userBigId;
+    // 最后消息
+    private String lastMessage;
+    // 最后消息时间
+    private LocalDateTime lastMessageTime;
     // 创建时间
     private LocalDateTime createTime;
 }
