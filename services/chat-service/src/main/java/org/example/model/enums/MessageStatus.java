@@ -5,18 +5,16 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.Getter;
 
 @Getter
-public enum MessageType {
-    TEXT(0,"text"),
-    IMAGE(1,"image"),
-    VIDEO(2,"video");
+public enum MessageStatus {
+    UNREAD(0),
+    READ(1),
+    REMOVED(3);
 
     @EnumValue
-    private final Integer code;
     @JsonValue
-    private final String type;
+    private final int code;
 
-     MessageType(Integer code, String type) {
+    MessageStatus(int code) {
         this.code = code;
-        this.type = type;
     }
 }

@@ -3,11 +3,12 @@ package org.example.model.vo;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.OrderBy;
 import com.baomidou.mybatisplus.annotation.TableId;
+import lombok.Builder;
 import lombok.Data;
 
 import java.time.LocalDateTime;
 
-@Data
+@Builder
 public class ConversationVo {
     // 会话id
     @TableId(type = IdType.AUTO)
@@ -25,6 +26,8 @@ public class ConversationVo {
     // 最后一条消息时间
     @OrderBy
     private LocalDateTime lastMessageTime;
+    // 未读消息数
+    private Integer unreadMessageCount;
     // 是否在线
     private Boolean online;
 }

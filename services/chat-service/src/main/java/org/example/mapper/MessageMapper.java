@@ -10,36 +10,13 @@ import java.util.List;
 
 @Mapper
 public interface MessageMapper extends BaseMapper<Message> {
-    default List<Message> selectLastN(Long conversationId, int page, int size) {
+    default List<Message> selectLastN(Long userId, Long conversationId, int page, int size) {
         Page<Message> messagePage = new Page<>(page, size);
-        LambdaQueryWrapper<Message> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(Message::getConversationId, conversationId)
+        LambdaQueryWrapper<Message> wrapper = new LambdaQueryWrapper<>(Message.class)
+                .eq(Message::getFromUserId, userId).or().eq(Message::getToUserId, userId)
+                .eq(Message::getConversationId, conversationId)
                 .orderByDesc(Message::getCreateTime);
         Page<Message> resultPage = selectPage(messagePage, wrapper);
         return resultPage.getRecords();
-    }
-
-    default Message selectLatestMessage(Long conversationId) {
-        LambdaQueryWrapper<Message> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(Message::getConversationId, conversationId)
-                .orderByDesc(Message::getCreateTime)
-                .last("LIMIT 1");
-        return selectOne(wrapper);
-    }
-
-    default Message selectLatestMessageForUser(Long userId) {
-        LambdaQueryWrapper<Message> wrapper = new LambdaQueryWrapper<>();
-        wrapper.and(w -> w.eq(Message::getFromUserId, userId).or().eq(Message::getToUserId, userId))
-                .orderByDesc(Message::getCreateTime)
-                .last("LIMIT 1");
-        return selectOne(wrapper);
-    }
-
-    default List<Message> selectNewMessages(Long userId, Long lastReceivedId) {
-        LambdaQueryWrapper<Message> wrapper = new LambdaQueryWrapper<>();
-        wrapper.and(w -> w.eq(Message::getFromUserId, userId).or().eq(Message::getToUserId, userId))
-                .gt(Message::getId, lastReceivedId)
-                .orderByAsc(Message::getCreateTime);
-        return selectList(wrapper);
     }
 }

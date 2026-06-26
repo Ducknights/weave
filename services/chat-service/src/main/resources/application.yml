@@ -26,6 +26,11 @@ spring:
 server:
   port: 4300
 
+# Socket.IO WebSocket 配置
+socketio:
+  host: 0.0.0.0
+  port: 4302
+
 mybatis-plus:
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl

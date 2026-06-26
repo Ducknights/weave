@@ -2,6 +2,7 @@ package org.example.mapper;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.example.model.entity.Conversation;
 
@@ -12,9 +13,7 @@ import java.util.List;
 public interface ConversationMapper extends BaseMapper<Conversation> {
 
     // 根据两个用户ID查找会话
-    default Conversation findByUsers(Long userA, Long userB) {
-        long small = Math.min(userA, userB);
-        long big = Math.max(userA, userB);
+    default Conversation findByUsers(Long small, Long big) {
         LambdaQueryWrapper<Conversation> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(Conversation::getUserSmallId, small)
                 .eq(Conversation::getUserBigId, big);
@@ -38,4 +37,11 @@ public interface ConversationMapper extends BaseMapper<Conversation> {
                 .build();
         return insert(conversation) > 0 ? conversation : null;
     }
+
+    @Insert("INSERT INTO conversation (user_small_id, user_big_id, last_message) " +
+            "VALUES (#{userSmallId}, #{userBigId}, #{lastMessage}) " +
+            "ON DUPLICATE KEY UPDATE " +
+            "last_message = VALUES(last_message)")
+    void upsertConversation(Long userSmallId, Long userBigId,String lastMessage);
 }
+

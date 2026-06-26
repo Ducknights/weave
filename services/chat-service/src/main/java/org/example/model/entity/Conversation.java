@@ -1,7 +1,6 @@
 package org.example.model.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.OrderBy;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
@@ -23,11 +22,6 @@ public class Conversation {
     private Long userSmallId;
     // 大ID
     private Long userBigId;
-    // 最后一条消息
-    private String lastMessage;
-    // 最后一条消息时间
-    @OrderBy
-    private LocalDateTime lastMessageTime;
     // 创建时间
     private LocalDateTime createTime;
 }
