@@ -4,16 +4,12 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.annotation.Resource;
 import lombok.extern.log4j.Log4j2;
 import org.example.constant.CacheKey;
-import org.example.model.dto.ActionDto;
 import org.example.dto.AuthUserDto;
-import org.example.model.dto.RelationDto;
 import org.example.dto.UserBriefDto;
 import org.example.mapper.ActionMapper;
 import org.example.mapper.RelationMapper;
 import org.example.mapper.UserInfoMapper;
 import org.example.model.entity.UserInfo;
-import org.example.model.eunms.ActionEnum;
-import org.example.model.eunms.RelationEnum;
 import org.example.service.UserInfoService;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
@@ -27,7 +23,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 @Log4j2
 @Service

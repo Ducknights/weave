@@ -8,7 +8,6 @@ import org.example.model.PostActionMessage;
 import org.example.model.dto.ActionDto;
 import org.example.model.eunms.ActionEnum;
 import org.example.service.ActionService;
-import org.example.service.UserInfoService;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;

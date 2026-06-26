@@ -66,7 +66,7 @@ public class SearchController {
 
     /**
      * 索引内容
-     * POST /api/search/index
+     * POST_HASH /api/search/index
      *
      * @param document 搜索文档
      * @return 索引结果
