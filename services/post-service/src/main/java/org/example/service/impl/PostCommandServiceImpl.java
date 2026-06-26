@@ -180,7 +180,7 @@ public class PostCommandServiceImpl extends ServiceImpl<PostMapper, Post> implem
      * 取消点赞帖子
      */
     @Override
-    public void unlike(Long userId, Long postId) {
+    public void unLike(Long userId, Long postId) {
         handlePostAction(userId, postId, PostActionType.UNLIKE);
     }
 
@@ -196,7 +196,7 @@ public class PostCommandServiceImpl extends ServiceImpl<PostMapper, Post> implem
      * 取消收藏帖子
      */
     @Override
-    public void uncollect(Long userId, Long postId) {
+    public void unCollect(Long userId, Long postId) {
         handlePostAction(userId, postId, PostActionType.UNCOLLECT);
     }
 

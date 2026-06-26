@@ -19,7 +19,7 @@ import java.util.Map;
  */
 @Log4j2
 @RestControllerAdvice
-public class PostExceptionHandler {
+public class GlobalExceptionHandler {
 
     /**
      * 处理资源未找到异常

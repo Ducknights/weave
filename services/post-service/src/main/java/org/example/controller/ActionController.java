@@ -5,10 +5,7 @@ import org.example.model.enums.PostApiStatus;
 import org.example.service.PostCommandService;
 import org.example.util.SecurityUtils;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/post")
@@ -30,10 +27,10 @@ public class ActionController {
     /**
      * 取消点赞帖子
      */
-    @PostMapping("/{id}/unlike")
-    public ResponseEntity<?> unlike(@PathVariable Long id) {
+    @DeleteMapping("/{id}/like")
+    public ResponseEntity<?> unLike(@PathVariable Long id) {
         Long userId = SecurityUtils.getCurrentUserId();
-        postCommandService.unlike(userId, id);
+        postCommandService.unLike(userId, id);
         return ResponseEntity.ok(PostApiStatus.UNLIKE_SUCCESS.response());
     }
 
@@ -50,10 +47,10 @@ public class ActionController {
     /**
      * 取消收藏帖子
      */
-    @PostMapping("/{id}/uncollect")
-    public ResponseEntity<?> unfavorite(@PathVariable Long id) {
+    @DeleteMapping("/{id}/collect")
+    public ResponseEntity<?> unCollect(@PathVariable Long id) {
         Long userId = SecurityUtils.getCurrentUserId();
-        postCommandService.uncollect(userId, id);
+        postCommandService.unCollect(userId, id);
         return ResponseEntity.ok(PostApiStatus.UNFAVORITE_SUCCESS.response());
     }
 }

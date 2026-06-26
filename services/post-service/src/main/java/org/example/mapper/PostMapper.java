@@ -3,7 +3,6 @@ package org.example.mapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Update;
 import org.example.model.entity.Post;
 import org.springframework.util.CollectionUtils;

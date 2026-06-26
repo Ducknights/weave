@@ -3,15 +3,12 @@ package org.example.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.Resource;
 import lombok.extern.log4j.Log4j2;
 import org.example.constant.CacheKey;
 import org.example.dto.ClubBriefDto;
 import org.example.dto.PostDetailVo;
 import org.example.dto.UserBriefDto;
-import org.example.exception.AuthorizationException;
 import org.example.exception.ResourceNotFoundException;
 import org.example.feign.ClubFeignClient;
 import org.example.feign.RecommendFeignClient;
@@ -27,8 +24,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.util.*;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 @Service
 @Log4j2
@@ -49,7 +44,7 @@ public class PostQueryServiceImpl extends ServiceImpl<PostMapper, Post> implemen
      * 用户点击帖子详情
      */
     @Override
-    public PostDetailVo clickForDetails(Long id, Long userId) {
+    public List<PostDetailVo> clickForDetails(Long id, Long userId) {
         // 从缓存或数据库获取帖子
         List<Post> posts = postRepository.getPostsFromCacheOrDb(List.of(id));
         if (posts.isEmpty()){
@@ -62,7 +57,7 @@ public class PostQueryServiceImpl extends ServiceImpl<PostMapper, Post> implemen
         post.setViewCount(post.getViewCount() + 1);
 
         // 转换为 PostDetailVo
-        return convertToPostDetailVoList(List.of(post)).get(0);
+        return convertToPostDetailVoList(List.of(post));
     }
 
     /**
@@ -216,7 +211,6 @@ public class PostQueryServiceImpl extends ServiceImpl<PostMapper, Post> implemen
         if (currentUserId == null) {
             return false;
         }
-
         // 1. 先尝试直接判断成员（命中则直接返回）
         Boolean isMember = redisTemplate.opsForSet().isMember(cacheKey, postId);
         if (Boolean.TRUE.equals(isMember)) {

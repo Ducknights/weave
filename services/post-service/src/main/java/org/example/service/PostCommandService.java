@@ -19,11 +19,11 @@ public interface PostCommandService extends IService<Post> {
 
     void like(Long userId, Long postId);
 
-    void unlike(Long userId, Long postId);
+    void unLike(Long userId, Long postId);
 
     void collect(Long userId, Long postId);
 
-    void uncollect(Long userId, Long postId);
+    void unCollect(Long userId, Long postId);
 
     void updateStats(Long postId, String action);
 }

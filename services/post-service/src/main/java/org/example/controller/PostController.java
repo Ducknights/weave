@@ -96,8 +96,8 @@ public class PostController {
     @GetMapping("/{id}")
     public ResponseEntity<?> clickForDetails(@PathVariable Long id) {
         Long userId = SecurityUtils.getCurrentUserId();
-        PostDetailVo post = postQueryService.clickForDetails(id,userId);
-        return ResponseEntity.ok().body(PostApiStatus.SUCCESS.response(post));
+        List<PostDetailVo> postVo = postQueryService.clickForDetails(id, userId);
+        return ResponseEntity.ok().body(PostApiStatus.SUCCESS.response(postVo));
     }
 
     /**
