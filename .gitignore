@@ -5,7 +5,7 @@ target/
 
 # IDE 相关
 .idea/
-.trae/
+.trae
 *.iml
 *.iws
 *.ipr
