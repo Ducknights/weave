@@ -10,4 +10,6 @@ public interface RelationService {
     void deleteRecord(RelationDto dto);
 
     List<Long> getRecord(RelationDto dto, int page, int size);
+
+    void cacheUserRelation(Long id);
 }

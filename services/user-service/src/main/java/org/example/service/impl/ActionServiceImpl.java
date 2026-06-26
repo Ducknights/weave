@@ -4,8 +4,11 @@ import jakarta.annotation.Resource;
 import lombok.extern.log4j.Log4j2;
 import org.example.constant.CacheKey;
 import org.example.model.dto.ActionDto;
+import org.example.model.dto.RelationDto;
 import org.example.model.entity.UserActions;
 import org.example.mapper.ActionMapper;
+import org.example.model.eunms.ActionEnum;
+import org.example.model.eunms.RelationEnum;
 import org.example.service.ActionService;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.dao.DuplicateKeyException;
@@ -14,6 +17,8 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 @Log4j2
 @Service
@@ -66,5 +71,26 @@ public class ActionServiceImpl implements ActionService {
             case COLLECT -> CacheKey.buildCacheKey(CacheKey.USER_COLLECTED_POSTS, dto.userId());
             case VIEW -> CacheKey.buildCacheKey(CacheKey.USER_VIEWED_POSTS, dto.userId());
         };
+    }
+
+    @Override
+    public void cacheUserAction(Long userId) {
+        // 缓存用户操作记录
+        for (ActionEnum action : ActionEnum.values()) {
+            ActionDto actionDto = new ActionDto(userId,null, action);
+            Set<Long> postIds = actionMapper.getAllTargetIdsByUserAndType(actionDto);
+            if (postIds != null && !postIds.isEmpty()) {
+                String key = switch (action) {
+                    case LIKE -> CacheKey.buildCacheKey(CacheKey.USER_LIKED_POSTS, userId);
+                    case COLLECT -> CacheKey.buildCacheKey(CacheKey.USER_COLLECTED_POSTS, userId);
+                    case VIEW -> CacheKey.buildCacheKey(CacheKey.USER_VIEWED_POSTS, userId);
+                };
+                try {
+                    redisTemplate.opsForSet().add(key, postIds.toArray(new Long[0]), 1, TimeUnit.DAYS);
+                } catch (Exception e) {
+                    log.error("缓存用户操作记录失败", e);
+                }
+            }
+        }
     }
 }

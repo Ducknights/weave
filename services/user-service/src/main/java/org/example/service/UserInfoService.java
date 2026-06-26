@@ -20,6 +20,4 @@ public interface UserInfoService {
     UserInfo updateUser(UserInfo user);
 
     UserInfo getSelfInfo(Long id);
-
-    void cacheUserAction(Long id);
 }

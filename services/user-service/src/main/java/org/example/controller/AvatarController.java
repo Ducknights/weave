@@ -28,8 +28,7 @@ public class AvatarController {
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> uploadAvatar(
             @RequestParam("file") MultipartFile file) {
-
-        String path = fileService.uploadFile(file, null);
+        String path = fileService.uploadAvatar(file);
         return ResponseEntity.ok(UserApiStatus.CREATE_SUCCESS.response(path));
     }
 

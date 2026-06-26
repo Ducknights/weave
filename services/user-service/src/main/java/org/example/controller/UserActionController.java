@@ -1,9 +1,11 @@
 package org.example.controller;
 
 import jakarta.annotation.Resource;
+import org.example.constant.MQueue;
 import org.example.model.dto.ActionDto;
 import org.example.service.ActionService;
 import org.example.util.SecurityUtils;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -57,5 +59,16 @@ public class UserActionController {
         Long userId = SecurityUtils.getCurrentUserId();
         ActionDto dto = new ActionDto(userId, null, VIEW);
         return actionService.getRecord(dto, page, size);
+    }
+
+    @GetMapping("/loadCache")
+    public void loadCache() {
+        Long userId = SecurityUtils.getCurrentUserId();
+        actionService.cacheUserAction(userId);
+    }
+
+    @RabbitListener(queues = MQueue.USER_LOGIN_QUEUE)
+    public void cacheUserActions(Long userId) {
+        actionService.cacheUserAction(userId);
     }
 }

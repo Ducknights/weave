@@ -4,7 +4,6 @@ import com.baomidou.mybatisplus.annotation.EnumValue;
 import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.Getter;
 
-
 /**
  * 动作枚举类，表示用户可能执行的动作，如点赞、收藏等。
  */

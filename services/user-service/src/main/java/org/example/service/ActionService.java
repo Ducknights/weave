@@ -10,4 +10,6 @@ public interface ActionService {
     void deleteRecord(ActionDto dto);
 
     List<Long> getRecord(ActionDto dto, int page, int size);
+
+    void cacheUserAction(Long id);
 }

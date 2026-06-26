@@ -21,14 +21,11 @@ import java.util.Set;
 public class PostActionMessageConsumer {
 
     private final ActionService actionService;
-    private final UserInfoService userInfoService;
     private final RedisTemplate<String, Object> redisTemplate;
 
     public PostActionMessageConsumer(ActionService actionService,
-                                     UserInfoService userInfoService,
                                      RedisTemplate<String, Object> redisTemplate) {
         this.actionService = actionService;
-        this.userInfoService = userInfoService;
         this.redisTemplate = redisTemplate;
     }
 
@@ -74,14 +71,14 @@ public class PostActionMessageConsumer {
             try {
                 redisTemplate.opsForSet().add(cacheKey, actionDto.targetId());
             } catch (Exception e) {
-                userInfoService.cacheUserAction(actionDto.userId());
+                log.error("缓存用户操作失败，用户ID: {}, 目标ID: {}，操作类型: {}", actionDto.userId(), actionDto.targetId(), actionDto.type(), e);
             }
         } else {
             actionService.deleteRecord(actionDto);
             try {
                 redisTemplate.opsForSet().remove(cacheKey, actionDto.targetId());
             } catch (Exception e) {
-                userInfoService.cacheUserAction(actionDto.userId());
+                log.error("缓存用户操作失败，用户ID: {}, 目标ID: {}，操作类型: {}", actionDto.userId(), actionDto.targetId(), actionDto.type(), e);
             }
         }
     }

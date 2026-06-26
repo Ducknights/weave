@@ -6,6 +6,7 @@ import org.example.constant.CacheKey;
 import org.example.model.dto.RelationDto;
 import org.example.model.entity.UserRelations;
 import org.example.mapper.RelationMapper;
+import org.example.model.eunms.RelationEnum;
 import org.example.service.RelationService;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DuplicateKeyException;
@@ -14,6 +15,8 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 @Log4j2
 @Service
@@ -27,12 +30,12 @@ public class RelationServiceImpl implements RelationService {
     @Override
     public void addRecord(RelationDto dto) {
         UserRelations userRelations = new UserRelations(null, dto.userId(), dto.targetId(), dto.type(), LocalDateTime.now());
-        try{
+        try {
             relationMapper.insert(userRelations);
             redisTemplate.opsForSet().add(buildCacheKey(dto), dto.targetId());
-        }catch (DuplicateKeyException e) {
+        } catch (DuplicateKeyException e) {
             log.debug("用户 {} 重复执行操作，目标ID: {}，操作类型: {}", dto.userId(), dto.targetId(), dto.type());
-        }catch(DataIntegrityViolationException e){
+        } catch (DataIntegrityViolationException e) {
             log.error("执行操作失败，用户ID: {}, 目标ID: {}，操作类型: {}", dto.userId(), dto.targetId(), dto.type(), e);
         }
     }
@@ -52,11 +55,32 @@ public class RelationServiceImpl implements RelationService {
         return result;
     }
 
-    private String buildCacheKey(RelationDto dto) {
-        return switch (dto.type()){
-           case FOLLOW -> CacheKey.buildCacheKey(CacheKey.USER_FOLLOWERS, dto.userId());
-           case MUTE -> CacheKey.buildCacheKey(CacheKey.USER_MUTED_USERS, dto.userId());
-           case BLOCK -> CacheKey.buildCacheKey(CacheKey.USER_BLOCKED_USERS, dto.userId());
-       };
+    @Override
+    public void cacheUserRelation(Long userId) {
+        for (RelationEnum relation : RelationEnum.values()) {
+            RelationDto relationDto = new RelationDto(userId, null, relation);
+            Set<Long> targetIds = relationMapper.getAllTargetIdsByUserAndType(relationDto);
+            if (targetIds != null && !targetIds.isEmpty()) {
+                String key = switch (relation) {
+                    case FOLLOW -> CacheKey.buildCacheKey(CacheKey.USER_FOLLOWERS, userId);
+                    case MUTE -> CacheKey.buildCacheKey(CacheKey.USER_MUTED_USERS, userId);
+                    case BLOCK -> CacheKey.buildCacheKey(CacheKey.USER_BLOCKED_USERS, userId);
+                };
+                try {
+                    redisTemplate.opsForSet().add(key, targetIds.toArray(new Long[0]), 1, TimeUnit.DAYS);
+                } catch (Exception e) {
+                    log.error("缓存用户关系记录失败", e);
+                }
+            }
+        }
     }
+
+    private String buildCacheKey(RelationDto dto) {
+        return switch (dto.type()) {
+            case FOLLOW -> CacheKey.buildCacheKey(CacheKey.USER_FOLLOWERS, dto.userId());
+            case MUTE -> CacheKey.buildCacheKey(CacheKey.USER_MUTED_USERS, dto.userId());
+            case BLOCK -> CacheKey.buildCacheKey(CacheKey.USER_BLOCKED_USERS, dto.userId());
+        };
+    }
+
 }
