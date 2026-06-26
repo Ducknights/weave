@@ -5,12 +5,16 @@ spring:
     nacos:
       discovery:
         server-addr: localhost:8848
-        namespace: dev
+    # Feign 熔断降级
+    openfeign:
+      circuitbreaker:
+        enabled: true
   # MongoDB 配置
   data:
     mongodb:
       uri: mongodb://localhost:27017/school
-      database: school
+      database: weave
+      auto-index-creation: true
 
 server:
   port: 4400

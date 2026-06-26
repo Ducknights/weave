@@ -2,13 +2,13 @@ package org.example.controller;
 
 import jakarta.annotation.Resource;
 import lombok.extern.log4j.Log4j2;
-import org.example.model.ApiResult;
 import org.example.model.dto.CommentCommand;
-import org.example.model.dto.CommentPageDto;
-import org.example.model.entity.Comment;
+import org.example.model.dto.CommentVosDto;
 import org.example.model.enums.CommentApiStatus;
 import org.example.service.CommentService;
+import org.example.util.SecurityUtils;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -30,109 +30,11 @@ public class CommentController {
      * POST /api/comments
      */
     @PostMapping
-    public ResponseEntity<ApiResult<?>> addComment(@RequestBody CommentCommand command) {
+    public ResponseEntity<?> addComment(@RequestBody CommentCommand command) {
         commentService.addComment(command);
-        return ResponseEntity
-                .status(201)
+        return ResponseEntity.status(201)
                 .body(CommentApiStatus.ADD_SUCCESS.response());
 
-    }
-
-    /**
-     * 获取评论详情
-     * GET /api/comments/{commentId}
-     */
-    @GetMapping("/{commentId}")
-    public ResponseEntity<ApiResult<?>> getCommentById(@PathVariable String commentId) {
-        log.info("获取评论详情: commentId={}", commentId);
-        Comment comment = commentService.getCommentById(commentId);
-        return ResponseEntity
-                .ok()
-                .body(CommentApiStatus.GET_SUCCESS.response(comment));
-    }
-
-    /**
-     * 获取某资源的所有评论（按时间排序，游标分页）
-     * GET /api/comments/resource/{resourceId}/time
-     */
-    @GetMapping("/resource/{resourceId}/time")
-    public CommentPageDto getCommentsByResourceByTime(
-            @PathVariable String resourceId,
-            @RequestParam(required = false) String cursorTime,
-            @RequestParam(required = false) String cursorId,
-            @RequestParam(defaultValue = "20") int limit) {
-        log.info("获取资源评论(按时间): resourceId={}, cursorTime={}, cursorId={}, limit={}", 
-                 resourceId, cursorTime, cursorId, limit);
-        return commentService.getCommentsByResourceByTime(resourceId, cursorTime, cursorId, limit);
-    }
-
-    /**
-     * 获取某资源的所有评论（按热度排序，游标分页）
-     * GET /api/comments/resource/{resourceId}/hot
-     */
-    @GetMapping("/resource/{resourceId}/hot")
-    public CommentPageDto getCommentsByResourceByHot(
-            @PathVariable String resourceId,
-            @RequestParam(required = false) Integer cursorLikeCount,
-            @RequestParam(required = false) Integer cursorReplyCount,
-            @RequestParam(required = false) String cursorId,
-            @RequestParam(defaultValue = "20") int limit) {
-        log.info("获取资源评论(按热度): resourceId={}, cursorLikeCount={}, cursorReplyCount={}, cursorId={}, limit={}", 
-                 resourceId, cursorLikeCount, cursorReplyCount, cursorId, limit);
-        return commentService.getCommentsByResourceByHot(resourceId, cursorLikeCount, cursorReplyCount, cursorId, limit);
-    }
-
-    /**
-     * 获取某用户的所有评论
-     * GET /api/comments/user/{userId}
-     */
-    @GetMapping("/user/{userId}")
-    public Map<String, Object> getCommentsByUser(
-            @PathVariable String userId,
-            @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "20") int limit) {
-        log.info("获取用户评论: userId={}, page={}, limit={}", userId, page, limit);
-        return commentService.getCommentsByUser(userId, page, limit);
-    }
-
-    /**
-     * 获取某评论的所有回复
-     * GET /api/comments/replies/{commentId}
-     */
-    @GetMapping("/replies/{commentId}")
-    public Map<String, Object> getReplies(
-            @PathVariable String commentId,
-            @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "20") int limit) {
-        log.info("获取评论回复: commentId={}, page={}, limit={}", commentId, page, limit);
-        return commentService.getReplies(commentId, page, limit);
-    }
-
-    /**
-     * 点赞/取消点赞评论
-     * POST /api/comments/{commentId}/like
-     */
-    @PostMapping("/{commentId}/like")
-    public Map<String, Object> toggleLike(
-            @PathVariable String commentId,
-            @RequestBody Map<String, String> request) {
-        String userId = request.get("userId");
-        log.info("点赞操作: commentId={}, userId={}", commentId, userId);
-        return commentService.toggleLike(commentId, userId);
-    }
-
-    /**
-     * 编辑评论
-     * PUT /api/comments/{commentId}
-     */
-    @PutMapping("/{commentId}")
-    public Map<String, Object> updateComment(
-            @PathVariable String commentId,
-            @RequestBody Map<String, String> request) {
-        String content = request.get("content");
-        String userId = request.get("userId");
-        log.info("编辑评论: commentId={}, userId={}", commentId, userId);
-        return commentService.updateComment(commentId, content, userId);
     }
 
     /**
@@ -140,13 +42,67 @@ public class CommentController {
      * DELETE /api/comments/{commentId}
      */
     @DeleteMapping("/{commentId}")
-    public Map<String, Object> deleteComment(
+    @PreAuthorize("hasAnyRole('USER','ADMIN','OFFICER')")
+    public ResponseEntity<?> deleteComment(
+            @PathVariable String commentId) {
+        Long userId = SecurityUtils.getCurrentUserId();
+        commentService.deleteComment(commentId, userId);
+        return ResponseEntity.status(204)
+                .body(CommentApiStatus.DELETED_SUCCESS.response());
+    }
+
+    /**
+     * 获取某帖子的评论（按热度排序，游标分页）
+     * GET /api/comments/post/{postId}/hot
+     */
+    @GetMapping("/post/{postId}/hot")
+    public ResponseEntity<?> getCommentsByResourceByHot(
+            @PathVariable Long postId,
+            @RequestParam(required = false) Integer cursorLikeCount,
+            @RequestParam(required = false) String cursorId,
+            @RequestParam(defaultValue = "20") int limit) {
+        log.info("获取资源评论(按热度): resourceId={}, cursorLikeCount={}, cursorId={}, limit={}",
+                 postId, cursorLikeCount, cursorId, limit);
+        CommentVosDto dto = commentService.getRootCommentsByPostByHot(postId, cursorLikeCount, cursorId, limit);
+        return ResponseEntity.ok().body(CommentApiStatus.GET_SUCCESS.response(dto));
+    }
+
+    /**
+     * 获取某评论的所有回复
+     * GET /api/comments/replies/{commentId}
+     */
+    @GetMapping("/replies/{commentId}")
+    public ResponseEntity<?> getReplies(
             @PathVariable String commentId,
-            @RequestBody Map<String, Object> request) {
-        String userId = (String) request.get("userId");
-        boolean isAdmin = request.get("isAdmin") != null && (boolean) request.get("isAdmin");
-        log.info("删除评论: commentId={}, userId={}, isAdmin={}", commentId, userId, isAdmin);
-        return commentService.deleteComment(commentId, userId, isAdmin);
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "20") int limit) {
+        log.info("获取评论回复: commentId={}, page={}, limit={}", commentId, page, limit);
+        CommentVosDto dto = commentService.getReplies(commentId, page, limit);
+        return ResponseEntity.ok().body(CommentApiStatus.GET_SUCCESS.response(dto));
+    }
+
+    /**
+     * 点赞评论
+     * POST /api/comment/{commentId}/like
+     */
+    @PostMapping("/{commentId}/like")
+    public ResponseEntity<?> likeComment(@PathVariable String commentId) {
+        Long userId = SecurityUtils.getCurrentUserId();
+        log.info("点赞评论: commentId={}, userId={}", commentId, userId);
+        commentService.likeComment(commentId, userId);
+        return ResponseEntity.ok().body(CommentApiStatus.LIKE_SUCCESS.response());
+    }
+
+    /**
+     * 取消点赞评论
+     * DELETE /api/comment/{commentId}/like
+     */
+    @DeleteMapping("/{commentId}/like")
+    public ResponseEntity<?> unlikeComment(@PathVariable String commentId) {
+        Long userId = SecurityUtils.getCurrentUserId();
+        log.info("取消点赞评论: commentId={}, userId={}", commentId, userId);
+        commentService.unlikeComment(commentId, userId);
+        return ResponseEntity.ok().body(CommentApiStatus.UNLIKE_SUCCESS.response());
     }
 
     /**

@@ -1,7 +1,7 @@
 package org.example.model.dto;
 
 public record CommentCommand (
-    String resourceId,
+    Long postId,
     String parentId,
     String content
     ){

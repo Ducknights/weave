@@ -4,11 +4,13 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.Builder.Default;
 import org.bson.types.ObjectId;
+import org.example.exception.BusinessException;
+import org.example.model.enums.CommentApiStatus;
+import org.springframework.data.mongodb.core.index.CompoundIndex;
+import org.springframework.data.mongodb.core.index.CompoundIndexes;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * 评论实体类
@@ -17,13 +19,25 @@ import java.util.List;
 @Builder
 @Data
 @Document(collection = "comments")
+@CompoundIndexes({
+        @CompoundIndex(
+                name = "idx_post_status_parent_like_id",
+                def = "{'postId': 1, 'status': 1, 'parentId': 1, 'likeCount': -1, '_id': -1}"
+        ),
+        @CompoundIndex(
+                name = "idx_post_status_parent_time_id",
+                def = "{'postId': 1, 'status': 1, 'parentId': 1, 'createdTime': -1, '_id': -1}"
+        ),
+        @CompoundIndex(
+                name = "idx_parent_status_time",
+                def = "{'parentId': 1, 'status': 1, 'createdTime': 1}"
+        )
+})
 public class Comment {
     private ObjectId id;
-    private String resourceId;  // 资源ID
+    private Long postId;  // 帖子ID
     private String parentId;    // 父评论ID
     private Long userId;    // 用户ID
-    private String avatar;    // 用户头像
-    private String userName;    // 用户名
     private String content;    // 评论内容
     
     @Default
@@ -33,67 +47,34 @@ public class Comment {
     private int likeCount = 0;    // 点赞数量
     
     @Default
-    private List<String> likedUsers = new ArrayList<>();    // 点赞用户ID列表
-    
-    @Default
     private LocalDateTime createdTime = LocalDateTime.now();
-    
-    @Default
-    private LocalDateTime updatedTime = LocalDateTime.now();
     
     @Default
     private int status = STATUS_VISIBLE;
     
     // 评论状态常量
-    public static final int STATUS_HIDDEN = 0; // 隐藏
     public static final int STATUS_VISIBLE = 1; // 可见
     public static final int STATUS_DELETED = 2; // 删除
-    
+
+    public static final int CONTENT_LENGTH = 200; // 评论内容长度限制
+
     /**
      * 验证评论数据
      */
-    public static ValidationResult validate(Comment comment) {
-        ValidationResult result = new ValidationResult();
-        
-        if (comment.getResourceId() == null || comment.getResourceId().isEmpty()) {
-            result.addError("缺少资源ID");
+    public static void validate(Comment comment) {
+        // 验证资源ID
+        if (comment.getPostId() == null) {
+            throw new BusinessException(CommentApiStatus.MISSING_POST_ID);
         }
-        
+        // 验证用户ID
         if (comment.getUserId() == null) {
-            result.addError("缺少用户ID");
+            throw new BusinessException(CommentApiStatus.MISSING_USER_ID);
         }
-        
-        if (comment.getUserName() == null || comment.getUserName().isEmpty()) {
-            result.addError("缺少用户名");
-        }
-        
+        // 验证评论内容
         if (comment.getContent() == null || comment.getContent().trim().isEmpty()) {
-            result.addError("评论内容不能为空");
-        } else if (comment.getContent().length() > 1000) {
-            result.addError("评论内容不能超过1000字符");
-        }
-        
-        return result;
-    }
-    
-    /**
-     * 验证结果类
-     */
-    public static class ValidationResult {
-        private boolean isValid = true;
-        private List<String> errors = new ArrayList<>();
-        
-        public void addError(String error) {
-            errors.add(error);
-            isValid = false;
-        }
-        
-        public boolean isValid() {
-            return isValid;
-        }
-        
-        public List<String> getErrors() {
-            return errors;
+            throw new BusinessException(CommentApiStatus.EMPTY_CONTENT);
+        } else if (comment.getContent().length() > CONTENT_LENGTH) {
+            throw new BusinessException(CommentApiStatus.CONTENT_TOO_LONG);
         }
     }
 }
