@@ -123,8 +123,8 @@ public class RedisConfig {
         // 社区相关
         configMap.put(CacheKey.ACTIVITY, defaultConfig.entryTtl(Duration.ofDays(1)));   // 社区动态
         configMap.put(CacheKey.CLUB, defaultConfig.entryTtl(Duration.ofDays(1)));   // 社区俱乐部
-        configMap.put(CacheKey.POST, defaultConfig.entryTtl(Duration.ofDays(1)));   // 社区帖子
-        configMap.put(CacheKey.POST_DETAIL, defaultConfig.entryTtl(Duration.ofDays(1)));    // 社区帖子详情
+        // 帖子相关
+        configMap.put(CacheKey.POST_HASH, defaultConfig.entryTtl(Duration.ofMinutes(5)));   // 社区帖子
         // 用户行为相关
         configMap.put(CacheKey.USER_VIEWED_POSTS, defaultConfig.entryTtl(Duration.ofDays(1)));  // 用户查看
         configMap.put(CacheKey.USER_LIKED_POSTS, defaultConfig.entryTtl(Duration.ofDays(1)));   // 用户点赞
@@ -133,7 +133,8 @@ public class RedisConfig {
         configMap.put(CacheKey.USER_MUTED_USERS, defaultConfig.entryTtl(Duration.ofDays(1)));   // 用户静音
         configMap.put(CacheKey.USER_BLOCKED_USERS, defaultConfig.entryTtl(Duration.ofDays(1)));   // 用户封禁
         // 资源相关
-        configMap.put(CacheKey.AVATAR_URL, defaultConfig.entryTtl(Duration.ofHours(2)));
+        configMap.put(CacheKey.AVATAR_URL, defaultConfig.entryTtl(Duration.ofMinutes(50)));   // 用户头像
+        configMap.put(CacheKey.FILE_URL, defaultConfig.entryTtl(Duration.ofMinutes(50)));   // 文件资源
 
         return RedisCacheManager.builder(factory)
                 .cacheDefaults(defaultConfig)
