@@ -4,7 +4,6 @@ import jakarta.annotation.Resource;
 import org.example.filter.HeaderFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -46,7 +45,12 @@ public class SecurityConfiguration {
                 .formLogin(AbstractHttpConfigurer::disable)
                 .logout(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/login", "/api/auth/register/*").permitAll()
+                        .requestMatchers(
+                                "/api/auth/login",
+                                "/api/auth/register/**",
+                                "/api/auth/access",
+                                "/api/auth/refresh"
+                        ).permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(headerFilter, UsernamePasswordAuthenticationFilter.class);

@@ -29,14 +29,14 @@ public class AuthController {
                 .body(AuthApiStatus.LOGIN_SUCCESS.response(apiResult));
     }
 
-    @PostMapping("/register/sendCode")
+    @PostMapping("/register/code")
     public ResponseEntity<ApiResult<?>> sendCode(@Valid @NotNull @RequestBody ApiRequestDto apiRequestDto) {
         authService.sendCode(apiRequestDto);
         return ResponseEntity.ok()
                 .body(AuthApiStatus.CODE_SEND_SUCCESS.response());
     }
 
-    @PostMapping("/register/verifyCode")
+    @PostMapping("/register/code/verify")
     public ResponseEntity<ApiResult<?>> verify(@Valid @NotNull @RequestBody VerifyCodeDto dto) {
         log.info("verify: {}", dto);
         authService.verifyCode(dto);
@@ -52,19 +52,18 @@ public class AuthController {
                 .body(AuthApiStatus.LOGOUT_SUCCESS.response());
     }
 
-    @PostMapping("/access")
-    public ResponseEntity<ApiResult<?>> getNewToken() {
-        Long userId = SecurityUtils.getCurrentUserId();
-        var res = authService.getNewSuccessToken(userId);
+    @GetMapping("/access")
+    public ResponseEntity<ApiResult<?>> getNewToken(@RequestHeader(org.example.constant.RequestHeader.X_USER_ID) String userId) {
+        log.info("getNewToken: {}", userId);
+        var token = authService.getNewSuccessToken(Long.valueOf(userId));
         return ResponseEntity.ok()
-                .body(AuthApiStatus.NEW_TOKEN_SUCCESS.response(res));
+                .body(AuthApiStatus.NEW_TOKEN_SUCCESS.response(token));
     }
 
-    @PostMapping("/refresh")
-    public ResponseEntity<ApiResult<?>> getNewRefreshToken() {
-        Long userId = SecurityUtils.getCurrentUserId();
-        var res = authService.getNewRefreshToken(userId);
+    @GetMapping("/refresh")
+    public ResponseEntity<ApiResult<?>> getNewRefreshToken(@RequestHeader(org.example.constant.RequestHeader.X_USER_ID) String userId) {
+        var token = authService.getNewRefreshToken(Long.valueOf(userId));
         return ResponseEntity.ok()
-                .body(AuthApiStatus.NEW_TOKEN_SUCCESS.response(res));
+                .body(AuthApiStatus.NEW_TOKEN_SUCCESS.response(token));
     }
 }

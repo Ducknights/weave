@@ -8,16 +8,16 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.HandlerMethodValidationException;
 
 @Slf4j
 @RestControllerAdvice
 public class AuthExceptionHandler {
 
-    @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<ApiResult<?>> handleRuntimeException(RuntimeException e) {
+    @ExceptionHandler(HandlerMethodValidationException.class)
+    public ResponseEntity<?> handleRuntimeException(HandlerMethodValidationException e) {
         log.error("运行时异常: {}", e.getMessage(), e);
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(new ApiResult<>(500, "服务器内部错误: " + e.getMessage(), null));
+        return ResponseEntity.badRequest().body("具体错误：" + e.getMessage());
     }
 
     @ExceptionHandler(CodeErrorException.class)

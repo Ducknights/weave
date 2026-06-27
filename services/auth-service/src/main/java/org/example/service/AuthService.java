@@ -158,12 +158,12 @@ public class AuthService {
     public TokenDto getNewSuccessToken(Long userId) {
         try {
             // 1. 生成JWT令牌
-            String subject = "UserId:" + userId;
+            String subject = CacheKey.buildCacheKey(CacheKey.USER_AUTHORITY, userId);
             String access_token = jwtUtil.generateJwtToken(subject, ACCESS_TOKEN_EXPIRE_TIME);
             // 2. 缓存用户权限
             cacheUserAuthorities(userId);
             // 3. 构造返回DTO
-            return new TokenDto(access_token, ACCESS_TOKEN_EXPIRE_TIME,null , 0);
+            return new TokenDto(access_token, ACCESS_TOKEN_EXPIRE_TIME,null , null);
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }
@@ -172,12 +172,12 @@ public class AuthService {
     public TokenDto getNewRefreshToken(Long userId){
         try {
             // 1. 生成JWT令牌
-            String subject = "UserId:" + userId;
+            String subject = CacheKey.buildCacheKey(CacheKey.USER_AUTHORITY, userId);
             String refresh_token = jwtUtil.generateJwtToken(subject, REFRESH_TOKEN_EXPIRE_TIME);
             // 2. 重新缓存用户权限信息
             cacheUserAuthorities(userId);
             // 3. 构造返回DTO
-            return new TokenDto(null,0 , refresh_token, REFRESH_TOKEN_EXPIRE_TIME);
+            return new TokenDto(null,null , refresh_token, REFRESH_TOKEN_EXPIRE_TIME);
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }
