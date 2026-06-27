@@ -56,5 +56,8 @@ public class ChatController {
         return ResponseEntity.ok(ChatApiStatus.GET_MESSAGES_SUCCESS.response(messages));
     }
 
-
+    @GetMapping("/health")
+    public ResponseEntity<?> healthCheck() {
+        return ResponseEntity.ok().body("服务运行正常");
+    }
 }

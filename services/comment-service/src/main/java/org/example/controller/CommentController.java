@@ -110,10 +110,7 @@ public class CommentController {
      * GET /api/comments/health
      */
     @GetMapping("/health")
-    public Map<String, Object> healthCheck() {
-        return Map.of(
-                "status", "healthy",
-                "message", "评论服务运行正常"
-        );
+    public ResponseEntity<?> healthCheck() {
+        return ResponseEntity.ok().body("服务运行正常");
     }
 }
