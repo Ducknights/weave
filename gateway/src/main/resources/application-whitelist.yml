@@ -9,7 +9,7 @@ spring:
       # USER (用户)
       - GET:/api/user/info
       - GET:/api/user/info/{id}
-      - GET:/api/users/avatar/**
+      - GET:/api/user/avatar/**
       # SEARCH (搜索)
       - GET:/api/search/**
       # AUTH (认证)
