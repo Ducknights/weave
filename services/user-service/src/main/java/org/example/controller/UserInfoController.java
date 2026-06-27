@@ -4,9 +4,11 @@ import jakarta.annotation.Resource;
 import lombok.extern.log4j.Log4j2;
 import org.example.dto.AuthUserDto;
 import org.example.dto.UserBriefDto;
+import org.example.model.dto.UpdateUserInfoDto;
 import org.example.model.entity.UserInfo;
 import org.example.service.UserInfoService;
 import org.example.util.SecurityUtils;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -70,7 +72,7 @@ public class UserInfoController {
      *
      */
     @PutMapping()
-    public UserInfo updateUser(@RequestBody UserInfo user) {
+    public UpdateUserInfoDto updateUser(@RequestBody UpdateUserInfoDto user) {
         Long userId = SecurityUtils.getCurrentUserId();
         user.setId(userId);
         return userInfoService.updateUser(user);
@@ -84,5 +86,10 @@ public class UserInfoController {
     public Boolean heartBeat () {
         Long userId = SecurityUtils.getCurrentUserId();
         return userInfoService.refresh(userId);
+    }
+
+    @GetMapping("/health")
+    public ResponseEntity<?> healthCheck() {
+        return ResponseEntity.ok().body("服务运行正常");
     }
 }

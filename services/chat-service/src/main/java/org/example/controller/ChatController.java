@@ -4,7 +4,6 @@ import jakarta.annotation.Resource;
 import org.example.model.entity.Message;
 import org.example.model.enums.ChatApiStatus;
 import org.example.model.vo.ConversationVo;
-import org.example.service.ConversationMemberService;
 import org.example.service.ConversationService;
 import org.example.service.MessageService;
 import org.example.util.SecurityUtils;
@@ -19,8 +18,6 @@ public class ChatController {
 
     @Resource
     private ConversationService conversationService;
-    @Resource
-    private ConversationMemberService conversationMemberService;
     @Resource
     private MessageService messageService;
 
@@ -56,5 +53,8 @@ public class ChatController {
         return ResponseEntity.ok(ChatApiStatus.GET_MESSAGES_SUCCESS.response(messages));
     }
 
-
+    @GetMapping("/health")
+    public ResponseEntity<?> healthCheck() {
+        return ResponseEntity.ok().body("服务运行正常");
+    }
 }

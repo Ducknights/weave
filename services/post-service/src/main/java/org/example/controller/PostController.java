@@ -167,4 +167,9 @@ public class PostController {
         postCommandService.restorePost(id, userId);
         return ResponseEntity.ok(PostApiStatus.SUCCESS.response());
     }
+
+    @GetMapping("/health")
+    public ResponseEntity<?> healthCheck() {
+        return ResponseEntity.ok().body("服务运行正常");
+    }
 }

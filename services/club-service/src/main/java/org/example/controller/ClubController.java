@@ -8,8 +8,7 @@ import jakarta.annotation.Nonnull;
 import jakarta.annotation.Resource;
 import org.example.entity.Club;
 import org.example.model.vo.ClubCardVo;
-import org.example.model.ClubApiResponse;
-import org.example.model.ClubApiStatus;
+import org.example.model.enums.ClubApiStatus;
 import org.example.service.ClubService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -32,7 +31,7 @@ public class ClubController {
      */
     @PostMapping()
     @PreAuthorize("hasAnyRole('OFFICER', 'USER')")
-    public ResponseEntity<ClubApiResponse<?>> createClub(@Nonnull @RequestBody Club club) {
+    public ResponseEntity<?> createClub(@Nonnull @RequestBody Club club) {
         final Club newClub = clubService.createClub(club);
         return ResponseEntity.status(ClubApiStatus.POST_SUCCESS.getCode())
                 .body(ClubApiStatus.POST_SUCCESS.response(newClub));
@@ -46,7 +45,7 @@ public class ClubController {
      */
     @DeleteMapping()
     @PreAuthorize("hasAnyRole('PRESIDENT')")
-    public ResponseEntity<ClubApiResponse<?>> deleteClub(@Nonnull @RequestBody Integer clubId) {
+    public ResponseEntity<?> deleteClub(@Nonnull @RequestBody Integer clubId) {
         clubService.deleteClub(clubId);
         return ResponseEntity.status(ClubApiStatus.DELETE_SUCCESS.getCode())
                 .body(ClubApiStatus.DELETE_SUCCESS.response());
@@ -60,7 +59,7 @@ public class ClubController {
      */
     @PutMapping()
     @PreAuthorize("hasAnyRole('OFFICER', 'PRESIDENT')")
-    public ResponseEntity<ClubApiResponse<?>> updateClub(@Nonnull @RequestBody Club club) {
+    public ResponseEntity<?> updateClub(@Nonnull @RequestBody Club club) {
         final Club newClub = clubService.updateClub(club);
         return ResponseEntity.status(ClubApiStatus.PUT_SUCCESS.getCode())
                 .body(ClubApiStatus.PUT_SUCCESS.response(newClub));
@@ -72,7 +71,7 @@ public class ClubController {
      * @return 所有俱乐部信息
      */
     @GetMapping("/clubs")
-    public ResponseEntity<ClubApiResponse<?>> getClubs() {
+    public ResponseEntity<?> getClubs() {
         final List<ClubCardVo> clubCardVos = clubService.queryClubs();
         return ResponseEntity.status(ClubApiStatus.GET_SUCCESS.getCode())
                 .body(ClubApiStatus.GET_SUCCESS.response(clubCardVos));
@@ -85,9 +84,14 @@ public class ClubController {
      * @return 俱乐部信息
      */
     @GetMapping("{clubId}")
-    public ResponseEntity<ClubApiResponse<?>> getClubById(@PathVariable Integer clubId) {
+    public ResponseEntity<?> getClubById(@PathVariable Integer clubId) {
         final Club club = clubService.getClubById(clubId);
         return ResponseEntity.status(ClubApiStatus.GET_SUCCESS.getCode())
                 .body(ClubApiStatus.GET_SUCCESS.response(club));
+    }
+
+    @GetMapping("/health")
+    public ResponseEntity<?> healthCheck() {
+        return ResponseEntity.ok().body("服务运行正常");
     }
 }

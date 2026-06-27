@@ -66,4 +66,9 @@ public class AuthController {
         return ResponseEntity.ok()
                 .body(AuthApiStatus.NEW_TOKEN_SUCCESS.response(token));
     }
+
+    @GetMapping("/health")
+    public ResponseEntity<?> healthCheck() {
+        return ResponseEntity.ok().body("服务运行正常");
+    }
 }
