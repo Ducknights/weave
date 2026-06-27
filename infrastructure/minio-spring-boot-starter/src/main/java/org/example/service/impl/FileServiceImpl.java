@@ -1,10 +1,12 @@
 package org.example.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
+import org.example.constant.CacheKey;
 import org.example.service.FileService;
 import org.example.util.ImageCompressUtil;
 import org.example.util.MimeTypeUtil;
 import org.example.util.MinioUtil;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;
@@ -82,6 +84,7 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
+    @Cacheable(value = CacheKey.FILE_URL, key = "#objectName")
     public String getFileUrl(String objectName, int expiry) {
         return minioUtil.getPresignedUrl(objectName, expiry);
     }
