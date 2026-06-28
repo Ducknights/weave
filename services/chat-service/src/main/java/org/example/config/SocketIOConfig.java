@@ -4,6 +4,11 @@ import com.corundumstudio.socketio.AuthorizationResult;
 import com.corundumstudio.socketio.SocketConfig;
 import com.corundumstudio.socketio.SocketIOServer;
 import com.corundumstudio.socketio.annotation.SpringAnnotationScanner;
+import com.corundumstudio.socketio.protocol.JacksonJsonSupport;
+import com.corundumstudio.socketio.protocol.JsonSupport;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.extern.log4j.Log4j2;
 import org.example.constant.CacheKey;
 import org.example.util.JwtUtil;
@@ -12,6 +17,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.EnableScheduling;
+
+import java.lang.reflect.Field;
 
 @Log4j2
 @Configuration
@@ -61,6 +68,18 @@ public class SocketIOConfig {
             }
         });
 
+        JsonSupport jsonSupport = new JacksonJsonSupport(new JavaTimeModule());
+        try {
+            Field field = JacksonJsonSupport.class.getDeclaredField("objectMapper");
+            field.setAccessible(true);
+            ObjectMapper mapper = (ObjectMapper) field.get(jsonSupport);
+            // 禁用时间戳，输出为字符串（ISO-8601）
+            mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+            // 默认 ISO 格式即可，前端 new Date() 可直接解析
+        } catch (Exception e) {
+            log.error("修改 JacksonJsonSupport 失败", e);
+        }
+        config.setJsonSupport(jsonSupport);
         return new SocketIOServer(config);
     }
 

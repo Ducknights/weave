@@ -5,9 +5,9 @@ import lombok.Data;
 @Data
 public class SendMessageDTO {
     // 发送者ID
-    private Long fromUserId;
+    private Long fromId;
     // 接收者ID
-    private Long toUserId;
+    private Long toId;
     // 消息内容
     private String content;
 }

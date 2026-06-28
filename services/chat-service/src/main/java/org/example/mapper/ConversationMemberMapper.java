@@ -12,10 +12,10 @@ import java.util.List;
 @Mapper
 public interface ConversationMemberMapper extends BaseMapper<ConversationMember> {
 
-    @Update("UPDATE conversation_member SET unread_count = unread_count + 1 WHERE conversation_id = #{param.conversationId} AND user_id = #{param.userId}")
+    @Update("UPDATE conversation_member SET unread_count = unread_count + 1 WHERE conversation_id = #{conversationId} AND user_id = #{userId}")
     void incrementUnreadCount(ConversationMemberParam param);
 
-    @Update("UPDATE conversation_member SET unread_count = 0 WHERE conversation_id = #{param.conversationId} AND user_id = #{param.userId}")
+    @Update("UPDATE conversation_member SET unread_count = 0 WHERE conversation_id = #{conversationId} AND user_id = #{userId}")
     void resetUnreadCount(ConversationMemberParam param);
 
     default List<ConversationMember> selectByConversationIdsAndUserId(List<Long> conversationIds, Long userId) {

@@ -27,8 +27,10 @@ public class MessageServiceImpl implements MessageService {
 
     @Override
     public Message saveMessage(Long fromId, Long toId, String content) {
+        // 获取或创建私聊会话
         Long conversationId = conversationService.getOrCreatePrivateConversation(fromId, toId);
 
+        // 创建消息
         Message message = Message.builder()
                 .conversationId(conversationId)
                 .fromUserId(fromId)
@@ -39,14 +41,23 @@ public class MessageServiceImpl implements MessageService {
                 .build();
         messageMapper.insert(message);
 
+        // 更新会话内容
         conversationService.updateConversation(conversationId, message.getContent());
 
+        // 更新发送者已读消息ID
         conversationMemberService.updateUserLastReadMessageId(
-                ConversationMemberParam.builder().conversationId(conversationId).userId(fromId).build(),
+                ConversationMemberParam.builder()
+                        .conversationId(conversationId)
+                        .userId(fromId)
+                        .build(),
                 message.getId());
 
+        // 增加接收者未读消息计数
         conversationMemberService.incrementUnreadCount(
-                ConversationMemberParam.builder().conversationId(conversationId).userId(toId).build());
+                ConversationMemberParam.builder()
+                        .conversationId(conversationId)
+                        .userId(toId)
+                        .build());
 
         return message;
     }

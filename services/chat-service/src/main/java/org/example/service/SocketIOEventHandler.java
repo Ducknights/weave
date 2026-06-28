@@ -130,13 +130,14 @@ public class SocketIOEventHandler {
     @OnEvent(MESSAGE_SEND)
     @Transactional(rollbackFor = Exception.class)
     @Caching(evict = {
-            @CacheEvict(value = CacheKey.CONVERSATION, key = "#dto.fromUserId + ':' + #dto.toUserId"),
-            @CacheEvict(value = CacheKey.CONVERSATION, key = "#dto.toUserId + ':' + #dto.fromUserId")
+            @CacheEvict(value = CacheKey.CONVERSATION, key = "#dto.fromId + ':' + #dto.toId"),
+            @CacheEvict(value = CacheKey.CONVERSATION, key = "#dto.toId + ':' + #dto.fromId")
     })
     public void onSendMessage(SocketIOClient client, SendMessageDTO dto, AckRequest ackRequest) {
         Long fromId = client.get(USER_ID);  // 获取用户ID
-        Long toId = dto.getToUserId();  // 获取接收者ID
+        Long toId = dto.getToId();  // 获取接收者ID
         String content = dto.getContent();  // 获取消息内容
+        log.info("接收到消息: fromId={}, toId={}, content={}", fromId, toId, content);
         // 保存消息
         Message message = messageService.saveMessage(fromId, toId, content);
         log.info("保存的消息: {}", message);
@@ -153,23 +154,29 @@ public class SocketIOEventHandler {
      * 推送消息给指定用户
      */
     @RabbitListener(queues = MQueue.CHAT_PUSH_QUEUE)
+    @Transactional(rollbackFor = Exception.class)
     public void pushMessage(PushMessageDto dto) {
+        log.info("接收到推送消息: {}", dto);
         SocketIOClient client = onlineClients.get(dto.getToId());
-        // 如果用户在线且连接正常则推送消息
-        if (client != null && client.isChannelOpen()) {
-            client.sendEvent(MESSAGE_PUSH, dto.getMessage());
-            log.debug("推送消息给用户: userId={}, messageId={}", dto.getToId(), dto.getMessage().getId());
-            // 如果用户在当前会话中，则更新会话成员的已读状态,和清除未读消息数
-            if (client.get(CURRENT_CONVERSATION).equals(dto.getMessage().getConversationId())){
-                ConversationMemberParam param = ConversationMemberParam.builder()
-                        .userId(dto.getToId())
-                        .conversationId(dto.getMessage().getConversationId())
-                        .build();
-                conversationMemberService.updateUserLastReadMessageId(param, dto.getMessage().getId());
-                conversationMemberService.resetUnreadCount(param);
-            }
-        }else {
+        // 如果用户不在线或连接异常则返回
+        if (client == null || !client.isChannelOpen()){
             log.debug("用户userId={} 不在线，等待客服端主动拉取", dto.getToId());
+            return;
+        }
+        // 用户在线且连接正常则推送消息
+        client.sendEvent(MESSAGE_PUSH, dto.getMessage());
+        log.debug("推送消息给用户: userId={}, messageId={}", dto.getToId(), dto.getMessage().getId());
+        // 如果用户在当前会话中，则更新会话成员的已读状态,和清除未读消息数
+        Long currentConv = client.get(CURRENT_CONVERSATION);
+        if (currentConv != null && currentConv.equals(dto.getMessage().getConversationId())) {
+            ConversationMemberParam param = ConversationMemberParam.builder()
+                    .userId(dto.getToId())
+                    .conversationId(dto.getMessage().getConversationId())
+                    .build();
+            // 更新已读消息ID
+            conversationMemberService.updateUserLastReadMessageId(param, dto.getMessage().getId());
+            // 重置未读消息数
+            conversationMemberService.resetUnreadCount(param);
         }
     }
 
