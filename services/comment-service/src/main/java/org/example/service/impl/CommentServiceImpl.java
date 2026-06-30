@@ -145,6 +145,7 @@ public class CommentServiceImpl implements CommentService {
         // 构建评论DTO
         return CommentVosDto.builder()
                 .comments(convertToCommentVoList(comments))
+                .total((long) comments.size())
                 .hasMore(hasMore)
                 .build();
     }
@@ -285,10 +286,24 @@ public class CommentServiceImpl implements CommentService {
      * @return 评论VO列表
      */
     private List<CommentVo> convertToCommentVoList(List<Comment> comments) {
+        if (comments.isEmpty()) {
+            return List.of();
+        }
+
         // 获取用户简要信息
         Set<Long> userIds = new HashSet<>();
         comments.forEach(comment -> userIds.add(comment.getUserId()));
         Map<Long, UserBriefDto> userBriefMap = userFeignClient.getUserBriefInfosByIds(userIds);
+
+        // 获取当前用户点赞的评论ID集合
+        Long currentUserId = SecurityUtils.getCurrentUserId();
+        Set<ObjectId> likedCommentIds = commentLikeRepository
+                .findByCommentIdInAndUserId(
+                        comments.stream().map(Comment::getId).toList(),
+                        currentUserId)
+                .stream()
+                .map(CommentLike::getCommentId)
+                .collect(java.util.stream.Collectors.toSet());
 
         return comments.stream().map(comment -> CommentVo.builder()
                 .id(String.valueOf(comment.getId()))
@@ -300,6 +315,8 @@ public class CommentServiceImpl implements CommentService {
                 .parentId(comment.getParentId())
                 .createTime(comment.getCreatedTime())
                 .replyCount(comment.getReplyCount())
+                .likeCount(comment.getLikeCount())
+                .isLike(likedCommentIds.contains(comment.getId()))
                 .build()).toList();
     }
 }

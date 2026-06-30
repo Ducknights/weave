@@ -1,22 +1,18 @@
-package org.example.entity;
+package org.example.model.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
 import lombok.*;
 
-import java.io.Serial;
-import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 @Data
-@NoArgsConstructor
-@EqualsAndHashCode(callSuper = false)
 @TableName("activities")
-public class Activity implements Serializable {
-    @Serial
-    private static final long serialVersionUID = 1L;
-
+@AllArgsConstructor
+@NoArgsConstructor
+public class Activity {
+    @TableId(type = IdType.AUTO)
     private Integer id;
     private Integer clubId;
     // 社团名称（用于查询结果映射）

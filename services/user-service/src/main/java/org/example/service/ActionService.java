@@ -1,5 +1,6 @@
 package org.example.service;
 
+import org.example.dto.PostDetailVo;
 import org.example.model.dto.ActionDto;
 
 import java.util.List;
@@ -9,7 +10,7 @@ public interface ActionService {
 
     void deleteRecord(ActionDto dto);
 
-    List<Long> getRecord(ActionDto dto, int page, int size);
+    List<PostDetailVo> getRecord(ActionDto dto, int page, int size);
 
     void cacheUserAction(Long id);
 }

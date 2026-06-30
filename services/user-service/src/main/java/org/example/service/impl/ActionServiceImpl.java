@@ -3,6 +3,8 @@ package org.example.service.impl;
 import jakarta.annotation.Resource;
 import lombok.extern.log4j.Log4j2;
 import org.example.constant.CacheKey;
+import org.example.dto.PostDetailVo;
+import org.example.feign.PostFeignClient;
 import org.example.model.dto.ActionDto;
 import org.example.model.entity.UserActions;
 import org.example.mapper.ActionMapper;
@@ -13,6 +15,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -25,6 +28,8 @@ public class ActionServiceImpl implements ActionService {
     private RedisTemplate<String, Object> redisTemplate;
     @Resource
     private ActionMapper actionMapper;
+    @Resource
+    private PostFeignClient postFeignClient;
 
     @Override
     public void addRecord(ActionDto dto) {
@@ -54,12 +59,15 @@ public class ActionServiceImpl implements ActionService {
     }
 
     @Override
-    public List<Long> getRecord(ActionDto dto, int page, int size) {
-        List<Long> result = actionMapper.getRecord(dto, page, size);
-        if (!result.isEmpty()){
-            redisTemplate.opsForSet().add(buildCacheKey(dto), result.toArray(new Long[0]));
+    public List<PostDetailVo> getRecord(ActionDto dto, int page, int size) {
+        List<Long> postIds = actionMapper.getRecord(dto, page, size);
+        if (postIds.isEmpty()) {
+            return Collections.emptyList();
         }
-        return result;
+        // 缓存帖子ID集合
+        redisTemplate.opsForSet().add(buildCacheKey(dto), postIds.toArray(new Long[0]));
+        // 通过 Feign 批量获取帖子详情
+        return postFeignClient.getPostsByIds(postIds);
     }
 
     private String buildCacheKey(ActionDto dto) {

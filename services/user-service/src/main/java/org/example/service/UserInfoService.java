@@ -2,7 +2,9 @@ package org.example.service;
 
 import org.example.dto.AuthUserDto;
 import org.example.dto.UserBriefDto;
+import org.example.model.dto.UpdateUserInfoDto;
 import org.example.model.entity.UserInfo;
+import org.example.model.vo.UserInfoVo;
 
 import java.util.Map;
 import java.util.Set;
@@ -15,9 +17,7 @@ public interface UserInfoService {
 
     UserBriefDto getUserBriefDtoById(Long id);
 
-    Boolean refresh(Long userId);
+    UpdateUserInfoDto updateUser(UpdateUserInfoDto user);
 
-    UserInfo updateUser(UserInfo user);
-
-    UserInfo getSelfInfo(Long id);
+    UserInfoVo getUserInfoDtoById(Long id);
 }

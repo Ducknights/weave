@@ -1,18 +1,19 @@
 package org.example.service.imp;
 
 import lombok.extern.log4j.Log4j2;
-import org.example.entity.Activity;
+import org.example.exception.BusinessException;
+import org.example.model.entity.Activity;
 import org.example.mapper.ActivityMapper;
-import org.example.model.ClubApiResponse;
-import org.example.model.ClubApiStatus;
 import org.example.model.vo.ActivityCardVo;
 import org.example.service.ActivityService;
 import org.example.constant.CacheKey;
+import org.example.model.enums.ClubApiStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+
 
 import java.time.LocalDate;
 import java.util.List;
@@ -34,10 +35,9 @@ public class ActivityServiceImp implements ActivityService {
 
     @Override
     @CachePut(value = CacheKey.ACTIVITY, key ="'activityId:'+ #activityId")
-    public ClubApiResponse<?> deleteActivity(Integer activityId) {
+    public void deleteActivity(Integer activityId) {
         try {
             activityMapper.deleteById(activityId);
-            return ClubApiStatus.DELETE_SUCCESS.response();
         } catch (Exception e) {
             log.error("删除活动失败，参数： {}", activityId, e);
             throw new RuntimeException("删除活动失败");
@@ -60,6 +60,13 @@ public class ActivityServiceImp implements ActivityService {
     @Cacheable(value = CacheKey.ACTIVITY, key ="'activityId:'+ #activityId ")
     @Override
     public Activity queryActivityById(Integer activityId) {
-        return activityMapper.selectById(activityId);
+        Activity activity = activityMapper.selectById(activityId);
+        if (activity == null) throw new BusinessException(ClubApiStatus.NOT_FOUND);
+        return activity;
+    }
+
+    @Override
+    public List<Activity> getActivitiesByClubId(Integer clubId) {
+        return activityMapper.getActivitiesByClubId(clubId);
     }
 }

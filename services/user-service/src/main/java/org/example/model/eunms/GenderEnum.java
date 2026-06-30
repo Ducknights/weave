@@ -13,9 +13,9 @@ public enum GenderEnum {
     @EnumValue
     private final Integer code;
     @JsonValue
-    private final String gender;
-    GenderEnum(Integer code, String gender) {
+    private final String desc;
+    GenderEnum(Integer code, String desc) {
         this.code = code;
-        this.gender = gender;
+        this.desc = desc;
     }
 }

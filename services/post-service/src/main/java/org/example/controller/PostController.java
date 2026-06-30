@@ -1,6 +1,5 @@
 package org.example.controller;
 
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import jakarta.annotation.Resource;
 import lombok.extern.log4j.Log4j2;
 import org.example.model.dto.PostDto;
@@ -9,11 +8,11 @@ import org.example.dto.PostDetailVo;
 import org.example.service.PostCommandService;
 import org.example.service.PostQueryService;
 import org.example.util.SecurityUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.actuate.info.InfoEndpoint;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-
 
 import java.util.List;
 
@@ -26,6 +25,8 @@ public class PostController {
     private PostCommandService postCommandService;
     @Resource
     private PostQueryService postQueryService;
+    @Autowired
+    private InfoEndpoint infoEndpoint;
 
     /**
      * 创建新帖子的请求处理方法
@@ -48,10 +49,11 @@ public class PostController {
      *
      * @return 返回推荐的帖子对象列表，如果列表为空则返回404
      */
-    @GetMapping("/recommend")
-    public ResponseEntity<?> getRecommendPosts() {
+    @PostMapping("/recommend")
+    public ResponseEntity<?> getRecommendPosts(@RequestParam(defaultValue = "10") Integer limit) {
         Long userId = SecurityUtils.getCurrentUserId();
-        List<PostDetailVo> postVos = postQueryService.getRecommendPosts(userId);
+        log.info("用户 {} 请求推荐帖子，限制数量: {}", userId, limit);
+        List<PostDetailVo> postVos = postQueryService.getRecommendPosts(userId,limit);
         return ResponseEntity.ok().body(PostApiStatus.SUCCESS.response(postVos));
     }
 
@@ -64,8 +66,8 @@ public class PostController {
      * @return 返回热门的帖子对象列表，如果列表为空则返回404
      */
     @GetMapping("/hot")
-    public ResponseEntity<?> getHotPosts(@RequestParam int pageNum, @RequestParam int pageSize) {
-        Page<PostDetailVo> postVos = postQueryService.getHotPosts(pageNum, pageSize);
+    public ResponseEntity<?> getHotPosts(@RequestParam(defaultValue = "1") int pageNum, @RequestParam(defaultValue = "10") int pageSize) {
+        List<PostDetailVo> postVos = postQueryService.getHotPosts(pageNum, pageSize);
         return ResponseEntity.ok().body(PostApiStatus.SUCCESS.response(postVos));
     }
 
@@ -78,8 +80,14 @@ public class PostController {
      * @return 返回最新的帖子对象列表
      */
     @GetMapping("/new")
-    public ResponseEntity<?> getNewPosts(@RequestParam int pageNum, @RequestParam int pageSize) {
-        Page<PostDetailVo> postVos = postQueryService.getNewPosts(pageNum, pageSize);
+    public ResponseEntity<?> getNewPosts(@RequestParam(defaultValue = "1") int pageNum, @RequestParam(defaultValue = "10") int pageSize) {
+        List<PostDetailVo> postVos = postQueryService.getNewPosts(pageNum, pageSize);
+        return ResponseEntity.ok().body(PostApiStatus.SUCCESS.response(postVos));
+    }
+
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<?> getPostsByUser(@PathVariable Long userId) {
+        List<PostDetailVo> postVos = postQueryService.getPostsByUser(userId);
         return ResponseEntity.ok().body(PostApiStatus.SUCCESS.response(postVos));
     }
 
@@ -93,6 +101,7 @@ public class PostController {
     @GetMapping("/{id}")
     public ResponseEntity<?> clickForDetails(@PathVariable Long id) {
         Long userId = SecurityUtils.getCurrentUserId();
+        log.info("用户 {} 请求帖子详情，帖子ID: {}", userId, id);
         List<PostDetailVo> postVo = postQueryService.clickForDetails(id, userId);
         return ResponseEntity.ok().body(PostApiStatus.SUCCESS.response(postVo));
     }
@@ -104,7 +113,7 @@ public class PostController {
      * @param ids 帖子ID列表
      * @return 返回帖子ID到帖子详情的映射
      */
-    @GetMapping("/batch")
+    @PostMapping("/batch")
     public List<PostDetailVo> getPostsByIds(@RequestBody List<Long> ids) {
         return postQueryService.getPostsByIds(ids);
     }
@@ -141,7 +150,7 @@ public class PostController {
     /**
      * 隐藏帖子: PUBLISHED -> HIDDEN
      */
-    @PostMapping("/{id}/hide")
+    @PutMapping("/{id}/hide")
     public ResponseEntity<?> hidePost(@PathVariable Long id) {
         Long userId = SecurityUtils.getCurrentUserId();
         postCommandService.hidePost(id, userId);
@@ -151,7 +160,7 @@ public class PostController {
     /**
      * 获取当前用户隐藏的帖子
      */
-    @GetMapping("/hidden")
+    @PutMapping("/hidden")
     public ResponseEntity<?> getHiddenPosts() {
         Long userId = SecurityUtils.getCurrentUserId();
         List<PostDetailVo> postVos = postQueryService.getHiddenPostsByUserId(userId);
@@ -161,7 +170,7 @@ public class PostController {
     /**
      * 恢复帖子: HIDDEN -> PUBLISHED
      */
-    @PostMapping("/{id}/restore")
+    @PutMapping("/{id}/restore")
     public ResponseEntity<?> restorePost(@PathVariable Long id) {
         Long userId = SecurityUtils.getCurrentUserId();
         postCommandService.restorePost(id, userId);

@@ -12,8 +12,8 @@ import java.util.List;
 public class RecommendFeignClientFallback implements RecommendFeignClient {
 
     @Override
-    public List<Long> getRecommendations(int limit) {
-        log.warn("RecommendFeignClient.getRecommendations 降级: limit={}", limit);
+    public List<Long> getRecommendations(Long userId, int limit) {
+        log.warn("RecommendFeignClient.getRecommendations 降级: userId={}, limit={}", userId, limit);
         return Collections.emptyList();
     }
 }

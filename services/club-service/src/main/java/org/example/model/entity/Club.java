@@ -1,22 +1,18 @@
-package org.example.entity;
+package org.example.model.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
-import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.*;
 
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @Data
-@EqualsAndHashCode(callSuper = false)
 @Builder
 @TableName("clubs")
-public class Club implements Serializable {
-    @Serial
-    private static final long serialVersionUID = 1L;
-
+@AllArgsConstructor
+@NoArgsConstructor
+public class Club {
     @TableId(type = IdType.AUTO)
     private Integer id;
     private String name;

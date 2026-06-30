@@ -1,22 +1,22 @@
-package org.example.entity;
+package org.example.model.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import org.example.model.enums.ClubRole;
+import org.example.model.enums.MemberStatus;
 
-import java.io.Serial;
-import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @Data
-@EqualsAndHashCode(callSuper = false)
 @Builder
 @TableName("members")
-public class Member implements Serializable {
-    @Serial
-    private static final long serialVersionUID = 1L;
-
+@AllArgsConstructor
+@NoArgsConstructor
+public class Member {
+    @TableId(type = IdType.AUTO)
     private Integer id;
     private Integer userId;
     // 用户名称（用于查询结果映射）
@@ -26,8 +26,8 @@ public class Member implements Serializable {
     // 社团名称（用于查询结果映射）
     @TableField(exist = false)
     private String clubName;
-    private String role;
-    private String status;
+    private ClubRole role;
+    private MemberStatus status;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     // 关联的社团信息（非数据库字段）

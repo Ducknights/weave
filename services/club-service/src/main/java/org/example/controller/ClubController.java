@@ -6,15 +6,17 @@ package org.example.controller;
 
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Resource;
-import org.example.entity.Club;
+import org.example.dto.ClubBriefDto;
+import org.example.model.entity.Club;
 import org.example.model.vo.ClubCardVo;
 import org.example.model.enums.ClubApiStatus;
 import org.example.service.ClubService;
+import org.example.util.SecurityUtils;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/club")
@@ -30,11 +32,21 @@ public class ClubController {
      * @return 创建成功的俱乐部信息
      */
     @PostMapping()
-    @PreAuthorize("hasAnyRole('OFFICER', 'USER')")
     public ResponseEntity<?> createClub(@Nonnull @RequestBody Club club) {
         final Club newClub = clubService.createClub(club);
         return ResponseEntity.status(ClubApiStatus.POST_SUCCESS.getCode())
                 .body(ClubApiStatus.POST_SUCCESS.response(newClub));
+    }
+
+    /**
+     * 加入俱乐部
+     */
+    @PostMapping("/join")
+    public ResponseEntity<?> joinClub(@RequestParam Integer clubId) {
+        Long userId = SecurityUtils.getCurrentUserId();
+        clubService.joinClub(clubId, userId);
+        return ResponseEntity.status(ClubApiStatus.POST_SUCCESS.getCode())
+                .body(ClubApiStatus.POST_SUCCESS.response());
     }
 
     /**
@@ -44,7 +56,6 @@ public class ClubController {
      * @return 删除成功
      */
     @DeleteMapping()
-    @PreAuthorize("hasAnyRole('PRESIDENT')")
     public ResponseEntity<?> deleteClub(@Nonnull @RequestBody Integer clubId) {
         clubService.deleteClub(clubId);
         return ResponseEntity.status(ClubApiStatus.DELETE_SUCCESS.getCode())
@@ -58,11 +69,18 @@ public class ClubController {
      * @return 更新成功的俱乐部信息
      */
     @PutMapping()
-    @PreAuthorize("hasAnyRole('OFFICER', 'PRESIDENT')")
     public ResponseEntity<?> updateClub(@Nonnull @RequestBody Club club) {
         final Club newClub = clubService.updateClub(club);
         return ResponseEntity.status(ClubApiStatus.PUT_SUCCESS.getCode())
                 .body(ClubApiStatus.PUT_SUCCESS.response(newClub));
+    }
+
+    /**
+     * 批量查询
+     */
+    @PostMapping("/batch")
+    public Map<Long, ClubBriefDto> batchJoinClub(@RequestBody @Nonnull List<Integer> clubIds) {
+        return clubService.batchClubsById(clubIds);
     }
 
     /**
@@ -85,7 +103,7 @@ public class ClubController {
      */
     @GetMapping("{clubId}")
     public ResponseEntity<?> getClubById(@PathVariable Integer clubId) {
-        final Club club = clubService.getClubById(clubId);
+        final ClubCardVo club = clubService.getClubById(clubId);
         return ResponseEntity.status(ClubApiStatus.GET_SUCCESS.getCode())
                 .body(ClubApiStatus.GET_SUCCESS.response(club));
     }

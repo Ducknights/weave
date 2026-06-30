@@ -1,7 +1,10 @@
 package org.example.controller;
 
+import org.example.model.dto.UpdateUserInfoDto;
 import org.example.model.eunms.UserApiStatus;
 import org.example.service.FileService;
+import org.example.service.UserInfoService;
+import org.example.util.SecurityUtils;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,13 +14,17 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/users/avatar")
+@RequestMapping("/api/user/avatar")
 public class AvatarController {
 
     private final FileService fileService;
+    private final UserInfoService userInfoService;
 
-    public AvatarController(FileService fileService) {
+
+    public AvatarController(FileService fileService, UserInfoService userInfoService) {
         this.fileService = fileService;
+        this.userInfoService = userInfoService;
+
     }
 
     /**
@@ -29,6 +36,12 @@ public class AvatarController {
     public ResponseEntity<?> uploadAvatar(
             @RequestParam("file") MultipartFile file) {
         String path = fileService.uploadAvatar(file);
+        Long userId = SecurityUtils.getCurrentUserId();
+        UpdateUserInfoDto updateUserInfoDto = UpdateUserInfoDto.builder()
+                .id(userId)
+                .avatar(path)
+                .build();
+        userInfoService.updateUser(updateUserInfoDto);
         return ResponseEntity.ok(UserApiStatus.CREATE_SUCCESS.response(path));
     }
 

@@ -1,9 +1,11 @@
 package org.example.controller;
 
 import jakarta.annotation.Resource;
+import org.example.constant.CacheKey;
 import org.example.model.dto.RelationDto;
 import org.example.service.RelationService;
 import org.example.util.SecurityUtils;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;

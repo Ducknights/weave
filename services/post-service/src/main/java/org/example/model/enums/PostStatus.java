@@ -9,9 +9,9 @@ import lombok.Getter;
  */
 @Getter
 public enum PostStatus {
-    PUBLISHED(2, "已发布"),
-    HIDDEN(3, "隐藏"),
-    DELETED(4, "删除");
+    PUBLISHED(1, "已发布"),
+    HIDDEN(2, "隐藏"),
+    DELETED(3, "删除");
 
     @EnumValue
     private final int code;

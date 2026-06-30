@@ -47,6 +47,7 @@ public class FileServiceImpl implements FileService {
         }else {
             throw new IllegalArgumentException("上传的文件不是图片，请上传图片格式");
         }
+
     }
 
     /**

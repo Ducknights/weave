@@ -4,6 +4,9 @@ import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.example.constant.CacheKey;
 import org.example.mapper.UserActionMapper;
+import org.example.model.dto.PostCoOccurrenceDto;
+import org.example.model.dto.PostTotalWeightDto;
+import org.example.model.dto.PostWeightDto;
 import org.example.model.dto.SimilarPostDto;
 import org.example.service.RecommendService;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -107,25 +110,22 @@ public class RecommendServiceImpl implements RecommendService {
         LocalDateTime since = LocalDateTime.now().minusDays(DAYS_TO_CONSIDER);
 
         // 1. 获取帖子共现对及其权重（SQL自连接）
-        List<Map<String, Object>> coOccurrencePairs = userActionMapper.selectPostCoOccurrencePairs(since);
+        List<PostCoOccurrenceDto> coOccurrencePairs = userActionMapper.selectPostCoOccurrencePairs(since);
 
         // 2. 聚合共现权重：同一对帖子的共现权重累加
         Map<Long, Map<Long, Double>> coOccurrenceMatrix = new HashMap<>();
-        for (Map<String, Object> row : coOccurrencePairs) {
-            Long postA = ((Number) row.get("postA")).longValue();
-            Long postB = ((Number) row.get("postB")).longValue();
-            Double coWeight = ((Number) row.get("coWeight")).doubleValue();
-            coOccurrenceMatrix.computeIfAbsent(postA, k -> new HashMap<>()).merge(postB, coWeight, Double::sum);
-            coOccurrenceMatrix.computeIfAbsent(postB, k -> new HashMap<>()).merge(postA, coWeight, Double::sum);
+        for (PostCoOccurrenceDto row : coOccurrencePairs) {
+            coOccurrenceMatrix.computeIfAbsent(row.getPostA(), k -> new HashMap<>())
+                    .merge(row.getPostB(), row.getCoWeight(), Double::sum);
+            coOccurrenceMatrix.computeIfAbsent(row.getPostB(), k -> new HashMap<>())
+                    .merge(row.getPostA(), row.getCoWeight(), Double::sum);
         }
 
         // 3. 获取每篇帖子的总权重（分母）
-        List<Map<String, Object>> totalWeights = userActionMapper.selectPostTotalWeights(since);
+        List<PostTotalWeightDto> totalWeights = userActionMapper.selectPostTotalWeights(since);
         Map<Long, Double> postWeightSum = new HashMap<>();
-        for (Map<String, Object> row : totalWeights) {
-            Long postId = ((Number) row.get("postId")).longValue();
-            Double weight = ((Number) row.get("totalWeight")).doubleValue();
-            postWeightSum.put(postId, weight);
+        for (PostTotalWeightDto row : totalWeights) {
+            postWeightSum.put(row.getPostId(), row.getTotalWeight());
         }
 
         // 4. 计算每篇帖子的相似帖子列表
@@ -161,17 +161,6 @@ public class RecommendServiceImpl implements RecommendService {
     }
 
     /**
-     * 从数据库获取用户帖子加权映射（已废弃，仅保留用于参考）
-     * 注意：相似度计算已改用 SQL 自连接，无需此方法
-     */
-    @Deprecated
-    private Map<Long, Map<Long, Integer>> getUserPostWeightMapFromDb(LocalDateTime since) {
-        // 该方法已废弃，保留仅为了代码完整性
-        // 实际相似度计算使用 selectPostCoOccurrencePairs SQL替代
-        return Collections.emptyMap();
-    }
-
-    /**
      * 从Redis中获取帖子的相似帖子列表
      */
     private List<SimilarPostDto> getSimilarPostsFromRedis(Long postId) {
@@ -198,9 +187,9 @@ public class RecommendServiceImpl implements RecommendService {
      */
     private List<Long> getHotPostIds(int limit) {
         LocalDateTime since = LocalDateTime.now().minusDays(7);
-        List<Map<Long, Long>> hotPostMaps = userActionMapper.selectHotPosts(since, limit);
-        return hotPostMaps.stream()
-                .map(m -> m.get("targetId"))
+        List<PostWeightDto> hotPosts = userActionMapper.selectHotPosts(since, limit);
+        return hotPosts.stream()
+                .map(PostWeightDto::getPostId)
                 .collect(Collectors.toList());
     }
 
@@ -208,10 +197,10 @@ public class RecommendServiceImpl implements RecommendService {
      * 获取用户最近的交互帖子及加权权重
      */
     private Map<Long, Double> getRecentUserInteractions(Long userId) {
-        List<Map<Long, Long>> rows = userActionMapper.selectRecentUserInteractions(userId, RecommendServiceImpl.RECENT_POST_LIMIT);
+        List<PostWeightDto> rows = userActionMapper.selectRecentUserInteractions(userId, RECENT_POST_LIMIT);
         Map<Long, Double> result = new HashMap<>();
-        for (Map<Long, Long> row : rows) {
-            result.put(row.get("targetId"), row.get("weightSum").doubleValue());
+        for (PostWeightDto row : rows) {
+            result.put(row.getPostId(), row.getWeightSum().doubleValue());
         }
         return result;
     }

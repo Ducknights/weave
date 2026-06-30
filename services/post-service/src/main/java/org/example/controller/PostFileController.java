@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/post/files")
+@RequestMapping("/api/post/file")
 public class PostFileController {
 
     private final FileService fileService;
@@ -41,7 +41,6 @@ public class PostFileController {
      * @return 预签名URL
      */
     @GetMapping("/url")
-    @Cacheable(value = CacheKey.FILE_URL, key = "#path")
     public ResponseEntity<?> getFileUrl(
             @NonNull @RequestParam String path,
             @RequestParam(defaultValue = "3600") int expiry) {

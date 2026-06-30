@@ -17,6 +17,8 @@ public class CommentVo {
     public String userName;
     public String userAvatar;
     public String content;
+    public Integer likeCount;
+    public Boolean isLike;
     public LocalDateTime createTime;
     public Integer replyCount;
 }

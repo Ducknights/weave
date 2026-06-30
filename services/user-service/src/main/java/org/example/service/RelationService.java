@@ -1,6 +1,7 @@
 package org.example.service;
 
 import org.example.model.dto.RelationDto;
+import org.springframework.cache.annotation.Cacheable;
 
 import java.util.List;
 
@@ -11,5 +12,5 @@ public interface RelationService {
 
     List<Long> getRecord(RelationDto dto, int page, int size);
 
-    void cacheUserRelation(Long id);
+    void cacheUserRelation(Long userId);
 }

@@ -45,10 +45,12 @@ public class FollowController {
      * 分页查询用户关注列表
      */
     @GetMapping()
-    public List<Long> getUserFollowers(@RequestParam(defaultValue = "0") Integer page,
-                                       @RequestParam(defaultValue = "20") Integer size) {
-        Long userId = SecurityUtils.getCurrentUserId();
+    public ResponseEntity<?> getUserFollowers(
+            @RequestParam() Long userId,
+            @RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(defaultValue = "20") Integer size) {
         RelationDto dto = new RelationDto(userId, null, FOLLOW);
-        return relationService.getRecord(dto, page, size);
+        List<Long> result = relationService.getRecord(dto, page, size);
+        return ResponseEntity.ok().body(UserApiStatus.SUCCESS.response(result));
     }
 }

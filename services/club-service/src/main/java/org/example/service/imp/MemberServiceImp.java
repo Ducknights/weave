@@ -1,7 +1,7 @@
 package org.example.service.imp;
 
 import jakarta.annotation.Resource;
-import org.example.entity.Member;
+import org.example.model.entity.Member;
 import org.example.mapper.MemberMapper;
 import org.example.service.MemberService;
 import org.springframework.stereotype.Service;
@@ -15,8 +15,8 @@ public class MemberServiceImp implements MemberService {
     private MemberMapper memberMapper;
 
     @Override
-    public Member createMember(Member member) {
-        return memberMapper.createMember(member);
+    public void createMember(Member member) {
+        memberMapper.insert(member);
     }
 
     @Override

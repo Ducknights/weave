@@ -11,5 +11,5 @@ import java.util.List;
 public interface RecommendFeignClient {
 
     @GetMapping("/api/recommend/post")
-    List<Long> getRecommendations(@RequestParam(defaultValue = "10") int limit);
+    List<Long> getRecommendations(@RequestParam Long userId, @RequestParam int limit);
 }

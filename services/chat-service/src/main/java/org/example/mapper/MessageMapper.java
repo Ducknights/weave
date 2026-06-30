@@ -32,7 +32,8 @@ public interface MessageMapper extends BaseMapper<Message> {
     default Long selectNewMessageId(Long conversationId){
         Message message = selectOne(new LambdaQueryWrapper<Message>()
                 .eq(Message::getConversationId, conversationId)
-                .orderByDesc(Message::getId));
+                .orderByDesc(Message::getId)
+                .last("limit 1"));
         return message == null ? null : message.getId();
     }
 }

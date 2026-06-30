@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import jakarta.annotation.Resource;
 import org.example.ClubMainApplication;
-import org.example.entity.Club;
+import org.example.model.entity.Club;
 import org.example.mapper.ClubMapper;
 import org.springframework.boot.test.context.SpringBootTest;
 

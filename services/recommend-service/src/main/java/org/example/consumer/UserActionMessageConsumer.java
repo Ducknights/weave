@@ -50,7 +50,7 @@ public class UserActionMessageConsumer {
 
         ActionDto actionDto = ActionDto.builder()
                 .userId(message.getUserId())
-                .targetId(message.getPostId())
+                .postId(message.getPostId())
                 .type(type)
                 .build();
 

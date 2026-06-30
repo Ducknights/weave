@@ -15,6 +15,7 @@ import org.example.feign.RecommendFeignClient;
 import org.example.feign.UserFeignClient;
 import org.example.mapper.PostMapper;
 import org.example.model.entity.Post;
+import org.example.model.enums.PostStatus;
 import org.example.repository.PostRepository;
 import org.example.service.PostCommandService;
 import org.example.service.PostQueryService;
@@ -55,7 +56,6 @@ public class PostQueryServiceImpl extends ServiceImpl<PostMapper, Post> implemen
         postCommandService.addToHistory(userId, id);
         // 增加返回的帖子浏览数
         post.setViewCount(post.getViewCount() + 1);
-
         // 转换为 PostDetailVo
         return convertToPostDetailVoList(List.of(post));
     }
@@ -64,9 +64,9 @@ public class PostQueryServiceImpl extends ServiceImpl<PostMapper, Post> implemen
      * 获取推荐帖子
      */
     @Override
-    public List<PostDetailVo> getRecommendPosts(Long userId) {
+    public List<PostDetailVo> getRecommendPosts(Long userId, Integer limit) {
         // 调用推荐服务获取推荐帖子ID列表
-        List<Long> recommendPostIds = recommendFeignClient.getRecommendations(10);
+        List<Long> recommendPostIds = recommendFeignClient.getRecommendations(userId, limit);
         if (CollectionUtils.isEmpty(recommendPostIds)){
             throw new ResourceNotFoundException("没有找到推荐的帖子");
         }
@@ -85,6 +85,12 @@ public class PostQueryServiceImpl extends ServiceImpl<PostMapper, Post> implemen
         return convertToPostDetailVoList(posts);
     }
 
+    @Override
+    public List<PostDetailVo> getPostsByUser(Long userId) {
+        List<Post> posts = postMapper.selectPostsByUser(userId);
+        return convertToPostDetailVoList(posts);
+    }
+
     /**
      * 根据ID列表批量获取帖子
      */
@@ -100,52 +106,31 @@ public class PostQueryServiceImpl extends ServiceImpl<PostMapper, Post> implemen
      * 获取最新帖子
      */
     @Override
-    public Page<PostDetailVo> getNewPosts(int page, int size) {
+    public List<PostDetailVo> getNewPosts(int page, int size) {
         // 1，查询帖子
         Page<Post> pageParam = new Page<>(page, size);
         LambdaQueryWrapper<Post> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(Post::getStatus, 2)
+        wrapper.eq(Post::getStatus, PostStatus.PUBLISHED)
                 .orderByDesc(Post::getCreatedTime);
         Page<Post> postPage = postMapper.selectPage(pageParam, wrapper);
-
-        if (postPage.getRecords().isEmpty()) {
-            Page<PostDetailVo> emptyPage = new Page<>(page, size);
-            emptyPage.setTotal(0);
-            return emptyPage;
-        }
-
+        if (postPage.getRecords().isEmpty()){ throw new ResourceNotFoundException("没有找到帖子"); }
         // 2，转换为 PostDetailVo
-        List<PostDetailVo> list = convertToPostDetailVoList(postPage.getRecords());
-
-        // 3，组装新的分页对象
-        Page<PostDetailVo> postDetailVoPage = new Page<>(page, size);
-        postDetailVoPage.setRecords(list);
-        postDetailVoPage.setTotal(postPage.getTotal());
-        return postDetailVoPage;
+        return convertToPostDetailVoList(postPage.getRecords());
     }
 
     /**
      * 获取热门帖子
      */
     @Override
-    public Page<PostDetailVo> getHotPosts(int page, int size) {
-        Page<Post> pageParam = new Page<>(page, size);
-        LambdaQueryWrapper<Post> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(Post::getStatus, 2)
-                .orderByDesc(Post::getLikeCount);
-        Page<Post> postPage = postMapper.selectPage(pageParam, wrapper);
-
-        if (postPage.getRecords().isEmpty()) {
-            Page<PostDetailVo> emptyPage = new Page<>(page, size);
-            emptyPage.setTotal(0);
-            return emptyPage;
+    public List<PostDetailVo> getHotPosts(int page, int size) {
+        int limit = (page - 1) * size;
+        if (limit <= 0) limit = 10;
+        List<Long> hotPostIds = recommendFeignClient.getRecommendations(null, limit);
+        if (CollectionUtils.isEmpty(hotPostIds)){
+            throw new ResourceNotFoundException("没有找到热门帖子");
         }
-
-        List<PostDetailVo> list = convertToPostDetailVoList(postPage.getRecords());
-        Page<PostDetailVo> postDetailVoPage = new Page<>(page, size);
-        postDetailVoPage.setRecords(list);
-        postDetailVoPage.setTotal(postPage.getTotal());
-        return postDetailVoPage;
+        // 根据ID列表批量获取帖子
+        return getPostsByIds(hotPostIds);
     }
 
     /**

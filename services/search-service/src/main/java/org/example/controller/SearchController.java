@@ -65,45 +65,6 @@ public class SearchController {
     }
 
     /**
-     * 索引内容
-     * POST_HASH /api/search/index
-     *
-     * @param document 搜索文档
-     * @return 索引结果
-     */
-    @PostMapping("/index")
-    public ResponseEntity<?> indexContent(@RequestBody SearchDocument document) {
-        log.info("索引内容: id={}, title={}", 
-                document.getId(), document.getTitle());
-        
-        boolean success = searchService.indexContent(document);
-        if (success) {
-            return ResponseEntity.ok().body(SearchApiStatus.INDEX_SUCCESS.response());
-        } else {
-            return ResponseEntity.ok().body(SearchApiStatus.INDEX_FAILED.response());
-        }
-    }
-
-    /**
-     * 更新索引
-     * PUT /api/search/index
-     *
-     * @param document 搜索文档
-     * @return 更新结果
-     */
-    @PutMapping("/index")
-    public ResponseEntity<?> updateIndex(@RequestBody SearchDocument document) {
-        log.info("更新索引: id={}", document.getId());
-        
-        boolean success = searchService.updateIndex(document);
-        if (success) {
-            return ResponseEntity.ok().body(SearchApiStatus.UPDATE_INDEX_SUCCESS.response());
-        } else {
-            return ResponseEntity.ok().body(SearchApiStatus.UPDATE_INDEX_FAILED.response());
-        }
-    }
-
-    /**
      * 删除索引
      * DELETE /api/search/index
      *
@@ -147,10 +108,6 @@ public class SearchController {
      */
     @GetMapping("/health")
     public ResponseEntity<?> healthCheck() {
-        Map<String, Object> data = new HashMap<>();
-        data.put("status", "UP");
-        data.put("service", "search-service");
-        data.put("message", "服务运行正常");
-        return ResponseEntity.ok().body(SearchApiStatus.SUCCESS.response(data));
+        return ResponseEntity.ok().body("服务运行正常");
     }
 }

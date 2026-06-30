@@ -6,9 +6,8 @@ package org.example.controller;
 
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Resource;
-import org.example.entity.Member;
-import org.example.model.ClubApiResponse;
-import org.example.model.ClubApiStatus;
+import org.example.model.entity.Member;
+import org.example.model.enums.ClubApiStatus;
 import org.example.service.MemberService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,24 +22,12 @@ public class MemberController {
     private MemberService memberService;
 
     /**
-     * 创建成员
-     * @param member 成员实体
-     * @return 响应结果，包含创建的成员信息
-     */
-    @PostMapping()
-    public ResponseEntity<ClubApiResponse<?>> createMember(@Nonnull @RequestBody Member member) {
-        final Member memberVo = memberService.createMember(member);
-        return ResponseEntity.status(ClubApiStatus.POST_SUCCESS.getCode())
-                .body(ClubApiStatus.POST_SUCCESS.response(memberVo));
-    }
-
-    /**
      * 删除成员
      * @param memberId 成员ID
      * @return 响应结果
      */
     @DeleteMapping()
-    public ResponseEntity<ClubApiResponse<?>> deleteMember(@Nonnull @RequestBody Integer memberId) {
+    public ResponseEntity<?> deleteMember(@Nonnull @RequestBody Integer memberId) {
         memberService.deleteMember(memberId);
         return ResponseEntity.status(ClubApiStatus.DELETE_SUCCESS.getCode())
                 .body(ClubApiStatus.DELETE_SUCCESS.response());
@@ -52,7 +39,7 @@ public class MemberController {
      * @return 响应结果，包含更新后的成员信息
      */
     @PutMapping()
-    public ResponseEntity<ClubApiResponse<?>> updateMember(@Nonnull @RequestBody Member member) {
+    public ResponseEntity<?> updateMember(@Nonnull @RequestBody Member member) {
         final Member newMember = memberService.updateMember(member);
         return ResponseEntity.status(ClubApiStatus.PUT_SUCCESS.getCode())
                 .body(ClubApiStatus.PUT_SUCCESS.response(newMember));
@@ -64,7 +51,7 @@ public class MemberController {
      * @return 响应结果，包含指定社团的所有成员列表
      */
     @GetMapping
-    public ResponseEntity<ClubApiResponse<?>> getMembersByClubId(@PathVariable Integer clubId) {
+    public ResponseEntity<?> getMembersByClubId(@PathVariable Integer clubId) {
         final List<Member> members = memberService.getMembersByClubId(clubId);
         return ResponseEntity.status(ClubApiStatus.GET_SUCCESS.getCode())
                 .body(ClubApiStatus.GET_SUCCESS.response(members));
@@ -76,7 +63,7 @@ public class MemberController {
      * @return 响应结果，包含指定ID的成员信息
      */
     @GetMapping("/{memberId}")
-    public ResponseEntity<ClubApiResponse<?>> getMemberById(@PathVariable Integer memberId) {
+    public ResponseEntity<?> getMemberById(@PathVariable Integer memberId) {
         final Member member = memberService.getMemberById(memberId);
         return ResponseEntity.status(ClubApiStatus.GET_SUCCESS.getCode())
                 .body(ClubApiStatus.GET_SUCCESS.response(member));

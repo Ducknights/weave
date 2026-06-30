@@ -1,11 +1,11 @@
 package org.example.service;
 
-import org.example.entity.Member;
+import org.example.model.entity.Member;
 
 import java.util.List;
 
 public interface MemberService {
-    Member createMember(Member member);
+    void createMember(Member member);
     void deleteMember(Integer memberId);
     Member updateMember(Member member);
     List<Member> queryMembers();

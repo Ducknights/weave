@@ -1,18 +1,15 @@
 package org.example.mapper;
 
-import org.apache.ibatis.annotations.Insert;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
-import org.example.entity.Member;
+import org.example.model.entity.Member;
 
 import java.util.List;
 
 @Mapper
-public interface MemberMapper {
-
-    @Insert("INSERT INTO members(user_id, club_id, role, status) VALUES(#{userId}, #{clubId}, #{role}, #{status})")
-    Member createMember(Member member);
+public interface MemberMapper extends BaseMapper<Member> {
 
     @Select("DELETE FROM members WHERE id = #{memberId}")
     void deleteMember(Integer memberId);

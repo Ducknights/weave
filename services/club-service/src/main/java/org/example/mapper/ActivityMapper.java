@@ -1,16 +1,16 @@
 package org.example.mapper;
 
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
-import org.example.entity.Activity;
+import org.example.model.entity.Activity;
 import org.example.model.vo.ActivityCardVo;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Mapper
@@ -51,4 +51,10 @@ public interface ActivityMapper extends BaseMapper<Activity> {
             "WHERE a.date >= #{startDate} AND a.date <= #{endDate} " +
             "ORDER BY a.date ASC, a.start_time ASC")
     List<ActivityCardVo> queryActivity(LocalDate startDate, LocalDate endDate);
+
+    default List<Activity> getActivitiesByClubId(Integer clubId){
+        LambdaQueryWrapper<Activity> queryWrapper = new LambdaQueryWrapper<Activity>()
+                .eq(Activity::getClubId, clubId);
+        return this.selectList(queryWrapper);
+    }
 }

@@ -5,22 +5,23 @@ import jakarta.annotation.Resource;
 import lombok.extern.log4j.Log4j2;
 import org.example.constant.CacheKey;
 import org.example.dto.AuthUserDto;
+import org.example.dto.PostDetailVo;
 import org.example.dto.UserBriefDto;
+import org.example.feign.PostFeignClient;
 import org.example.mapper.UserInfoMapper;
+import org.example.model.ApiResult;
+import org.example.model.dto.UpdateUserInfoDto;
 import org.example.model.entity.UserInfo;
+import org.example.model.vo.UserInfoVo;
 import org.example.service.UserInfoService;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @Log4j2
 @Service
@@ -30,6 +31,8 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
     private UserInfoMapper userInfoMapper;
     @Resource
     private RedisTemplate<String, Object> redisTemplate;
+    @Resource
+    private PostFeignClient postFeignClient;
 
     /**
      * 根据用户ID集合批量获取用户信息
@@ -98,10 +101,11 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
     @Override
     @CacheEvict(value = CacheKey.USER_BRIEF_INFO, key = "#userDto.id")
     public UserInfo createUser(AuthUserDto userDto) {
-        UserInfo user = new UserInfo();
-        user.setId(userDto.id());
-        user.setName("用户"+userDto.id());
-        user.setEmail(userDto.email());
+        UserInfo user =UserInfo.builder()
+                .id(userDto.id())
+                .name("用户"+userDto.id())
+                .email(userDto.email())
+                .build();
         userInfoMapper.insert(user);
         return user;
     }
@@ -126,8 +130,20 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
     }
 
     @Override
-    public UserInfo getSelfInfo(Long id) {
-        return userInfoMapper.selectById(id);
+    public UserInfoVo getUserInfoDtoById(Long id) {
+        UserInfoVo vo = userInfoMapper.selectUserInfoById(id);
+        ResponseEntity<ApiResult<List<PostDetailVo>>> postsResponse = postFeignClient.getPostsByUser(id);
+        List<PostDetailVo> posts = Objects.requireNonNull(postsResponse.getBody()).data();
+        return UserInfoVo.builder()
+                .id(vo.getId())
+                .name(vo.getName())
+                .avatar(vo.getAvatar())
+                .gender(vo.getGender())
+                .motto(vo.getMotto())
+                .fansCont(vo.getFansCont())
+                .followCont(vo.getFollowCont())
+                .postCont(posts != null ? posts.size() : 0)
+                .build();
     }
 
     /**
@@ -138,23 +154,20 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
     @Override
     @Transactional
     @CacheEvict(value = CacheKey.USER_BRIEF_INFO, key = "#user.id")
-    public UserInfo updateUser(UserInfo user) {
-        if(userInfoMapper.updateInfo(user) > 0){
+    public UpdateUserInfoDto updateUser(UpdateUserInfoDto user) {
+        UserInfo userInfo = UserInfo.builder()
+                .id(user.getId())
+                .name(user.getName())
+                .avatar(user.getAvatar())
+                .gender(user.getGender())
+                .birthday(user.getBirthday())
+                .address(user.getAddress())
+                .motto(user.getMotto())
+                .build();
+        if(userInfoMapper.updateInfo(userInfo) > 0){
             return user;
         }else {
             throw new RuntimeException("用户信息更新失败");
         }
-    }
-
-    /**
-     * 刷新用户在线状态
-     * @param id 用户ID
-     * @return 返回是否刷新成功
-     */
-    @Override
-    @CachePut(value = CacheKey.USER_ONLINE,key = "#id")
-    public Boolean refresh(Long id) {
-        log.info("id:{}的用户维持心跳",id);
-        return true;
     }
 }

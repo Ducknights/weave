@@ -5,15 +5,18 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;
+import lombok.Builder;
 import lombok.Data;
 import org.example.model.eunms.GenderEnum;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**
  * 用户信息实体类
  */
 @Data
+@Builder
 @TableName("user_info")
 public class UserInfo {
     @TableId(type = IdType.AUTO)
@@ -24,7 +27,7 @@ public class UserInfo {
     @Email
     private String email;
     private GenderEnum gender;
-    private LocalDateTime birthday;
+    private LocalDate birthday;
     private String address;
     private String motto;
     private LocalDateTime createTime;

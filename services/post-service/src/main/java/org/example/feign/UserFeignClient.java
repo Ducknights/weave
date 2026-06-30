@@ -17,7 +17,6 @@ public interface UserFeignClient {
     @PostMapping("/api/user/info/batch")
     Map<Long, UserBriefDto> getUserInfosByIds(@RequestBody Set<Long> ids);
 
-
-    @GetMapping("/api/user/cache/{id}")
+    @GetMapping("/api/user/{id}/loadCache")
     void loadCacheLikeAndCollect(@PathVariable Long id);
 }

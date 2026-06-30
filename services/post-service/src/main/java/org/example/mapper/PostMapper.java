@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Update;
 import org.example.model.entity.Post;
+import org.example.model.enums.PostStatus;
 import org.springframework.util.CollectionUtils;
 
 import java.util.Collections;
@@ -31,14 +32,20 @@ public interface PostMapper extends BaseMapper<Post> {
         }
         LambdaQueryWrapper<Post> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(Post::getPostId, needQueryIds);
-        queryWrapper.eq(Post::getStatus, 1);
+        queryWrapper.eq(Post::getStatus, PostStatus.PUBLISHED);
         return this.selectList(queryWrapper);
     }
 
     default List<Post> selectHiddenPostByUserId(Long userId) {
         LambdaQueryWrapper<Post> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(Post::getUserId, userId);
-        queryWrapper.eq(Post::getStatus, 2);
+        queryWrapper.eq(Post::getStatus, PostStatus.HIDDEN);
+        return this.selectList(queryWrapper);
+    }
+
+    default List<Post> selectPostsByUser(Long userId){
+        LambdaQueryWrapper<Post> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(Post::getUserId, userId);
         return this.selectList(queryWrapper);
     }
 }

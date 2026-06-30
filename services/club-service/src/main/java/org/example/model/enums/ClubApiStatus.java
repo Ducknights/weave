@@ -1,6 +1,7 @@
-package org.example.model;
+package org.example.model.enums;
 
 import lombok.Getter;
+import org.example.model.ApiResult;
 
 import java.util.Collections;
 import java.util.Map;
@@ -28,11 +29,11 @@ public enum ClubApiStatus {
         this.msg = msg;
     }
 
-    public ClubApiResponse<Map<String, Object>> response() {
-        return response(Collections.emptyMap());
+    public ApiResult<?> response() {
+        return response(null);
     }
 
-    public <T> ClubApiResponse<T> response(T data) {
-        return new ClubApiResponse<>(code, msg, data);
+    public <T> ApiResult<T> response(T data) {
+        return new ApiResult<>(code, msg, data);
     }
 }

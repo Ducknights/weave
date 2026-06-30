@@ -4,8 +4,11 @@ import jakarta.annotation.Resource;
 import lombok.extern.log4j.Log4j2;
 import org.example.dto.AuthUserDto;
 import org.example.dto.UserBriefDto;
+import org.example.model.ApiResult;
 import org.example.model.dto.UpdateUserInfoDto;
 import org.example.model.entity.UserInfo;
+import org.example.model.eunms.UserApiStatus;
+import org.example.model.vo.UserInfoVo;
 import org.example.service.UserInfoService;
 import org.example.util.SecurityUtils;
 import org.springframework.http.ResponseEntity;
@@ -34,17 +37,6 @@ public class UserInfoController {
     }
 
     /**
-     * 获取当前用户信息
-     *
-     * @return UserInfo 返回用户信息对象
-     */
-    @GetMapping()
-    public UserInfo getSelfUserInfo() {
-        Long id = SecurityUtils.getCurrentUserId();
-        return userInfoService.getSelfInfo(id);
-    }
-
-    /**
      * 根据ID获取用户信息的接口方法
      *
      * @param id 用户ID，通过路径变量传递
@@ -54,6 +46,18 @@ public class UserInfoController {
     public UserBriefDto getUserById(@PathVariable Long id) {
         log.info("收到请求{}",id);
         return userInfoService.getUserBriefDtoById(id);
+    }
+
+    /**
+     * 根据ID获取用户详细信息的接口方法
+     *
+     * @param id 用户ID，通过路径变量传递
+     * @return UserInfoDto 返回用户详细信息对象
+     */
+    @GetMapping("/detail/{id}")
+    public ResponseEntity<ApiResult<?>> getUserDetailById(@PathVariable Long id) {
+        UserInfoVo vo = userInfoService.getUserInfoDtoById(id);
+        return ResponseEntity.ok().body(UserApiStatus.SUCCESS.response(vo));
     }
 
     /**
@@ -76,16 +80,6 @@ public class UserInfoController {
         Long userId = SecurityUtils.getCurrentUserId();
         user.setId(userId);
         return userInfoService.updateUser(user);
-    }
-
-    /**
-     * 处理用户在线心跳请求的方法
-     * 保持用户在线状态
-     */
-    @PostMapping("/online")
-    public Boolean heartBeat () {
-        Long userId = SecurityUtils.getCurrentUserId();
-        return userInfoService.refresh(userId);
     }
 
     @GetMapping("/health")

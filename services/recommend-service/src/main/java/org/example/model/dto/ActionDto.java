@@ -6,6 +6,6 @@ import org.example.model.enums.ActionEnum;
 @Builder
 public record ActionDto(
         Long userId,
-        Long targetId,
+        Long postId,
         ActionEnum type) {
 }

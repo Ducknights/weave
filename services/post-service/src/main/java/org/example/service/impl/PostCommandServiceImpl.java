@@ -251,6 +251,7 @@ public class PostCommandServiceImpl extends ServiceImpl<PostMapper, Post> implem
                 .id(data.getPostId())
                 .title(data.getTitle())
                 .content(data.getContent())
+                .isPublic(true)
                 .build();
         // 构造消息
         PostSyncMessage message = PostSyncMessage.builder()

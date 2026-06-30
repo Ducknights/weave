@@ -25,10 +25,12 @@ import org.example.model.entity.Message;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -38,6 +40,8 @@ import java.util.concurrent.TimeUnit;
 @Component
 public class SocketIOEventHandler {
 
+    @Resource
+    private ThreadPoolTaskScheduler taskScheduler;
     @Resource
     private SocketIOServer socketIOServer;
     @Resource
@@ -90,10 +94,18 @@ public class SocketIOEventHandler {
         // 仅当断开的连接与当前在线连接一致时才清理，防止误删新连接
         onlineClients.remove(userId, client);
         // 如果用户还有其他连接则不删Redis在线状态
-        if (!onlineClients.containsKey(userId)) {
-            redisTemplate.delete(CacheKey.buildCacheKey(CacheKey.USER_ONLINE, userId));
-        }
-        log.info("用户下线: userId={}, sessionId={}", userId, client.getSessionId());
+        taskScheduler.schedule(
+                () -> {
+                    if (!onlineClients.containsKey(userId)) {
+                        redisTemplate.delete(
+                                CacheKey.buildCacheKey(
+                                        CacheKey.USER_ONLINE, userId));
+
+                        log.info("用户真正下线: {}", userId);
+                    }
+                },
+                Instant.now().plusSeconds(5)
+        );
     }
 
     /**
