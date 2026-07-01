@@ -2,8 +2,8 @@ package org.example.controller;
 
 import jakarta.annotation.Resource;
 import lombok.extern.log4j.Log4j2;
-import org.example.dto.AuthUserDto;
-import org.example.dto.UserBriefDto;
+import org.example.model.dto.AuthUserDto;
+import org.example.model.dto.UserBriefDto;
 import org.example.model.ApiResult;
 import org.example.model.dto.UpdateUserInfoDto;
 import org.example.model.entity.UserInfo;

@@ -1,6 +1,6 @@
 package org.example.service;
 
-import org.example.dto.PostDetailVo;
+import org.example.model.dto.PostDetailVo;
 import org.example.model.dto.SearchResultDto;
 
 import java.util.List;

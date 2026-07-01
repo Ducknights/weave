@@ -1,7 +1,7 @@
 package org.example.service;
 
-import org.example.dto.AuthUserDto;
-import org.example.dto.UserBriefDto;
+import org.example.model.dto.AuthUserDto;
+import org.example.model.dto.UserBriefDto;
 import org.example.model.dto.UpdateUserInfoDto;
 import org.example.model.entity.UserInfo;
 import org.example.model.vo.UserInfoVo;

@@ -5,7 +5,7 @@ import jakarta.annotation.Resource;
 import lombok.extern.log4j.Log4j2;
 import org.example.constant.CacheKey;
 import org.example.constant.PostOperation;
-import org.example.dto.SearchDocumentDto;
+import org.example.model.dto.SearchDocumentDto;
 import org.example.exception.AuthorizationException;
 import org.example.exception.ResourceNotFoundException;
 import org.example.mapper.PostMapper;

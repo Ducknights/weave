@@ -6,7 +6,7 @@ package org.example.controller;
 
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Resource;
-import org.example.dto.ClubBriefDto;
+import org.example.model.dto.ClubBriefDto;
 import org.example.model.entity.Club;
 import org.example.model.vo.ClubCardVo;
 import org.example.model.enums.ClubApiStatus;

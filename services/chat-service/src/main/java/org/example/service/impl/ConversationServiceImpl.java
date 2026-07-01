@@ -2,7 +2,7 @@ package org.example.service.impl;
 
 import jakarta.annotation.Resource;
 import org.example.constant.CacheKey;
-import org.example.dto.UserBriefDto;
+import org.example.model.dto.UserBriefDto;
 import org.example.feign.UserInfoFeign;
 import org.example.mapper.ConversationMapper;
 import org.example.mapper.ConversationMemberMapper;

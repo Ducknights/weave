@@ -1,7 +1,7 @@
 package org.example.feign.fallback;
 
 import lombok.extern.log4j.Log4j2;
-import org.example.dto.UserBriefDto;
+import org.example.model.dto.UserBriefDto;
 import org.example.feign.UserFeignClient;
 import org.springframework.stereotype.Component;
 

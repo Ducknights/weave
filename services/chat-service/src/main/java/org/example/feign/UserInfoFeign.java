@@ -1,6 +1,6 @@
 package org.example.feign;
 
-import org.example.dto.UserBriefDto;
+import org.example.model.dto.UserBriefDto;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;

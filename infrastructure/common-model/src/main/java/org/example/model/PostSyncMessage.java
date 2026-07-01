@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.example.dto.SearchDocumentDto;
+import org.example.model.dto.SearchDocumentDto;
 
 @Data
 @Builder

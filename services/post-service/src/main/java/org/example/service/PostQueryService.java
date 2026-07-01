@@ -1,7 +1,6 @@
 package org.example.service;
 
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import org.example.dto.PostDetailVo;
+import org.example.model.dto.PostDetailVo;
 
 import java.util.List;
 

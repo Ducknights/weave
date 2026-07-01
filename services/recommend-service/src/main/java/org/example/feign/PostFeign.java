@@ -1,7 +1,7 @@
 package org.example.feign;
 
 
-import org.example.dto.PostDetailVo;
+import org.example.model.dto.PostDetailVo;
 import org.example.model.ApiResult;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;

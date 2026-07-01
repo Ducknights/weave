@@ -2,7 +2,6 @@ package org.example.model.dto;
 
 import lombok.Builder;
 import lombok.Data;
-import org.example.dto.PostDetailVo;
 
 import java.util.List;
 

@@ -3,7 +3,7 @@ package org.example.service.imp;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.annotation.Resource;
-import org.example.dto.ClubBriefDto;
+import org.example.model.dto.ClubBriefDto;
 import org.example.model.entity.Club;
 import org.example.model.entity.Member;
 import org.example.model.enums.ClubRole;

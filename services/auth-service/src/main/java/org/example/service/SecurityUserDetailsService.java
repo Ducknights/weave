@@ -1,7 +1,7 @@
 package org.example.service;
 
 import jakarta.annotation.Resource;
-import org.example.dto.AuthUserDto;
+import org.example.model.dto.AuthUserDto;
 import org.example.model.CustomUserDetails;
 import org.example.model.UserAuth;
 import org.example.feign.UserFeignClient;

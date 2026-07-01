@@ -4,7 +4,7 @@ import jakarta.annotation.Resource;
 import lombok.extern.log4j.Log4j2;
 import org.example.model.dto.PostDto;
 import org.example.model.enums.PostApiStatus;
-import org.example.dto.PostDetailVo;
+import org.example.model.dto.PostDetailVo;
 import org.example.service.PostCommandService;
 import org.example.service.PostQueryService;
 import org.example.util.SecurityUtils;

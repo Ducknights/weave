@@ -2,7 +2,7 @@ package org.example.controller;
 
 import jakarta.annotation.Resource;
 import lombok.extern.log4j.Log4j2;
-import org.example.dto.PostDetailVo;
+import org.example.model.dto.PostDetailVo;
 import org.example.model.dto.SearchPageDto;
 import org.example.model.dto.SearchResultDto;
 import org.example.model.entity.SearchDocument;
@@ -12,9 +12,7 @@ import org.example.service.SearchService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 搜索控制器

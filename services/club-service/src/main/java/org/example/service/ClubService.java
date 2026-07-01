@@ -1,7 +1,7 @@
 package org.example.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import org.example.dto.ClubBriefDto;
+import org.example.model.dto.ClubBriefDto;
 import org.example.model.entity.Club;
 import org.example.model.vo.ClubCardVo;
 

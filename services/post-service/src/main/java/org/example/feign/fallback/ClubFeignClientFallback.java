@@ -1,7 +1,7 @@
 package org.example.feign.fallback;
 
 import lombok.extern.log4j.Log4j2;
-import org.example.dto.ClubBriefDto;
+import org.example.model.dto.ClubBriefDto;
 import org.example.feign.ClubFeignClient;
 import org.springframework.stereotype.Component;
 

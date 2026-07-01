@@ -12,6 +12,7 @@ import org.example.mapper.AuthMapper;
 import org.example.dto.ApiRequestDto;
 import org.example.dto.VerifyCodeDto;
 import org.example.constant.CacheKey;
+import org.example.model.dto.UserBriefDto;
 import org.example.util.JwtUtil;
 import org.example.util.MQUtil;
 import org.springframework.cache.annotation.CacheEvict;

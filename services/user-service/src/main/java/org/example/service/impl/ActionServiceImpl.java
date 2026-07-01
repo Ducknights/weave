@@ -3,7 +3,7 @@ package org.example.service.impl;
 import jakarta.annotation.Resource;
 import lombok.extern.log4j.Log4j2;
 import org.example.constant.CacheKey;
-import org.example.dto.PostDetailVo;
+import org.example.model.dto.PostDetailVo;
 import org.example.feign.PostFeignClient;
 import org.example.model.dto.ActionDto;
 import org.example.model.entity.UserActions;

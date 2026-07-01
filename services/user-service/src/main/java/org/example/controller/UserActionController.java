@@ -2,7 +2,7 @@ package org.example.controller;
 
 import jakarta.annotation.Resource;
 import org.example.constant.MQueue;
-import org.example.dto.PostDetailVo;
+import org.example.model.dto.PostDetailVo;
 import org.example.model.ApiResult;
 import org.example.model.dto.ActionDto;
 import org.example.model.eunms.UserApiStatus;

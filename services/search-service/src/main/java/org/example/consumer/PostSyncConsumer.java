@@ -3,7 +3,7 @@ package org.example.consumer;
 import lombok.extern.slf4j.Slf4j;
 import org.example.constant.MQueue;
 import org.example.constant.PostOperation;
-import org.example.dto.SearchDocumentDto;
+import org.example.model.dto.SearchDocumentDto;
 import org.example.model.PostSyncMessage;
 import org.example.model.entity.SearchDocument;
 import org.example.service.SearchService;
