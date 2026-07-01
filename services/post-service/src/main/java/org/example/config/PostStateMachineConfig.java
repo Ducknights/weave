@@ -14,22 +14,6 @@ import java.util.EnumSet;
 
 /**
  * 帖子状态机配置
- * <p>
- * 状态流转图：
- * <pre>
- *           ┌──────────┐
- *           │PUBLISHED │ (已发布)
- *           └────┬─────┘
- *       HIDE│    │DELETE
- *   ┌───────▼┐   │
- *   │ HIDDEN │   │
- *   │ (隐藏)  │   │
- *   └───┬────┘   │
- *       │RESTORE │
- *       │        │
- *       ▼          ▼
- *   PUBLISHED   DELETED (终态，不可逆)
- * </pre>
  */
 @Log4j2
 @Configuration

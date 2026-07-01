@@ -1,10 +1,8 @@
 package org.example.controller;
 
 import lombok.NonNull;
-import org.example.constant.CacheKey;
 import org.example.model.enums.PostApiStatus;
 import org.example.service.FileService;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

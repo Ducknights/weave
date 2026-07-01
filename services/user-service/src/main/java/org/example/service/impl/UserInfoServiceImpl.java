@@ -3,6 +3,7 @@ package org.example.service.impl;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.annotation.Resource;
 import lombok.extern.log4j.Log4j2;
+import org.example.annotation.RedisCacheable;
 import org.example.constant.CacheKey;
 import org.example.model.dto.AuthUserDto;
 import org.example.model.dto.PostDetailVo;
@@ -116,7 +117,7 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
      * @return 返回用户信息
      */
     @Override
-    @Cacheable(value = CacheKey.USER_BRIEF_INFO, key = "#id")
+    @RedisCacheable(value = CacheKey.USER_BRIEF_INFO, key = "#id")
     public UserBriefDto getUserBriefDtoById(Long id) {
         UserInfo userInfo = userInfoMapper.selectById(id);
         if (userInfo == null){

@@ -81,8 +81,8 @@ public class ActivityController {
         if (start.isAfter(end)){
             throw new IllegalArgumentException("开始日期必须在结束日期之前");
         }
-
         final List<ActivityCardVo> activities = activityService.queryActivityByDate(start, end);
+        log.info("查询到{}条活动", activities.size());
         return ResponseEntity.status(ClubApiStatus.GET_SUCCESS.getCode())
                 .body(ClubApiStatus.GET_SUCCESS.response(activities));
     }
