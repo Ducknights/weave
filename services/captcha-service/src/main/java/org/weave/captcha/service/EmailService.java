@@ -1,4 +1,4 @@
-package org.example.service;
+package org.weave.captcha.service;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;

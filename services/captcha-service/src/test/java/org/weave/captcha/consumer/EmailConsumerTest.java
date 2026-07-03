@@ -1,6 +1,6 @@
-package org.example.consumer;
+package org.weave.captcha.consumer;
 
-import org.example.service.EmailService;
+import org.weave.captcha.service.EmailService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
