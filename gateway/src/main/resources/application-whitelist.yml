@@ -1,10 +1,10 @@
-# 白名单配置(不需要认证的请求)
+# 白名单配置(可以不需要认证的请求)
 spring:
   whitelist:
     paths:
       # CLUB (社团)
       - GET:/api/club/**
-      - POST:/api/club/batch
+      - GET:/api/club/batch
       # POST (帖子)
       - GET:/api/post/hot
       - GET:/api/post/new

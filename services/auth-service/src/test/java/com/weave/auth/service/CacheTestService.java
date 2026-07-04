@@ -1,8 +1,8 @@
 package com.weave.auth.service;
 
-import org.example.annotation.RedisCacheEvent;
-import org.example.annotation.RedisCachePut;
-import org.example.annotation.RedisCacheable;
+import com.weave.redis.annotation.RedisCacheEvent;
+import com.weave.redis.annotation.RedisCachePut;
+import com.weave.redis.annotation.RedisCacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;

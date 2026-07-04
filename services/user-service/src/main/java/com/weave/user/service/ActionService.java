@@ -1,0 +1,16 @@
+package com.weave.user.service;
+
+import com.weave.model.model.dto.PostDetailVo;
+import com.weave.user.model.dto.ActionDto;
+
+import java.util.List;
+
+public interface ActionService {
+    void addRecord(ActionDto dto);
+
+    void deleteRecord(ActionDto dto);
+
+    List<PostDetailVo> getRecord(ActionDto dto, int page, int size);
+
+    void cacheUserAction(Long id);
+}

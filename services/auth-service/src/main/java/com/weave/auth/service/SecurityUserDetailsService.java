@@ -2,9 +2,9 @@ package com.weave.auth.service;
 
 import com.weave.auth.mapper.AuthMapper;
 import jakarta.annotation.Resource;
-import org.example.model.dto.AuthUserDto;
-import com.weave.auth.model.CustomUserDetails;
-import com.weave.auth.model.UserAuth;
+import com.weave.model.model.dto.AuthUserDto;
+import com.weave.auth.model.dto.CustomUserDetails;
+import com.weave.auth.model.dto.UserAuthDto;
 import com.weave.auth.feign.UserFeignClient;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -32,15 +32,15 @@ public class SecurityUserDetailsService implements UserDetailsManager {
 
     @Override
     public void createUser(UserDetails user) {
-        UserAuth userAuth = new UserAuth();
-        userAuth.setEmail(user.getUsername());
-        userAuth.setPassword(user.getPassword());
+        UserAuthDto userAuthDto = new UserAuthDto();
+        userAuthDto.setEmail(user.getUsername());
+        userAuthDto.setPassword(user.getPassword());
         // 插入用户信息
-        authMapper.insert(userAuth);
+        authMapper.insert(userAuthDto);
         // 插入用户角色
-        authMapper.insertUserRole(userAuth.getId());
+        authMapper.insertUserRole(userAuthDto.getId());
         // 调用用户服务插入用户信息
-        userFeignClient.createUser(new AuthUserDto(userAuth.getId(), userAuth.getEmail()));
+        userFeignClient.createUser(new AuthUserDto(userAuthDto.getId(), userAuthDto.getEmail()));
     }
 
     @Override

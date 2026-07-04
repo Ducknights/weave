@@ -133,5 +133,9 @@
             <artifactId>spring-security-test</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.example</groupId>
+            <artifactId>common-util</artifactId>
+        </dependency>
     </dependencies>
 </project>

@@ -1,21 +1,21 @@
 package com.weave.auth.service;
 
 
-import com.weave.auth.dto.*;
 import com.weave.auth.mapper.AuthMapper;
+import com.weave.auth.model.dto.*;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import com.weave.auth.exception.CodeErrorException;
 import com.weave.auth.exception.EmailExistedException;
 import com.weave.auth.feign.UserFeignClient;
-import com.weave.auth.model.CustomUserDetails;
-import org.example.constant.CacheKey;
-import org.example.model.dto.UserBriefDto;
-import com.weave.auth.util.JwtUtil;
-import org.example.util.MQUtil;
+import com.weave.auth.model.dto.CustomUserDetails;
+import com.weave.redis.constant.CacheKey;
+import com.weave.model.model.dto.UserBriefDto;
+import com.weave.rabbitmq.util.MQUtil;
+import com.weave.util.JwtUtil;
+import com.weave.redis.util.RedisUtil;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Caching;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -26,8 +26,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Service
@@ -40,20 +40,17 @@ public class AuthService {
     @Resource
     private PasswordEncoder passwordEncoder;
     @Resource
-    private RedisTemplate<String,Object> redisTemplate;
-    @Resource
     private AuthMapper authMapper;
     @Resource
     private UserFeignClient userFeignClient;
     @Resource
     private MQUtil mqUtil;
     @Resource
-    private JwtUtil jwtUtil;
+    private RedisUtil redisUtil;
 
     private static final int ACCESS_TOKEN_EXPIRE_TIME = 1000 * 60 * 60 * 2; // 2小时 = 1000 * 60 * 60 * 2 毫秒
     private static final int REFRESH_TOKEN_EXPIRE_TIME = 1000 * 60 * 60 * 24 * 7; // 7天 = 1000 * 60 * 60 * 24 * 7 毫秒
-    private static final int CACHE_USER_AUTHORITY_EXPIRE_TIME = 130; // 缓存用户权限过期时间: 130分钟
-
+    private static final Duration CACHE_USER_AUTHORITY_EXPIRE_TIME = Duration.ofMinutes(130); // 缓存用户权限过期时间: 130分钟
 
     public ApiResponseDto login(ApiRequestDto apiRequestDto) {
         ApiResponseDto apiResponseDto = null;
@@ -73,10 +70,10 @@ public class AuthService {
                 // 生成Redis键
                 String permissionsKey = CacheKey.buildCacheKey(CacheKey.USER_AUTHORITY, userId);
                 // 生成JWT令牌
-                String access_token = jwtUtil.generateJwtToken(permissionsKey, ACCESS_TOKEN_EXPIRE_TIME);
-                String refresh_token = jwtUtil.generateJwtToken(permissionsKey, REFRESH_TOKEN_EXPIRE_TIME);
+                String access_token = JwtUtil.generateJwtToken(permissionsKey, ACCESS_TOKEN_EXPIRE_TIME);
+                String refresh_token = JwtUtil.generateJwtToken(permissionsKey, REFRESH_TOKEN_EXPIRE_TIME);
                 // 写入用户标识信息到redis
-                redisTemplate.opsForValue().set(permissionsKey, authentication.getPrincipal(), CACHE_USER_AUTHORITY_EXPIRE_TIME, TimeUnit.MINUTES);
+                redisUtil.set(permissionsKey, authentication.getPrincipal(), CACHE_USER_AUTHORITY_EXPIRE_TIME);
                 // 构造返回DTO
                 TokenDto tokenDto = new TokenDto(access_token, ACCESS_TOKEN_EXPIRE_TIME, refresh_token, REFRESH_TOKEN_EXPIRE_TIME);
                 // 获取用户信息
@@ -87,7 +84,7 @@ public class AuthService {
                 // 构建响应DTO
                 apiResponseDto = new ApiResponseDto(tokenDto, userDto);
                 // 发送用户登录事件
-                mqUtil.sendUserLoginEvent(userId);
+                mqUtil.cacheUserInfo(userId);
             }
         } catch (Exception e) {
             log.error("登录失败: {}", e.getMessage(), e);
@@ -103,15 +100,15 @@ public class AuthService {
             throw new EmailExistedException("邮箱已被注册");
         }
         // 发送验证码
-        String lock = CacheKey.buildCacheKey(CacheKey.CAPTCHA, email);
+        String lock = CacheKey.buildCacheKey("lock" + CacheKey.CAPTCHA, email);
         log.info("发送验证码到: {}", email);
-        if (Boolean.TRUE.equals(redisTemplate.hasKey(lock))){
+        if (Boolean.TRUE.equals(redisUtil.hasKey(lock))){
             throw new CodeErrorException("验证码已发送，请等待");
         }
 
         try{
             // 发送验证码到验证码队列
-            mqUtil.sendCaptchaEmail(email);
+            mqUtil.sendCaptchaCode(email);
         }catch (Exception e){
             throw new CodeErrorException("验证码发送失败");
         }
@@ -120,10 +117,10 @@ public class AuthService {
     public void verifyCode(VerifyCodeDto dto) {
         // 1. 验证验证码
         String key = CacheKey.buildCacheKey(CacheKey.CAPTCHA, dto.email());
-        if (Boolean.FALSE.equals(redisTemplate.hasKey(key))){
+        if (Boolean.FALSE.equals(redisUtil.hasKey(key))){
             throw new CodeErrorException("验证码已过期");
         }
-        Integer code = (Integer) redisTemplate.opsForValue().get(key);
+        Integer code = redisUtil.get(key, Integer.class);
         if (!dto.code().equals(code)){
             throw new CodeErrorException("验证码错误");
         }
@@ -158,10 +155,12 @@ public class AuthService {
         try {
             // 1. 生成JWT令牌
             String subject = CacheKey.buildCacheKey(CacheKey.USER_AUTHORITY, userId);
-            String access_token = jwtUtil.generateJwtToken(subject, ACCESS_TOKEN_EXPIRE_TIME);
+            String access_token = JwtUtil.generateJwtToken(subject, ACCESS_TOKEN_EXPIRE_TIME);
             // 2. 缓存用户权限
             cacheUserAuthorities(userId);
-            // 3. 构造返回DTO
+            // 3. 缓存用户信息
+            mqUtil.cacheUserInfo(userId);
+            // 4. 构造返回DTO
             return new TokenDto(access_token, ACCESS_TOKEN_EXPIRE_TIME,null , null);
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
@@ -172,10 +171,12 @@ public class AuthService {
         try {
             // 1. 生成JWT令牌
             String subject = CacheKey.buildCacheKey(CacheKey.USER_AUTHORITY, userId);
-            String refresh_token = jwtUtil.generateJwtToken(subject, REFRESH_TOKEN_EXPIRE_TIME);
+            String refresh_token = JwtUtil.generateJwtToken(subject, REFRESH_TOKEN_EXPIRE_TIME);
             // 2. 重新缓存用户权限信息
             cacheUserAuthorities(userId);
-            // 3. 构造返回DTO
+            // 3. 缓存用户信息
+            mqUtil.cacheUserInfo(userId);
+            // 4. 构造返回DTO
             return new TokenDto(null,null , refresh_token, REFRESH_TOKEN_EXPIRE_TIME);
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
@@ -190,7 +191,7 @@ public class AuthService {
         }
         // 2. 缓存到 Redis
         String cacheKey = CacheKey.buildCacheKey(CacheKey.USER_AUTHORITY, userId);
-        redisTemplate.opsForValue().set(cacheKey, userDetails, CACHE_USER_AUTHORITY_EXPIRE_TIME, TimeUnit.MINUTES);
+        redisUtil.set(cacheKey, userDetails, CACHE_USER_AUTHORITY_EXPIRE_TIME);
         log.info("已刷新用户权限缓存: userId={}", userId);
     }
 }

@@ -6,7 +6,7 @@ import com.weave.chat.model.vo.ConversationVo;
 import com.weave.chat.service.MessageService;
 import jakarta.annotation.Resource;
 import com.weave.chat.service.ConversationService;
-import org.example.util.SecurityUtils;
+import com.weave.security.util.SecurityUtils;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

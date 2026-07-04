@@ -1,7 +1,7 @@
 package com.weave.chat.model.enums;
 
 import lombok.Getter;
-import org.example.model.ApiResult;
+import com.weave.model.model.ApiResult;
 
 @Getter
 public enum ChatApiStatus {

@@ -1,7 +1,7 @@
 package com.weave.auth.exception;
 
 
-import org.example.model.ApiResult;
+import com.weave.model.model.ApiResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

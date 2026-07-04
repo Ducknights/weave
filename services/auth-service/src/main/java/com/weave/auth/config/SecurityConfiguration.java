@@ -1,7 +1,7 @@
 package com.weave.auth.config;
 
 import jakarta.annotation.Resource;
-import org.example.filter.HeaderFilter;
+import com.weave.security.filter.HeaderFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;

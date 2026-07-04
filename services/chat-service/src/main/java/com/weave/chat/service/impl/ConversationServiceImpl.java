@@ -3,6 +3,8 @@ package com.weave.chat.service.impl;
 import com.weave.chat.feign.UserInfoFeign;
 import com.weave.chat.mapper.ConversationMapper;
 import com.weave.chat.mapper.ConversationMemberMapper;
+import com.weave.chat.model.constant.CachePrefix;
+import com.weave.chat.model.constant.CacheTTL;
 import com.weave.chat.model.dto.ConversationMemberParam;
 import com.weave.chat.model.entity.Conversation;
 import com.weave.chat.model.entity.ConversationMember;
@@ -10,8 +12,9 @@ import com.weave.chat.model.vo.ConversationVo;
 import com.weave.chat.service.ConversationMemberService;
 import com.weave.chat.service.ConversationService;
 import jakarta.annotation.Resource;
-import org.example.constant.CacheKey;
-import org.example.model.dto.UserBriefDto;
+import com.weave.redis.constant.CacheKey;
+import com.weave.model.model.dto.UserBriefDto;
+import com.weave.redis.util.RedisUtil;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,7 +23,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Service
@@ -36,6 +38,8 @@ public class ConversationServiceImpl implements ConversationService {
     private UserInfoFeign userInfoFeign;
     @Resource
     private RedisTemplate<String, Object> redisTemplate;
+    @Resource
+    private RedisUtil redisUtil;
 
     /**
      * 获取或创建私聊会话
@@ -133,14 +137,14 @@ public class ConversationServiceImpl implements ConversationService {
                 .unreadMessageCount(cu.getUnreadCount())
                 .otherUserNickname(userDto.getName())
                 .otherUserAvatar(userDto.getAvatar())
-                .online(redisTemplate.hasKey(CacheKey.buildCacheKey(CacheKey.USER_ONLINE, otherUserId)))
+                .online(redisUtil.hasKey(CacheKey.buildCacheKey(CacheKey.USER_ONLINE, otherUserId)))
                 .build();
     }
 
     private void CacheConversationVo(List<ConversationVo> conversationVos) {
         for (ConversationVo conversationVo : conversationVos){
-            String cacheKey = CacheKey.buildCacheKey(CacheKey.CONVERSATION, conversationVo.getUserId() + ":" + conversationVo.getOtherUserId());
-            redisTemplate.opsForValue().set(cacheKey, conversationVo, 5, TimeUnit.MINUTES); // 5分钟
+            String cacheKey = CacheKey.buildCacheKey(CachePrefix.CONVERSATION, conversationVo.getUserId() + ":" + conversationVo.getOtherUserId());
+            redisUtil.set(cacheKey, conversationVo, CacheTTL.CONVERSATION_CACHE_TTL);
         }
     }
 }

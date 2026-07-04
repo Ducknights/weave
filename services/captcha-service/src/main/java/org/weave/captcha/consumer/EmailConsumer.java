@@ -2,7 +2,7 @@ package org.weave.captcha.consumer;
 
 import lombok.extern.log4j.Log4j2;
 import org.weave.captcha.service.EmailService;
-import org.example.constant.MQueue;
+import com.weave.rabbitmq.constant.MQueue;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

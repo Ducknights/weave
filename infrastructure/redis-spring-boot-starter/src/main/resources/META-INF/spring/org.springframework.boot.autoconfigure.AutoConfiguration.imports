@@ -1,1 +1,1 @@
-org.example.auto.RedisAutoConfiguration
+com.weave.redis.auto.RedisAutoConfiguration

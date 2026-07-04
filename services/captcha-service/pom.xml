@@ -41,13 +41,6 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-thymeleaf</artifactId>
         </dependency>
-
-        <!-- Redis -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-redis</artifactId>
-        </dependency>
-
         <!-- Lombok -->
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -62,24 +55,17 @@
         </dependency>
         <dependency>
             <groupId>org.example</groupId>
-            <artifactId>redis-spring-boot-starter</artifactId>
+            <artifactId>rabbitmq-spring-boot-starter</artifactId>
         </dependency>
         <dependency>
             <groupId>org.example</groupId>
-            <artifactId>rabbitmq-spring-boot-starter</artifactId>
+            <artifactId>redis-spring-boot-starter</artifactId>
         </dependency>
-
         <!-- 测试 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
-        </dependency>
-
-        <!-- Rabbit MQ-->
-        <dependency>
-            <groupId>org.springframework.amqp</groupId>
-            <artifactId>spring-rabbit</artifactId>
         </dependency>
     </dependencies>
 </project>

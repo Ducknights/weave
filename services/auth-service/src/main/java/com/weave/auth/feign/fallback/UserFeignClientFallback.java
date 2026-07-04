@@ -2,8 +2,8 @@ package com.weave.auth.feign.fallback;
 
 import com.weave.auth.feign.UserFeignClient;
 import lombok.extern.slf4j.Slf4j;
-import org.example.model.dto.AuthUserDto;
-import com.weave.auth.dto.UserDto;
+import com.weave.model.model.dto.AuthUserDto;
+import com.weave.auth.model.dto.UserDto;
 import org.springframework.stereotype.Component;
 
 /**

@@ -1,12 +1,14 @@
 package org.weave.captcha.service;
 
+import jakarta.annotation.Resource;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
-import org.example.constant.CacheKey;
+import lombok.extern.log4j.Log4j2;
+import com.weave.redis.annotation.RedisCachePut;
+import com.weave.redis.constant.CacheKey;
+import com.weave.redis.util.RedisUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cache.annotation.CachePut;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -14,6 +16,7 @@ import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
 import java.io.UnsupportedEncodingException;
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
@@ -22,6 +25,7 @@ import java.util.concurrent.ThreadLocalRandom;
  * 邮件服务类
  * 提供发送简单邮件、HTML邮件、带附件邮件和模板邮件的功能
  */
+@Log4j2
 @Service
 public class EmailService {
 
@@ -31,8 +35,8 @@ public class EmailService {
     @Autowired
     private TemplateEngine templateEngine;
 
-    @Autowired
-    private RedisTemplate<String, Object> redisTemplate;
+    @Resource
+    private RedisUtil redisUtil;
 
     @Value("${app.email.from-name}")
     private String fromName;
@@ -93,11 +97,12 @@ public class EmailService {
      * @param email 收件人邮箱
      * @return 生成的6位验证码
      */
-    @CachePut(value = CacheKey.CAPTCHA, key = "#email")
+    @RedisCachePut(value = CacheKey.CAPTCHA, key = "#email", expire = 60 * 5)
     public Integer sendVerificationCodeEmail(String email) {
-        String lockKey = CacheKey.buildCacheKey(CacheKey.CAPTCHA, email);
-        if (Boolean.TRUE.equals(redisTemplate.hasKey(lockKey))) {
-            throw new RuntimeException("验证码已发送，请勿重复发送");
+        String lock = CacheKey.buildCacheKey("lock:" + CacheKey.CAPTCHA, email);
+        if (Boolean.TRUE.equals(redisUtil.hasKey(lock))) {
+            log.warn("验证码已发送，请勿重复发送{}", email);
+            return null;
         }
 
         // 生成6位验证码
@@ -109,6 +114,8 @@ public class EmailService {
 
         // 发送模板邮件
         sendTemplateEmail(email, "邮箱验证码", "email-template", contextVariables);
+
+        redisUtil.set(lock, true, Duration.ofMinutes(1));
 
         return verificationCode;
     }

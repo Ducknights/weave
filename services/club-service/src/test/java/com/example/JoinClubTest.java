@@ -1,8 +1,8 @@
 package com.example;
 
 import jakarta.annotation.Resource;
-import org.example.ClubMainApplication;
-import org.example.service.ClubService;
+import com.weave.club.ClubMainApplication;
+import com.weave.club.service.ClubService;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 

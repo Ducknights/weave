@@ -3,9 +3,9 @@ package com.example;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import jakarta.annotation.Resource;
-import org.example.ClubMainApplication;
-import org.example.model.entity.Club;
-import org.example.mapper.ClubMapper;
+import com.weave.club.ClubMainApplication;
+import com.weave.club.model.entity.Club;
+import com.weave.club.mapper.ClubMapper;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest(classes = ClubMainApplication.class)

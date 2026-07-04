@@ -4,12 +4,12 @@ import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
-import com.weave.auth.dto.ApiRequestDto;
-import org.example.model.ApiResult;
-import com.weave.auth.dto.VerifyCodeDto;
-import com.weave.auth.model.AuthApiStatus;
+import com.weave.auth.model.dto.ApiRequestDto;
+import com.weave.model.model.ApiResult;
+import com.weave.auth.model.dto.VerifyCodeDto;
+import com.weave.auth.model.enums.AuthApiStatus;
 import com.weave.auth.service.AuthService;
-import org.example.util.SecurityUtils;
+import com.weave.security.util.SecurityUtils;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -53,7 +53,7 @@ public class AuthController {
     }
 
     @GetMapping("/access")
-    public ResponseEntity<ApiResult<?>> getNewToken(@RequestHeader(org.example.constant.RequestHeader.X_USER_ID) String userId) {
+    public ResponseEntity<ApiResult<?>> getNewToken(@RequestHeader(com.weave.model.constant.RequestHeader.X_USER_ID) String userId) {
         log.info("getNewToken: {}", userId);
         var token = authService.getNewSuccessToken(Long.valueOf(userId));
         return ResponseEntity.ok()
@@ -61,7 +61,7 @@ public class AuthController {
     }
 
     @GetMapping("/refresh")
-    public ResponseEntity<ApiResult<?>> getNewRefreshToken(@RequestHeader(org.example.constant.RequestHeader.X_USER_ID) String userId) {
+    public ResponseEntity<ApiResult<?>> getNewRefreshToken(@RequestHeader(com.weave.model.constant.RequestHeader.X_USER_ID) String userId) {
         var token = authService.getNewRefreshToken(Long.valueOf(userId));
         return ResponseEntity.ok()
                 .body(AuthApiStatus.NEW_TOKEN_SUCCESS.response(token));

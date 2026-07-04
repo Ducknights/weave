@@ -1,6 +1,6 @@
 package com.weave.chat.feign;
 
-import org.example.model.dto.UserBriefDto;
+import com.weave.model.model.dto.UserBriefDto;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;

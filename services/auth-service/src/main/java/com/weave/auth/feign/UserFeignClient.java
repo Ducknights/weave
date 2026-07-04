@@ -1,13 +1,13 @@
 package com.weave.auth.feign;
 
-import org.example.model.dto.UserBriefDto;
+import com.weave.model.model.dto.UserBriefDto;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import com.weave.auth.feign.fallback.UserFeignClientFallback;
 
-import org.example.model.dto.AuthUserDto;
+import com.weave.model.model.dto.AuthUserDto;
 import org.springframework.web.bind.annotation.RequestBody;
 
 @FeignClient(name = "user-service", fallback = UserFeignClientFallback.class)

@@ -1,9 +1,9 @@
 package com.example;
 
 import jakarta.annotation.Resource;
-import org.example.ClubMainApplication;
-import org.example.model.entity.Activity;
-import org.example.service.ActivityService;
+import com.weave.club.ClubMainApplication;
+import com.weave.club.model.entity.Activity;
+import com.weave.club.service.ActivityService;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 

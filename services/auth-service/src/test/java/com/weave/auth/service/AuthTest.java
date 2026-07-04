@@ -1,8 +1,8 @@
 package com.weave.auth.service;
 
-import org.example.constant.CacheKey;
-import com.weave.auth.dto.VerifyCodeDto;
-import org.example.util.RedisUtil;
+import com.weave.redis.constant.CacheKey;
+import com.weave.auth.model.dto.VerifyCodeDto;
+import com.weave.redis.util.RedisUtil;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
