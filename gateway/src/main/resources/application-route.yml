@@ -23,6 +23,11 @@ spring:
           predicates:
             - Path=/api/post/**,/api/posts/**
 
+        - id: draft-service
+          uri: lb://draft-service
+          predicates:
+            - Path=/api/draft/**
+
         - id: club-service
           uri: lb://club-service
           predicates:

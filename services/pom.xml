@@ -21,6 +21,7 @@
         <module>post-service</module>
         <module>comment-service</module>
         <module>recommend-service</module>
+        <module>draft-service</module>
     </modules>
 
     <artifactId>services</artifactId>

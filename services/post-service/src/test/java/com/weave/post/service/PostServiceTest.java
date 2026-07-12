@@ -1,6 +1,5 @@
 package com.weave.post.service;
 
-import com.weave.post.model.dto.PostDto;
 import com.weave.post.model.entity.Post;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.MethodOrderer;
@@ -78,26 +77,8 @@ public class PostServiceTest {
     @Disabled
     @Test
     public void createPost() {
-        Random random = new Random();
-        List<PostDto> posts = new ArrayList<>();
-
-        for (int i = 0; i < 100; i++) {
-            Long userId = (long) (random.nextInt(100) + 1);
-            Long clubId = (long) (random.nextInt(15) + 1);
-            String title = TITLES[random.nextInt(TITLES.length)];
-            String content = CONTENTS[random.nextInt(CONTENTS.length)];
-
-            PostDto dto = new PostDto();
-            dto.setClubId(clubId);
-            dto.setTitle(title);
-            dto.setContent(content);
-            dto.setCoverImage(null);
-
-            posts.add(dto);
-            postCommandService.createPost(userId, dto);
-        }
-
-        System.out.println("成功创建 " + posts.size() + " 条帖子数据");
+        // 草稿创建与审核发布流程已解耦至 draft-service，
+        // post-service 通过消费草稿发布消息落库，不再直接创建帖子。
     }
 
     static List<Long> ids = new ArrayList<>();

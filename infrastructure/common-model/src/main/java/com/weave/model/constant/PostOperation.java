@@ -5,6 +5,9 @@ public class PostOperation {
     public static final String CREATE = "create";
     public static final String UPDATE = "update";
     public static final String DELETE = "delete";
+    public static final String HIDE = "hide";
+    public static final String RESTORE = "restore";
+    public static final String PUBLISH = "publish";
 
     // Post fields
     public static final String VIEW_COUNT = "viewCount";

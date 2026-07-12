@@ -3,8 +3,10 @@ package com.weave.post.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.weave.post.exception.ResourceNotFoundException;
+import com.weave.post.exception.BusinessException;
 import com.weave.post.mapper.PostMapper;
+import com.weave.post.model.enums.PostApiStatus;
+import com.weave.post.model.enums.PostStatus;
 import com.weave.post.repository.PostRepository;
 import jakarta.annotation.Resource;
 import lombok.extern.log4j.Log4j2;
@@ -16,7 +18,6 @@ import com.weave.post.feign.ClubFeignClient;
 import com.weave.post.feign.RecommendFeignClient;
 import com.weave.post.feign.UserFeignClient;
 import com.weave.post.model.entity.Post;
-import com.weave.model.model.enums.PostStatus;
 import com.weave.post.service.PostCommandService;
 import com.weave.post.service.PostQueryService;
 import com.weave.security.util.SecurityUtils;
@@ -48,8 +49,8 @@ public class PostQueryServiceImpl extends ServiceImpl<PostMapper, Post> implemen
     public List<PostDetailVo> clickForDetails(Long id, Long userId) {
         // 从缓存或数据库获取帖子
         List<Post> posts = postRepository.getPostsFromCacheOrDb(List.of(id));
-        if (posts.isEmpty()){
-            throw new ResourceNotFoundException("内容不存在");
+        if (posts.isEmpty() || posts.get(0) == null){
+            throw new BusinessException(PostApiStatus.POST_NOT_FOUND);
         }
         Post post = posts.get(0);
         // 增加用户浏览记录
@@ -68,7 +69,7 @@ public class PostQueryServiceImpl extends ServiceImpl<PostMapper, Post> implemen
         // 调用推荐服务获取推荐帖子ID列表
         List<Long> recommendPostIds = recommendFeignClient.getRecommendations(userId, limit);
         if (CollectionUtils.isEmpty(recommendPostIds)){
-            throw new ResourceNotFoundException("没有找到推荐的帖子");
+            throw new BusinessException(PostApiStatus.POST_NOT_FOUND);
         }
         // 根据ID列表批量获取帖子
         return getPostsByIds(recommendPostIds);
@@ -113,7 +114,7 @@ public class PostQueryServiceImpl extends ServiceImpl<PostMapper, Post> implemen
         wrapper.eq(Post::getStatus, PostStatus.PUBLISHED)
                 .orderByDesc(Post::getCreatedTime);
         Page<Post> postPage = postMapper.selectPage(pageParam, wrapper);
-        if (postPage.getRecords().isEmpty()){ throw new ResourceNotFoundException("没有找到帖子"); }
+        if (postPage.getRecords().isEmpty()){ throw new BusinessException(PostApiStatus.POST_NOT_FOUND); }
         // 2，转换为 PostDetailVo
         return convertToPostDetailVoList(postPage.getRecords());
     }
@@ -127,7 +128,7 @@ public class PostQueryServiceImpl extends ServiceImpl<PostMapper, Post> implemen
         if (limit <= 0) limit = 10;
         List<Long> hotPostIds = recommendFeignClient.getRecommendations(null, limit);
         if (CollectionUtils.isEmpty(hotPostIds)){
-            throw new ResourceNotFoundException("没有找到热门帖子");
+            throw new BusinessException(PostApiStatus.POST_NOT_FOUND);
         }
         // 根据ID列表批量获取帖子
         return getPostsByIds(hotPostIds);

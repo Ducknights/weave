@@ -30,10 +30,11 @@ spring:
       min-idle: 5
       max-active: 20
       max-wait: 60000
-  data:
-    redis:
-      host: localhost
-      port: 6379
+  redis:
+    # noinspection SpringBootApplicationYaml
+    host: localhost
+    # noinspection SpringBootApplicationYaml
+    port: 6379
   rabbitmq:
     host: localhost
     port: 5672

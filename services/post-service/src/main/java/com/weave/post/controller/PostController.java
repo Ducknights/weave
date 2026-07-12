@@ -8,10 +8,7 @@ import com.weave.model.model.dto.PostDetailVo;
 import com.weave.post.service.PostCommandService;
 import com.weave.post.service.PostQueryService;
 import com.weave.security.util.SecurityUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.actuate.info.InfoEndpoint;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,23 +22,6 @@ public class PostController {
     private PostCommandService postCommandService;
     @Resource
     private PostQueryService postQueryService;
-    @Autowired
-    private InfoEndpoint infoEndpoint;
-
-    /**
-     * 创建新帖子的请求处理方法
-     * 通过POST请求接收前端提交的帖子数据
-     *
-     * @param postDto 包含帖子信息的DTO对象，包含标题、内容等信息
-     * @return 返回创建成功的帖子对象，包含系统生成的ID等信息
-     */
-    @PostMapping
-    @PreAuthorize("hasAnyRole('USER', 'OFFICER')")
-    public ResponseEntity<?> createPost(@RequestBody PostDto postDto) {
-        Long userId = SecurityUtils.getCurrentUserId();
-        postCommandService.createPost(userId, postDto);
-        return ResponseEntity.ok(PostApiStatus.CREATE_SUCCESS.response());
-    }
 
     /**
      * 获取推荐帖子的请求处理方法
@@ -160,7 +140,7 @@ public class PostController {
     /**
      * 获取当前用户隐藏的帖子
      */
-    @PutMapping("/hidden")
+    @GetMapping("/hidden")
     public ResponseEntity<?> getHiddenPosts() {
         Long userId = SecurityUtils.getCurrentUserId();
         List<PostDetailVo> postVos = postQueryService.getHiddenPostsByUserId(userId);

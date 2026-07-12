@@ -1,10 +1,10 @@
 package com.weave.post.service;
 
+import com.weave.post.model.enums.PostStatus;
 import jakarta.annotation.Resource;
 import lombok.extern.log4j.Log4j2;
 import com.weave.post.model.entity.Post;
 import com.weave.post.model.enums.PostStateEvent;
-import com.weave.model.model.enums.PostStatus;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.statemachine.StateMachine;

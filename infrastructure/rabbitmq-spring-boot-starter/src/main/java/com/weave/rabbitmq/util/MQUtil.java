@@ -1,18 +1,18 @@
 package com.weave.rabbitmq.util;
 
 import com.weave.rabbitmq.constant.MQueue;
-import jakarta.annotation.Resource;
 import lombok.extern.log4j.Log4j2;
-import com.weave.model.model.PostActionMessage;
+import com.weave.model.model.dto.PostActionMessageDto;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.stereotype.Service;
 
 @Log4j2
-@Service
 public class MQUtil {
 
-    @Resource
-    private RabbitTemplate rabbitTemplate;
+    private final RabbitTemplate rabbitTemplate;
+
+    public MQUtil(RabbitTemplate rabbitTemplate) {
+        this.rabbitTemplate = rabbitTemplate;
+    }
 
     /**
      * 发送帖子缓存消息
@@ -65,7 +65,7 @@ public class MQUtil {
     /**
      * 发送帖子行为消息
      */
-    public void sendPostAction(PostActionMessage message) {
+    public void sendPostAction(PostActionMessageDto message) {
         try{
             rabbitTemplate.convertAndSend(
                     MQueue.TOPIC_EXCHANGE,
@@ -78,13 +78,28 @@ public class MQUtil {
     }
 
     /**
+     * 发送草稿审核通过发布消息（draft-service -> post-service）
+     */
+    public void sendDraftPublish(Object message) {
+        try {
+            rabbitTemplate.convertAndSend(
+                    MQueue.TOPIC_EXCHANGE,
+                    MQueue.DRAFT_PUBLISH_ROUTING_KEY,
+                    message
+            );
+        } catch (Exception e) {
+            log.error("发送草稿发布消息失败", e);
+        }
+    }
+
+    /**
      * 发送用户登录事件
      */
     public void cacheUserInfo(Long userId) {
         try{
             rabbitTemplate.convertAndSend(
-                    MQueue.TOPIC_EXCHANGE,
-                    MQueue.USER_LOGIN_ROUTING_KEY,
+                    MQueue. TOPIC_EXCHANGE,
+                    MQueue.USER_CACHE_ROUTING_KEY,
                     userId
             );
         }catch (Exception e){

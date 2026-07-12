@@ -58,18 +58,18 @@ public class RabbitMQConfig {
                 .with(MQueue.AUDIT_ROUTING_KEY);
     }
 
-    // 登录事件队列
+    // 缓存用户数据队列
     @Bean
-    public Queue loginEventQueue() {
-        return QueueBuilder.durable(MQueue.USER_LOGIN_QUEUE)
+    public Queue userInfoQueue() {
+        return QueueBuilder.durable(MQueue.USER_CACHE_QUEUE)
                 .withArgument("x-message-ttl", 300000)
                 .build();
     }
     @Bean
-    public Binding loginEventBinding(Queue loginEventQueue, TopicExchange topicExchange) {
-        return BindingBuilder.bind(loginEventQueue)
+    public Binding userInfoBinding(Queue userInfoQueue, TopicExchange topicExchange) {
+        return BindingBuilder.bind(userInfoQueue)
                 .to(topicExchange)
-                .with(MQueue.USER_LOGIN_ROUTING_KEY);
+                .with(MQueue.USER_CACHE_ROUTING_KEY);
     }
 
     // 结果队列
@@ -150,6 +150,20 @@ public class RabbitMQConfig {
         return BindingBuilder.bind(postSyncQueue)
                 .to(topicExchange)
                 .with(MQueue.POST_SYNC_ROUTING_KEY);
+    }
+
+    // 草稿审核通过发布队列
+    @Bean
+    public Queue draftPublishQueue() {
+        return QueueBuilder.durable(MQueue.DRAFT_PUBLISH_QUEUE)
+                .withArgument("x-message-ttl", 300000)
+                .build();
+    }
+    @Bean
+    public Binding draftPublishBinding(Queue draftPublishQueue, TopicExchange topicExchange) {
+        return BindingBuilder.bind(draftPublishQueue)
+                .to(topicExchange)
+                .with(MQueue.DRAFT_PUBLISH_ROUTING_KEY);
     }
 
     // 帖子缓存队列

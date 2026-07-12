@@ -3,7 +3,7 @@ package com.weave.post.consumer;
 
 import lombok.extern.log4j.Log4j2;
 import com.weave.rabbitmq.constant.MQueue;
-import com.weave.model.model.PostActionMessage;
+import com.weave.model.model.dto.PostActionMessageDto;
 import com.weave.post.service.PostCommandService;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
@@ -22,7 +22,7 @@ public class PostActionMessageConsumer {
      * 监听帖子行为消息，异步更新统计数据
      */
     @RabbitListener(queues = MQueue.POST_ACTION_QUEUE_1)
-    public void handlePostAction(PostActionMessage message) {
+    public void handlePostAction(PostActionMessageDto message) {
         try {
             log.info("收到帖子行为消息: userId={}, postId={}, action={}",
                     message.getUserId(), message.getPostId(), message.getAction());

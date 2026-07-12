@@ -33,4 +33,8 @@ public class PostDetailVo {
     private LocalDateTime createdTime; // 创建时间
     private LocalDateTime updatedTime; // 更新时间
     private Float score;        // 搜索相关性分数
+
+    public static PostDetailVo buildEmpty() {
+        return new PostDetailVo(0L, 0L, null, null, null, null, null, null, null, 0, 0, false, 0, false, 0, null, null,    0.0f);
+    }
 }

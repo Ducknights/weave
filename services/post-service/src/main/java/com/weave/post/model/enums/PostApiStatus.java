@@ -17,6 +17,10 @@ public enum PostApiStatus {
     UNLIKE_SUCCESS(200, "取消点赞成功"),
     FAVORITE_SUCCESS(200, "收藏成功"),
     UNFAVORITE_SUCCESS(200, "取消收藏成功"),
+    SAVE_DRAFT_SUCCESS(200, "草稿保存成功"),
+    SUBMIT_SUCCESS(200, "提交审核成功"),
+    APPROVE_SUCCESS(200, "审核通过成功"),
+    REJECT_SUCCESS(200, "审核驳回成功"),
     
     // 参数错误
     INVALID_PARAM(400, "参数无效"),

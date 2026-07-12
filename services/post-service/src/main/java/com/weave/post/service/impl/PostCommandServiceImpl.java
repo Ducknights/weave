@@ -1,27 +1,29 @@
 package com.weave.post.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.weave.post.exception.AuthorizationException;
-import com.weave.post.exception.ResourceNotFoundException;
+import com.weave.post.exception.BusinessException;
 import com.weave.post.mapper.PostMapper;
 import com.weave.post.mapper.PostResourceMapper;
+import com.weave.post.model.enums.PostApiStatus;
+import com.weave.post.model.enums.PostStatus;
 import com.weave.post.service.PostStateMachineService;
+import com.weave.redis.annotation.RedisCacheEvent;
+import com.weave.redis.util.RedisUtil;
 import jakarta.annotation.Resource;
 import lombok.extern.log4j.Log4j2;
 import com.weave.redis.constant.CacheKey;
 import com.weave.model.constant.PostOperation;
 import com.weave.model.model.dto.SearchDocumentDto;
-import com.weave.model.model.PostActionMessage;
-import com.weave.model.model.PostSyncMessage;
+import com.weave.model.model.dto.PostActionMessageDto;
+import com.weave.model.model.dto.PostSyncMessageDto;
+import com.weave.model.model.dto.DraftPublishMessageDto;
 import com.weave.post.model.dto.PostDto;
 import com.weave.post.model.entity.Post;
 import com.weave.post.model.entity.PostResource;
 import com.weave.post.model.enums.PostActionType;
 import com.weave.post.model.enums.PostStateEvent;
-import com.weave.model.model.enums.PostStatus;
 import com.weave.post.service.PostCommandService;
 import com.weave.rabbitmq.util.MQUtil;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,20 +40,23 @@ public class PostCommandServiceImpl extends ServiceImpl<PostMapper, Post> implem
     @Resource
     private RedisTemplate<String, Object> redisTemplate;
     @Resource
+    private RedisUtil redisUtil;
+    @Resource
     private MQUtil mqUtil;
     @Resource
     private PostStateMachineService stateMachineService;
 
     /**
-     * 创建帖子（初始状态: PUBLISHED 已发布）
+     * 消费草稿审核通过消息，创建已发布帖子（初始状态: PUBLISHED）
+     * 草稿与审核流程由 draft-service 负责，此处仅负责发布落库与同步。
      */
     @Override
-    public void createPost(Long userId, PostDto postDto) {
+    public void publishFromDraft(DraftPublishMessageDto message) {
         Post post = Post.builder()
-                .userId(userId)
-                .clubId(postDto.getClubId())
-                .title(postDto.getTitle())
-                .content(postDto.getContent())
+                .userId(message.getUserId())
+                .clubId(message.getClubId())
+                .title(message.getTitle())
+                .content(message.getContent())
                 .status(PostStatus.PUBLISHED)
                 .viewCount(0)
                 .likeCount(0)
@@ -61,32 +66,31 @@ public class PostCommandServiceImpl extends ServiceImpl<PostMapper, Post> implem
 
         postMapper.insert(post);
         Long postId = post.getPostId();
-        // 插入帖子图片
-        if (postDto.getCoverImage() != null) {
-            for (String coverImage : postDto.getCoverImage()) {
+        if (message.getResources() != null) {
+            for (String resource : message.getResources()) {
                 PostResource postResource = PostResource.builder()
                         .postId(postId)
-                        .resourcePath(coverImage)
+                        .resourcePath(resource)
                         .build();
                 postResourceMapper.insert(postResource);
             }
         }
-        // 发送同步消息
-        sendPostSyncMessage(PostOperation.CREATE, post);
+        // 发布后同步到搜索引擎
+        sendPostSyncMessage(PostOperation.PUBLISH, post);
     }
 
     /**
      * 更新帖子
      */
     @Override
-    @CacheEvict(value = CacheKey.POST_HASH, key = "#id")
+    @RedisCacheEvent(value = CacheKey.POST_HASH, key = "#id")
     public void updatePost(Long id, Long userId, PostDto postDto) {
         Post post = postMapper.selectById(id);
         if (post == null) {
-            throw new ResourceNotFoundException("内容不存在");
+            throw new BusinessException(PostApiStatus.POST_NOT_FOUND);
         }
         if (!post.getUserId().equals(userId)) {
-            throw new AuthorizationException("没有权限修改");
+            throw new BusinessException(PostApiStatus.PERMISSION_DENIED);
         }
         post.setTitle(postDto.getTitle());
         post.setContent(postDto.getContent());
@@ -100,14 +104,14 @@ public class PostCommandServiceImpl extends ServiceImpl<PostMapper, Post> implem
      * 删除帖子（状态机驱动: 任意状态 -> DELETED，逻辑删除）
      */
     @Override
-    @CacheEvict(value = CacheKey.POST_HASH, key = "#id")
+    @RedisCacheEvent(value = CacheKey.POST_HASH, key = "#id")
     public void deletePost(Long id, Long userId) {
         Post post = postMapper.selectById(id);
         if (post == null) {
-            throw new ResourceNotFoundException("内容不存在");
+            throw new BusinessException(PostApiStatus.POST_NOT_FOUND);
         }
         if (!post.getUserId().equals(userId)) {
-            throw new AuthorizationException("没有权限删除");
+            throw new BusinessException(PostApiStatus.PERMISSION_DENIED);
         }
         // 状态机驱动: 转为 DELETED 状态
         PostStatus newStatus = stateMachineService.sendEvent(post, PostStateEvent.DELETE);
@@ -122,36 +126,38 @@ public class PostCommandServiceImpl extends ServiceImpl<PostMapper, Post> implem
      * 隐藏帖子: PUBLISHED -> HIDDEN
      */
     @Override
-    @CacheEvict(value = CacheKey.POST_HASH, key = "#id")
+    @RedisCacheEvent(value = CacheKey.POST_HASH, key = "#id")
     public void hidePost(Long id, Long userId) {
         Post post = postMapper.selectById(id);
         if (post == null) {
-            throw new ResourceNotFoundException("内容不存在");
+            throw new BusinessException(PostApiStatus.POST_NOT_FOUND);
         }
         if (!post.getUserId().equals(userId)) {
-            throw new AuthorizationException("没有权限操作");
+            throw new BusinessException(PostApiStatus.PERMISSION_DENIED);
         }
         PostStatus newStatus = stateMachineService.sendEvent(post, PostStateEvent.HIDE);
         post.setStatus(newStatus);
         postMapper.updateById(post);
+        // 发送同步消息
+        sendPostSyncMessage(PostOperation.HIDE, post);
     }
 
     /**
      * 恢复帖子: HIDDEN -> PUBLISHED
      */
     @Override
-    @CacheEvict(value = CacheKey.POST_HASH, key = "#id")
     public void restorePost(Long id, Long userId) {
         Post post = postMapper.selectById(id);
         if (post == null) {
-            throw new ResourceNotFoundException("内容不存在");
+            throw new BusinessException(PostApiStatus.POST_NOT_FOUND);
         }
         if (!post.getUserId().equals(userId)) {
-            throw new AuthorizationException("没有权限操作");
+            throw new BusinessException(PostApiStatus.PERMISSION_DENIED);
         }
         PostStatus newStatus = stateMachineService.sendEvent(post, PostStateEvent.RESTORE);
         post.setStatus(newStatus);
         postMapper.updateById(post);
+        sendPostSyncMessage(PostOperation.RESTORE, post);
     }
 
     /**
@@ -209,17 +215,9 @@ public class PostCommandServiceImpl extends ServiceImpl<PostMapper, Post> implem
     private void handlePostAction(Long userId, Long postId, PostActionType actionType) {
         // 更新帖子缓存
         String postCacheKey = CacheKey.buildCacheKey(CacheKey.POST_HASH, postId);
-        redisTemplate.opsForHash().increment(postCacheKey, actionType.getCacheField(), actionType.isIncrement() ? 1 : -1);
-        
-        // 更新用户缓存
-        String userCacheKey = CacheKey.buildCacheKey(actionType.getUserCacheKeyPrefix(), userId);
-        if (actionType.isIncrement()) {
-            redisTemplate.opsForSet().add(userCacheKey, postId);
-        } else {
-            redisTemplate.opsForSet().remove(userCacheKey, postId);
-        }
+        redisUtil.incrementHash(postCacheKey, actionType.getCacheField(), actionType.isIncrement() ? 1 : -1);
 
-        // 发送消息到 MQ（异步处理）
+        // 发送消息到 MQ（异步处理用户行为）
         log.info("发送帖子行为消息: userId={}, postId={}, operation={}", userId, postId, actionType.getOperation());
         sendPostActionMessage(userId, postId, actionType.getOperation());
     }
@@ -246,15 +244,13 @@ public class PostCommandServiceImpl extends ServiceImpl<PostMapper, Post> implem
      */
     private void sendPostSyncMessage(String operation, Post data) {
         // 构造同步数据
-        // TODO: 实现字段 isPublic
         SearchDocumentDto searchDocumentDto = SearchDocumentDto.builder()
                 .id(data.getPostId())
                 .title(data.getTitle())
                 .content(data.getContent())
-                .isPublic(true)
                 .build();
         // 构造消息
-        PostSyncMessage message = PostSyncMessage.builder()
+        PostSyncMessageDto message = PostSyncMessageDto.builder()
                 .operation(operation)
                 .data(searchDocumentDto)
                 .build();
@@ -266,7 +262,7 @@ public class PostCommandServiceImpl extends ServiceImpl<PostMapper, Post> implem
      */
     private void sendPostActionMessage(Long userId, Long postId, String operation) {
         // 构造消息
-        PostActionMessage message = PostActionMessage.builder()
+        PostActionMessageDto message = PostActionMessageDto.builder()
                 .userId(userId)
                 .postId(postId)
                 .action(operation)

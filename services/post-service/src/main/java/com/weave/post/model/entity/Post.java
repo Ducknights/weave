@@ -1,11 +1,11 @@
 package com.weave.post.model.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
+import com.weave.post.model.enums.PostStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import com.weave.model.model.enums.PostStatus;
 
 import java.time.LocalDateTime;
 import java.util.List;

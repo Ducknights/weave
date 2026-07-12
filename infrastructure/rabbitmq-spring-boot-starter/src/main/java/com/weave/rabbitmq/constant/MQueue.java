@@ -9,8 +9,8 @@ public class MQueue {
     public static final String CAPTCHA_QUEUE = "captcha_queue";
 
     // 用户登录相关队列
-    public static final String USER_LOGIN_ROUTING_KEY = "user.login";
-    public static final String USER_LOGIN_QUEUE = "user_login_queue";
+    public static final String USER_CACHE_ROUTING_KEY = "user.cache";
+    public static final String USER_CACHE_QUEUE = "user_cache_queue";
 
     // 审核相关队列
     public static final String AUDIT_ROUTING_KEY = "audit";
@@ -29,6 +29,10 @@ public class MQueue {
     // 帖子同步相关队列
     public static final String POST_SYNC_ROUTING_KEY = "post.sync";
     public static final String POST_SYNC_QUEUE = "post_sync_queue";
+
+    // 草稿审核通过发布相关队列
+    public static final String DRAFT_PUBLISH_ROUTING_KEY = "draft.publish";
+    public static final String DRAFT_PUBLISH_QUEUE = "draft_publish_queue";
 
     // 帖子缓存相关队列
     public static final String POST_CACHE_ROUTING_KEY = "post.cache";

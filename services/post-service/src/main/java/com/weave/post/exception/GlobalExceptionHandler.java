@@ -24,21 +24,11 @@ public class GlobalExceptionHandler {
     /**
      * 处理资源未找到异常
      */
-    @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<?> handleResourceNotFoundException(ResourceNotFoundException e) {
+    @ExceptionHandler(BusinessException.class)
+    public ResponseEntity<?> handleResourceNotFoundException(BusinessException e) {
         log.warn("资源未找到: {}", e.getMessage());
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(PostApiStatus.POST_NOT_FOUND.response());
-    }
-
-    /**
-     * 处理授权异常
-     */
-    @ExceptionHandler(AuthorizationException.class)
-    public ResponseEntity<?> handleAuthorizationException(AuthorizationException e) {
-        log.warn("授权失败: {}", e.getMessage());
-        return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                .body(PostApiStatus.PERMISSION_DENIED.response());
+        return ResponseEntity.status(e.getStatus().getCode())
+                .body(e.getStatus().response());
     }
 
     /**

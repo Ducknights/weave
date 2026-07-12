@@ -2,10 +2,10 @@ package com.weave.post.mapper;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.weave.post.model.enums.PostStatus;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Update;
 import com.weave.post.model.entity.Post;
-import com.weave.model.model.enums.PostStatus;
 import org.springframework.util.CollectionUtils;
 
 import java.util.Collections;

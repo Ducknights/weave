@@ -1,8 +1,8 @@
 package com.weave.post.config;
 
+import com.weave.post.model.enums.PostStatus;
 import lombok.extern.log4j.Log4j2;
 import com.weave.post.model.enums.PostStateEvent;
-import com.weave.model.model.enums.PostStatus;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.statemachine.config.EnableStateMachineFactory;
 import org.springframework.statemachine.config.EnumStateMachineConfigurerAdapter;
