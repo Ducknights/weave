@@ -1,0 +1,17 @@
+server:
+  port: 4710
+
+spring:
+  application:
+    name: rag-service
+  cloud:
+    nacos:
+      discovery:
+        server-addr: localhost:8848
+
+# gRPC 客户端配置 — 通过 Nacos 发现 Python rag-py-service
+grpc:
+  client:
+    rag-service:
+      nacos-name: rag-engine         # Python 服务在 Nacos 中的注册名
+      nacos-group: DEFAULT_GROUP
