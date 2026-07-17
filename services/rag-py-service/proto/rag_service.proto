@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package rag;
+
+// RAG 查询服务
+service RAGService {
+  // 用户提问，返回纯文本回答
+  rpc Ask (QueryRequest) returns (QueryResponse);
+
+  // 用户提问，流式返回回答（server-streaming）
+  rpc AskStream (QueryRequest) returns (stream StreamChunk);
+}
+
+// 查询请求 —— 用户发送的纯文本问题
+message QueryRequest {
+  string question = 1;
+}
+
+// 查询响应 —— 系统返回的纯文本回答
+message QueryResponse {
+  string answer = 1;
+}
+
+// 流式响应 —— 单个文本块
+message StreamChunk {
+  string chunk = 1;
+}

@@ -1,0 +1,12 @@
+grpcio>=1.60.0
+grpcio-tools>=1.60.0
+nacos-sdk-python>=2.0.0
+sentence-transformers>=2.2.0
+chromadb>=0.4.0
+langchain-core>=0.3.0
+langchain-openai>=0.2.0
+
+numpy~=2.5.1
+protobuf~=7.35.1
+pymupdf4llm~=1.28.0
+python-dotenv~=1.2.2

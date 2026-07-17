@@ -1,0 +1,39 @@
+# 虚拟环境
+.venv/
+venv/
+env/
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+dist/
+build/
+*.egg
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# 环境变量 / 密钥
+.env
+.venv/.env
+
+# 模型文件（太大，不应提交到 git）
+models/
+
+# 向量数据库 / 数据
+data/vector_store/chroma/
+data/vector_store/chunks.json
+data/vector_store/*.pkl
+data/vector_store/page_images/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# 日志
+*.log
