@@ -38,6 +38,12 @@
     </properties>
 
     <dependencies>
+        <!-- SpringDoc OpenAPI -->
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+        </dependency>
+        
         <!-- Micrometer Tracing (替代Sleuth) -->
         <dependency>
             <groupId>io.micrometer</groupId>
