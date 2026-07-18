@@ -2,6 +2,7 @@ package com.weave.user.model.eunms;
 
 import lombok.Getter;
 import com.weave.model.model.ApiResult;
+import com.weave.model.model.ApiStatus;
 
 import java.util.Collections;
 import java.util.Map;
@@ -11,7 +12,7 @@ import java.util.Map;
  * 统一管理用户服务的所有 API 响应状态
  */
 @Getter
-public enum UserApiStatus {
+public enum UserApiStatus implements ApiStatus {
 
     // 成功状态 (2xx)
     SUCCESS(200, "成功"),

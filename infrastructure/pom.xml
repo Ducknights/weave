@@ -21,6 +21,7 @@
         <module>mybatis-plus-spring-boot-starter</module>
         <module>security-spring-boot-starter</module>
         <module>minio-spring-boot-starter</module>
+        <module>exception-spring-boot-starter</module>
     </modules>
 
     <properties>

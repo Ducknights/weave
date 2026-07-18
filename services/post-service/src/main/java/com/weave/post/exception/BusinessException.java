@@ -1,14 +1,11 @@
 package com.weave.post.exception;
 
-
+import com.weave.exception.AbstractBusinessException;
 import com.weave.post.model.enums.PostApiStatus;
-import lombok.Getter;
 
-@Getter
-public class BusinessException extends RuntimeException {
-    private final PostApiStatus status;
+public class BusinessException extends AbstractBusinessException {
 
     public BusinessException(PostApiStatus status) {
-        this.status = status;
+        super(status);
     }
 }

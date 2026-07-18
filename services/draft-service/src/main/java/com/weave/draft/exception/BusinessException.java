@@ -1,13 +1,11 @@
 package com.weave.draft.exception;
 
+import com.weave.exception.AbstractBusinessException;
 import com.weave.draft.model.enums.DraftApiStatus;
-import lombok.Getter;
 
-@Getter
-public class BusinessException extends RuntimeException {
-    private final DraftApiStatus status;
+public class BusinessException extends AbstractBusinessException {
 
     public BusinessException(DraftApiStatus status) {
-        this.status = status;
+        super(status);
     }
 }

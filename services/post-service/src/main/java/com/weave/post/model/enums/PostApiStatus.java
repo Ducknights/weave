@@ -2,12 +2,13 @@ package com.weave.post.model.enums;
 
 import lombok.Getter;
 import com.weave.model.model.ApiResult;
+import com.weave.model.model.ApiStatus;
 
 /**
  * 帖子操作类型枚举 - 封装所有帖子操作的配置信息
  */
 @Getter
-public enum PostApiStatus {
+public enum PostApiStatus implements ApiStatus {
     // 成功状态
     SUCCESS(200, "成功"),
     CREATE_SUCCESS(201, "创建成功"),

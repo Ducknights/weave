@@ -3,6 +3,8 @@ package com.weave.auth.exception;
 
 import com.weave.model.model.ApiResult;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -12,6 +14,7 @@ import org.springframework.web.method.annotation.HandlerMethodValidationExceptio
 
 @Slf4j
 @RestControllerAdvice
+@Order(Ordered.HIGHEST_PRECEDENCE)
 public class AuthExceptionHandler {
 
     @ExceptionHandler(HandlerMethodValidationException.class)

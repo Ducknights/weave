@@ -2,9 +2,10 @@ package com.weave.club.model.enums;
 
 import lombok.Getter;
 import com.weave.model.model.ApiResult;
+import com.weave.model.model.ApiStatus;
 
 @Getter
-public enum ClubApiStatus {
+public enum ClubApiStatus implements ApiStatus {
     GET_SUCCESS(200, "请求成功"),
     GET_FAIL(400, "请求失败"),
     GET_NULL(200, "无结果"),

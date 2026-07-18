@@ -1,14 +1,11 @@
 package com.weave.club.exception;
 
+import com.weave.exception.AbstractBusinessException;
 import com.weave.club.model.enums.ClubApiStatus;
-import lombok.Getter;
 
-@Getter
-public class BusinessException extends RuntimeException {
-    private final ClubApiStatus status;
+public class BusinessException extends AbstractBusinessException {
 
     public BusinessException(ClubApiStatus status) {
-        super(status.getMsg());
-        this.status = status;
+        super(status);
     }
 }

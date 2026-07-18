@@ -1,11 +1,11 @@
-package com.weave.gateway.exception;
+package com.weave.user.exception;
 
 import com.weave.exception.AbstractBusinessException;
-import com.weave.gateway.model.GatewayStatus;
+import com.weave.user.model.eunms.UserApiStatus;
 
 public class BusinessException extends AbstractBusinessException {
 
-    public BusinessException(GatewayStatus status) {
+    public BusinessException(UserApiStatus status) {
         super(status);
     }
 }

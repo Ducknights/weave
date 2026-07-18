@@ -2,9 +2,10 @@ package com.weave.comment.model.enums;
 
 import lombok.Getter;
 import com.weave.model.model.ApiResult;
+import com.weave.model.model.ApiStatus;
 
 @Getter
-public enum CommentApiStatus {
+public enum CommentApiStatus implements ApiStatus {
     
     // 成功状态
     ADD_SUCCESS(201, "评论成功"),

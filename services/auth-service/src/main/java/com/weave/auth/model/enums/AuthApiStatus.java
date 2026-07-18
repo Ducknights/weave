@@ -2,12 +2,13 @@ package com.weave.auth.model.enums;
 
 import lombok.Getter;
 import com.weave.model.model.ApiResult;
+import com.weave.model.model.ApiStatus;
 
 import java.util.Collections;
 import java.util.Map;
 
 @Getter
-public enum AuthApiStatus {
+public enum AuthApiStatus implements ApiStatus {
     LOGIN_SUCCESS(200,"登录成功"),
     LOGIN_FAILED(401,"登录失败"),
     REGISTER_SUCCESS(200,"注册成功"),
@@ -26,8 +27,8 @@ public enum AuthApiStatus {
         this.msg = msg;
     }
 
-    public ApiResult<Map<String, Object>> response() {
-        return response(Collections.emptyMap());
+    public ApiResult<Void> response() {
+        return response(null);
     }
 
     public <T> ApiResult<T> response(T data) {
