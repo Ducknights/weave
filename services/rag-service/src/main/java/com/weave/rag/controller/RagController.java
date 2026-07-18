@@ -35,6 +35,7 @@ public class RagController {
     /**
      * 流式问答接口（SSE）
      */
+    // TODO:期待以后持久化对话吧
     @PostMapping(value = "/ask/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter askStream(@RequestBody Map<String, String> body) {
         SseEmitter emitter = new SseEmitter(0L);

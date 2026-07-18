@@ -43,6 +43,11 @@ spring:
           predicates:
             - Path=/api/comment/**
 
+        - id: rag-service
+          uri: lb://rag-service
+          predicates:
+            - Path=/api/rag/**
+
         - id: recommend-service
           uri: lb://recommend-service
           predicates:
@@ -62,3 +67,67 @@ spring:
           uri: lb://chat-service
           predicates:
             - Path=/api/chat/**
+
+        # Swagger/OpenAPI routes
+        - id: auth-swagger
+          uri: lb://auth-service
+          predicates:
+            - Path=/auth/swagger-ui/**,/auth/v3/api-docs/**
+          filters:
+            - RewritePath=/auth/(?<path>.*), /${path}
+
+        - id: user-swagger
+          uri: lb://user-service
+          predicates:
+            - Path=/user/swagger-ui/**,/user/v3/api-docs/**
+          filters:
+            - RewritePath=/user/(?<path>.*), /${path}
+
+        - id: post-swagger
+          uri: lb://post-service
+          predicates:
+            - Path=/post/swagger-ui/**,/post/v3/api-docs/**
+          filters:
+            - RewritePath=/post/(?<path>.*), /${path}
+
+        - id: club-swagger
+          uri: lb://club-service
+          predicates:
+            - Path=/club/swagger-ui/**,/club/v3/api-docs/**
+          filters:
+            - RewritePath=/club/(?<path>.*), /${path}
+
+        - id: comment-swagger
+          uri: lb://comment-service
+          predicates:
+            - Path=/comment/swagger-ui/**,/comment/v3/api-docs/**
+          filters:
+            - RewritePath=/comment/(?<path>.*), /${path}
+
+        - id: chat-api-swagger
+          uri: lb://chat-service
+          predicates:
+            - Path=/chat/swagger-ui/**,/chat/v3/api-docs/**
+          filters:
+            - RewritePath=/chat/(?<path>.*), /${path}
+
+        - id: search-swagger
+          uri: lb://search-service
+          predicates:
+            - Path=/search/swagger-ui/**,/search/v3/api-docs/**
+          filters:
+            - RewritePath=/search/(?<path>.*), /${path}
+
+        - id: recommend-swagger
+          uri: lb://recommend-service
+          predicates:
+            - Path=/recommend/swagger-ui/**,/recommend/v3/api-docs/**
+          filters:
+            - RewritePath=/recommend/(?<path>.*), /${path}
+
+        - id: draft-swagger
+          uri: lb://draft-service
+          predicates:
+            - Path=/draft/swagger-ui/**,/draft/v3/api-docs/**
+          filters:
+            - RewritePath=/draft/(?<path>.*), /${path}
