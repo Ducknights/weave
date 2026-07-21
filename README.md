@@ -25,30 +25,33 @@
 ## 项目结构
 
 ```
-weave-java/
-├── gateway/                          # API 网关
-│   └── src/main/java/org/example/
-│       ├── filter/JwtFilter.java     # JWT 认证过滤器
-│       ├── config/                   # 白名单配置
-│       └── exception/                # 网关异常处理
-├── infrastructure/                   # 基础设施层
-│   ├── common-model/                 # 公共模型（DTO、VO、枚举、常量）
-│   ├── common-util/                  # 公共工具类
-│   ├── redis-spring-boot-starter/    # Redis 自动配置
-│   ├── rabbitmq-spring-boot-starter/ # RabbitMQ 自动配置
-│   ├── mybatis-plus-spring-boot-starter/  # MyBatis Plus 自动配置
-│   ├── security-spring-boot-starter/ # 微服务安全过滤器
-│   └── minio-spring-boot-starter/    # MinIO 自动配置
-└── services/                         # 业务服务层
-    ├── auth-service/                 # 认证服务
-    ├── user-service/                 # 用户服务
-    ├── post-service/                 # 帖子服务
-    ├── comment-service/              # 评论服务
-    ├── club-service/                 # 社团服务
-    ├── search-service/               # 搜索服务
-    ├── recommend-service/            # 推荐服务
-    ├── chat-service/                 # 聊天服务
-    └── captcha-service/              # 验证码服务
+weave-backend/
+├── gateway/                               # API 网关
+│   ├── filter/                            # JWT 认证过滤器
+│   ├── config/                            # 白名单配置
+│   └── exception/                         # 网关异常处理（WebFlux）
+├── infrastructure/                        # 基础设施层
+│   ├── common-model/                      # 公共模型（ApiResult、ApiStatus 接口、DTO、VO、常量、OpenAPI 配置）
+│   ├── common-util/                       # 公共工具类（雪花 ID、JWT 工具）
+│   ├── exception-spring-boot-starter/     # 全局异常处理器（AbstractBusinessException + GlobalExceptionHandler）
+│   ├── redis-spring-boot-starter/         # Redis 自动配置与工具类
+│   ├── rabbitmq-spring-boot-starter/      # RabbitMQ 自动配置与工具类
+│   ├── mybatis-plus-spring-boot-starter/  # MyBatis Plus 分页插件自动配置
+│   ├── security-spring-boot-starter/      # 微服务间请求头认证过滤器
+│   └── minio-spring-boot-starter/         # MinIO 文件上传/下载/预签名 URL 自动配置
+└── services/                              # 业务服务层
+    ├── auth-service/                      # 认证服务（登录注册、验证码、Token 刷新）
+    ├── user-service/                      # 用户服务（信息管理、关注、拉黑、头像上传）
+    ├── post-service/                      # 帖子服务（发布、审核状态机、点赞收藏）
+    ├── draft-service/                     # 草稿服务（草稿保存、提交审核状态机）
+    ├── comment-service/                   # 评论服务（树形评论、点赞、MongoDB 存储）
+    ├── club-service/                      # 社团服务（社团管理、成员管理、活动管理）
+    ├── search-service/                    # 搜索服务（Elasticsearch 全文搜索、IK 分词）
+    ├── recommend-service/                 # 推荐服务（协同过滤、每日相似度计算）
+    ├── chat-service/                      # 聊天服务（私信、Netty-SocketIO 长轮询）
+    ├── captcha-service/                   # 验证码服务（邮件发送、Redis 缓存）
+    ├── rag-service/                       # RAG 服务（gRPC 调用 Python 端的 LLM 问答）
+    └── rag-py-service/                    # RAG Python 端（文档加载、向量检索、LLM 生成）
 ```
 
 ## 模块说明
@@ -64,8 +67,9 @@ weave-java/
 
 | 模块                          | 说明                                      |
 | ----------------------------- | ----------------------------------------- |
-| `common-model`                | 跨服务共享的 DTO、VO、枚举（ApiStatus）、MongoDB/ES 实体、MQ 常量 |
-| `common-util`                 | 通用工具类（如雪花 ID 生成器）               |
+| `common-model`                | 跨服务共享的 DTO、VO、ApiStatus 接口、OpenAPI 配置、枚举、MongoDB/ES 实体、MQ 常量 |
+| `common-util`                 | 通用工具类（雪花 ID 生成器、JWT 工具类）     |
+| `exception-spring-boot-starter` | 全局异常处理器：抽取各服务重复的异常处理逻辑，提供 AbstractBusinessException + GlobalExceptionHandler，各服务只需维护自己的 *ApiStatus 枚举 |
 | `redis-spring-boot-starter`   | Redis 自动配置，封装 Set/ZSet 操作工具类      |
 | `rabbitmq-spring-boot-starter`| RabbitMQ 自动配置与工具类                    |
 | `mybatis-plus-spring-boot-starter` | MyBatis Plus 分页插件自动配置          |
@@ -188,12 +192,14 @@ mvn spring-boot:run
 | auth-service          | 4000 |
 | captcha-service       | 4200 |
 | post-service          | 4700 |
+| draft-service         | 4701 |
 | comment-service       | 4400 |
 | club-service          | 4500 |
 | search-service        | 4600 |
 | recommend-service     | 4800 |
 | chat-service          | 4300 |
 | user-service          | 4100 |
+| rag-service           | 4900 |
 
 ### 4. 访问
 
@@ -211,4 +217,4 @@ mvn spring-boot:run
 }
 ```
 
-通过 `ApiStatus` 枚举管理状态码与消息，各服务扩展各自的 `ApiStatus` 枚举。
+`common-model` 提供 [ApiStatus](file:///d:/Graduation%20Design/weave-backend/infrastructure/common-model/src/main/java/com/weave/model/model/ApiStatus.java) 接口，各服务实现各自的 `*ApiStatus` 枚举。`exception-spring-boot-starter` 提供 [AbstractBusinessException](file:///d:/Graduation%20Design/weave-backend/infrastructure/exception-spring-boot-starter/src/main/java/com/weave/exception/AbstractBusinessException.java) 基类和统一的 [GlobalExceptionHandler](file:///d:/Graduation%20Design/weave-backend/infrastructure/exception-spring-boot-starter/src/main/java/com/weave/exception/GlobalExceptionHandler.java)，自动将业务异常转为上述 JSON 响应。
