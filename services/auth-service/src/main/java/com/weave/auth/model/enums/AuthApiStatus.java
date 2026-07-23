@@ -4,9 +4,6 @@ import lombok.Getter;
 import com.weave.model.model.ApiResult;
 import com.weave.model.model.ApiStatus;
 
-import java.util.Collections;
-import java.util.Map;
-
 @Getter
 public enum AuthApiStatus implements ApiStatus {
     LOGIN_SUCCESS(200,"登录成功"),

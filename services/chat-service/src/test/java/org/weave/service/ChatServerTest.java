@@ -1,5 +1,6 @@
 package org.weave.service;
 
+import jakarta.annotation.Resource;
 import lombok.extern.log4j.Log4j2;
 import com.weave.chat.model.entity.Message;
 import com.weave.chat.model.vo.ConversationVo;
@@ -7,7 +8,6 @@ import com.weave.chat.service.ConversationService;
 import com.weave.chat.service.MessageService;
 import com.weave.chat.service.SocketIOEventHandler;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
@@ -20,11 +20,10 @@ class ChatServerTest {
     @MockBean
     private SocketIOEventHandler socketIOEventHandler;
 
-    @Autowired
+    @Resource
     private MessageService messageService;
-    @Autowired
+    @Resource
     private ConversationService conversationService;
-
 
     // 发送消息 测试通过
     @Test

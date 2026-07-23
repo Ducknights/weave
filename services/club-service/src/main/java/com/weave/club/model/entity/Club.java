@@ -3,8 +3,6 @@ package com.weave.club.model.entity;
 import com.baomidou.mybatisplus.annotation.*;
 import lombok.*;
 
-import java.io.Serial;
-import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @Data

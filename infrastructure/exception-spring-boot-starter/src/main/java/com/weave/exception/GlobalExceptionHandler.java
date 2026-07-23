@@ -19,11 +19,11 @@ import java.util.Map;
 /**
  * 全局异常处理器 —— 抽取自各服务的重复异常处理逻辑，放入 starter 统一管理。
  * 仅在 Servlet (MVC) 环境下生效，WebFlux (Gateway) 服务自行维护异常处理器。
- * 使用 {@link Ordered#LOWEST_PRECEDENCE}，各服务可提供自己的 handler 以更高优先级覆盖。
+ * 各服务可提供自己的 handler 以更高优先级覆盖。
  */
 @Log4j2
 @RestControllerAdvice
-@Order(Ordered.LOWEST_PRECEDENCE)
+@Order()
 @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
 public class GlobalExceptionHandler {
 
