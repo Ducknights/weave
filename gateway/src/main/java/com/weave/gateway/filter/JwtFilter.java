@@ -62,7 +62,7 @@ public class JwtFilter implements GlobalFilter {
         String jwt = token.substring(RequestHeader.BEARER.length());
         try {
             String subject = JwtUtil.getJwtSubject(jwt);
-            return subject.substring(subject.indexOf("::") + 2);
+            return subject.substring(subject.lastIndexOf(":") + 1);
         } catch (Exception e) {
             // token不合法
             throw new BusinessException(GatewayStatus.TOKEN_INVALID);
