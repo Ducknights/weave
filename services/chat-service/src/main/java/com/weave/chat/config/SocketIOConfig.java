@@ -10,12 +10,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.weave.chat.util.JwtUtil;
+import com.weave.redis.util.RedisUtil;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import com.weave.redis.constant.CacheKey;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 import java.lang.reflect.Field;
@@ -23,6 +24,7 @@ import java.lang.reflect.Field;
 @Log4j2
 @Configuration
 @EnableScheduling
+@RequiredArgsConstructor
 public class SocketIOConfig {
 
     @Value("${socketio.host:0.0.0.0}")
@@ -30,10 +32,7 @@ public class SocketIOConfig {
     @Value("${socketio.port:4301}")
     private int port;
 
-    private final RedisTemplate<String, Object> redisTemplate;
-    public SocketIOConfig(RedisTemplate<String, Object> redisTemplate) {
-        this.redisTemplate = redisTemplate;
-    }
+    private final RedisUtil redisUtil;
 
     @Bean
     public SocketIOServer socketIOServer() {
@@ -59,7 +58,7 @@ public class SocketIOConfig {
                 String userIdStr = subject.substring(subject.indexOf("::") + 2);
                 Long userId = Long.valueOf(userIdStr);
                 String key = CacheKey.buildCacheKey(CacheKey.USER_AUTHORITY, userId);
-                if (Boolean.FALSE.equals(redisTemplate.hasKey(key))) {
+                if (Boolean.FALSE.equals(redisUtil.hasKey(key))) {
                     return AuthorizationResult.FAILED_AUTHORIZATION;
                 }
                 return AuthorizationResult.SUCCESSFUL_AUTHORIZATION;
