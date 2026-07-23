@@ -50,7 +50,7 @@ public class AuthService {
 
     private static final int ACCESS_TOKEN_EXPIRE_TIME = 1000 * 60 * 60 * 2; // 2小时 = 1000 * 60 * 60 * 2 毫秒
     private static final int REFRESH_TOKEN_EXPIRE_TIME = 1000 * 60 * 60 * 24 * 7; // 7天 = 1000 * 60 * 60 * 24 * 7 毫秒
-    private static final Duration CACHE_USER_AUTHORITY_EXPIRE_TIME = Duration.ofMinutes(130); // 缓存用户权限过期时间: 130分钟
+    private static final Duration USER_AUTHORITY_CACHE_TTL = Duration.ofMinutes(130); // 缓存用户权限过期时间: 130分钟
 
     public ApiResponseDto login(ApiRequestDto apiRequestDto) {
         ApiResponseDto apiResponseDto = null;
@@ -73,7 +73,7 @@ public class AuthService {
                 String access_token = JwtUtil.generateJwtToken(permissionsKey, ACCESS_TOKEN_EXPIRE_TIME);
                 String refresh_token = JwtUtil.generateJwtToken(permissionsKey, REFRESH_TOKEN_EXPIRE_TIME);
                 // 写入用户标识信息到redis
-                redisUtil.set(permissionsKey, authentication.getPrincipal(), CACHE_USER_AUTHORITY_EXPIRE_TIME);
+                redisUtil.set(permissionsKey, authentication.getPrincipal(), USER_AUTHORITY_CACHE_TTL);
                 // 构造返回DTO
                 TokenDto tokenDto = new TokenDto(access_token, ACCESS_TOKEN_EXPIRE_TIME, refresh_token, REFRESH_TOKEN_EXPIRE_TIME);
                 // 获取用户信息
@@ -191,7 +191,7 @@ public class AuthService {
         }
         // 2. 缓存到 Redis
         String cacheKey = CacheKey.buildCacheKey(CacheKey.USER_AUTHORITY, userId);
-        redisUtil.set(cacheKey, userDetails, CACHE_USER_AUTHORITY_EXPIRE_TIME);
+        redisUtil.set(cacheKey, userDetails, USER_AUTHORITY_CACHE_TTL);
         log.info("已刷新用户权限缓存: userId={}", userId);
     }
 }
