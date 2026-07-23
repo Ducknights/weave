@@ -6,7 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import com.weave.rabbitmq.constant.MQueue;
 import com.weave.model.constant.PostOperation;
 import com.weave.model.model.dto.SearchDocumentDto;
-import com.weave.model.model.PostSyncMessage;
+import com.weave.model.model.dto.PostSyncMessageDto;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 
@@ -26,7 +26,7 @@ public class PostSyncConsumer {
      * @param message 消息对象
      */
     @RabbitListener(queues = MQueue.POST_SYNC_QUEUE)
-    public void handleSyncToES(PostSyncMessage message) {
+    public void handleSyncToES(PostSyncMessageDto message) {
         try {
             log.info("接收到同步到 ES 的消息: {}", message);
             // 获取消息中的数据和操作类型
@@ -37,6 +37,8 @@ public class PostSyncConsumer {
 
             switch (operation) {
                 case PostOperation.CREATE -> searchService.indexContent(document);
+                case PostOperation.HIDE -> searchService.hideIndex(document.getId());
+                case PostOperation.RESTORE -> searchService.restoreIndex(document.getId());
                 case PostOperation.UPDATE -> searchService.updateIndex(document);
                 case PostOperation.DELETE -> searchService.deleteIndex(document.getId());
             }
@@ -50,7 +52,6 @@ public class PostSyncConsumer {
                 .id(dto.getId())
                 .title(dto.getTitle())
                 .content(dto.getContent())
-                .isPublic(dto.getIsPublic())
                 .build();
     }
 }

@@ -25,39 +25,34 @@ public interface SearchService {
      * 索引内容（用于将内容添加到搜索索引）
      *
      * @param document 搜索文档
-     * @return 是否索引成功
      */
-    boolean indexContent(SearchDocument document);
+    void indexContent(SearchDocument document);
     
     /**
      * 更新索引
      *
      * @param document 搜索文档
-     * @return 是否更新成功
      */
-    boolean updateIndex(SearchDocument document);
+    void updateIndex(SearchDocument document);
     
     /**
      * 删除索引
      *
      * @param id 内容ID
-     * @return 是否删除成功
      */
-    boolean deleteIndex(Long id);
-    
+    void deleteIndex(Long id);
+
     /**
-     * 根据ID获取索引文档
+     * 隐藏索引
      *
      * @param id 内容ID
-     * @return 搜索文档
      */
-    SearchDocument getIndex(Long id);
-    
+    void hideIndex(Long id);
+
     /**
-     * 批量索引内容
+     * 恢复索引
      *
-     * @param documents 搜索文档列表
-     * @return 成功索引的数量
+     * @param id 内容ID
      */
-    int batchIndexContent(Iterable<SearchDocument> documents);
+    void restoreIndex(Long id);
 }

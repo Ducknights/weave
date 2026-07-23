@@ -2,6 +2,7 @@ package com.weave.search.model.enums;
 
 import lombok.Getter;
 import com.weave.model.model.ApiResult;
+import com.weave.model.model.ApiStatus;
 
 import java.util.Collections;
 import java.util.Map;
@@ -10,7 +11,7 @@ import java.util.Map;
  * 搜索服务API状态枚举
  */
 @Getter
-public enum SearchApiStatus {
+public enum SearchApiStatus implements ApiStatus {
     // 成功状态
     SUCCESS(200, "成功"),
     SEARCH_SUCCESS(200, "搜索成功"),

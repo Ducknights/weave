@@ -15,12 +15,15 @@ import org.springframework.data.elasticsearch.client.elc.NativeQuery;
 import org.springframework.data.elasticsearch.client.elc.NativeQueryBuilder;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.elasticsearch.core.SearchHits;
+import org.springframework.data.elasticsearch.core.document.Document;
+import org.springframework.data.elasticsearch.core.query.UpdateQuery;
 
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 搜索服务实现
@@ -46,7 +49,7 @@ public class SearchServiceImpl implements SearchService {
         List<SearchResultDto> results = new ArrayList<>();
         searchHits.forEach(hit -> {
             SearchResultDto result = SearchResultDto.builder()
-                    .id(Long.valueOf(hit.getId()))
+                    .id(Long.valueOf(Objects.requireNonNull(hit.getId())))
                     .score(hit.getScore())
                     .build();
             results.add(result);
@@ -80,67 +83,67 @@ public class SearchServiceImpl implements SearchService {
     }
 
     @Override
-    public boolean indexContent(SearchDocument document) {
+    public void indexContent(SearchDocument document) {
         try {
             log.info("索引内容: id={}, title={}", 
                     document.getId(), document.getTitle());
-            
+            document.setIsPublic(true);
             searchDocumentRepository.save(document);
-            return true;
         } catch (Exception e) {
             log.error("索引内容失败: {}", e.getMessage(), e);
-            return false;
         }
     }
     
     @Override
-    public boolean updateIndex(SearchDocument document) {
+    public void updateIndex(SearchDocument document) {
         try {
             log.info("更新索引: id={}", document.getId());
-            
             searchDocumentRepository.save(document);
-            return true;
         } catch (Exception e) {
             log.error("更新索引失败: {}", e.getMessage(), e);
-            return false;
         }
     }
 
-    // TODO: 实现逻辑删除
     @Override
-    public boolean deleteIndex(Long id) {
+    public void deleteIndex(Long id) {
         try {
             log.info("删除索引: id={}", id);
-            searchDocumentRepository.deleteById(id);
-            return true;
+            updateIsPublic(id, false);
         } catch (Exception e) {
             log.error("删除索引失败: {}", e.getMessage(), e);
-            return false;
         }
     }
-    
+
     @Override
-    public SearchDocument getIndex(Long id) {
+    public void hideIndex(Long id) {
         try {
-            return searchDocumentRepository.findById(id).orElse(null);
+            log.info("隐藏索引: id={}", id);
+            updateIsPublic(id, false);
         } catch (Exception e) {
-            log.error("获取索引失败: {}", e.getMessage(), e);
-            return null;
+            log.error("隐藏索引失败: {}", e.getMessage(), e);
         }
     }
-    
+
     @Override
-    public int batchIndexContent(Iterable<SearchDocument> documents) {
+    public void restoreIndex(Long id) {
         try {
-            Iterable<SearchDocument> savedDocuments = searchDocumentRepository.saveAll(documents);
-            int count = 0;
-            for (SearchDocument document : savedDocuments) {
-                count++;
-            }
-            return count;
+            log.info("恢复索引: id={}", id);
+            updateIsPublic(id, true);
         } catch (Exception e) {
-            log.error("批量索引失败: {}", e.getMessage(), e);
-            return 0;
+            log.error("恢复索引失败: {}", e.getMessage(), e);
         }
+    }
+
+    /**
+     * 局部更新文档的 isPublic 字段，避免全量覆盖
+     */
+    private void updateIsPublic(Long id, boolean isPublic) {
+        Document document = Document.create();
+        document.put("isPublic", isPublic);
+        UpdateQuery updateQuery = UpdateQuery.builder(String.valueOf(id))
+                .withDocument(document)
+                .build();
+        elasticsearchOperations.update(updateQuery,
+                elasticsearchOperations.getIndexCoordinatesFor(SearchDocument.class));
     }
 }

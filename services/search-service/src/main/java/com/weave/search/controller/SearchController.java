@@ -1,6 +1,5 @@
 package com.weave.search.controller;
 
-import com.weave.search.model.entity.SearchDocument;
 import com.weave.search.service.ConversionService;
 import com.weave.search.service.SearchService;
 import jakarta.annotation.Resource;
@@ -60,44 +59,6 @@ public class SearchController {
                 .build();
 
         return ResponseEntity.ok(SearchApiStatus.SEARCH_SUCCESS.response(result));
-    }
-
-    /**
-     * 删除索引
-     * DELETE /api/search/index
-     *
-     * @param id 内容ID
-     * @return 删除结果
-     */
-    @DeleteMapping("/index")
-    public ResponseEntity<?> deleteIndex(@RequestParam Long id) {
-        log.info("删除索引: id={}", id);
-        
-        boolean success = searchService.deleteIndex(id);
-        if (success) {
-            return ResponseEntity.ok().body(SearchApiStatus.DELETE_INDEX_SUCCESS.response());
-        } else {
-            return ResponseEntity.ok().body(SearchApiStatus.DELETE_INDEX_FAILED.response());
-        }
-    }
-
-    /**
-     * 获取索引
-     * GET /api/search/index
-     *
-     * @param id 内容ID
-     * @return 索引文档
-     */
-    @GetMapping("/index")
-    public ResponseEntity<?> getIndex(@RequestParam Long id) {
-        log.info("获取索引: id={}", id);
-        
-        SearchDocument document = searchService.getIndex(id);
-        if (document != null) {
-            return ResponseEntity.ok().body(SearchApiStatus.GET_INDEX_SUCCESS.response(document));
-        } else {
-            return ResponseEntity.ok().body(SearchApiStatus.DOCUMENT_NOT_FOUND.response());
-        }
     }
 
     /**
