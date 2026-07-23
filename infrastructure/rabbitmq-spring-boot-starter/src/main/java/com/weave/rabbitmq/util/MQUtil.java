@@ -1,18 +1,16 @@
 package com.weave.rabbitmq.util;
 
 import com.weave.rabbitmq.constant.MQueue;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import com.weave.model.model.dto.PostActionMessageDto;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 
 @Log4j2
+@RequiredArgsConstructor
 public class MQUtil {
 
     private final RabbitTemplate rabbitTemplate;
-
-    public MQUtil(RabbitTemplate rabbitTemplate) {
-        this.rabbitTemplate = rabbitTemplate;
-    }
 
     /**
      * 发送帖子缓存消息
@@ -89,6 +87,21 @@ public class MQUtil {
             );
         } catch (Exception e) {
             log.error("发送草稿发布消息失败", e);
+        }
+    }
+
+    /**
+     * 发送草稿发布结果回执消息（post-service -> draft-service）
+     */
+    public void sendDraftPublishResult(Object message) {
+        try {
+            rabbitTemplate.convertAndSend(
+                    MQueue.TOPIC_EXCHANGE,
+                    MQueue.DRAFT_PUBLISH_RESULT_ROUTING_KEY,
+                    message
+            );
+        } catch (Exception e) {
+            log.error("发送草稿发布结果回执消息失败", e);
         }
     }
 
